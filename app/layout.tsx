@@ -51,7 +51,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  manifest: "/manifest",
   openGraph: {
     type: "website",
     url: "/",
@@ -100,17 +99,6 @@ export default function RootLayout({
           async
           src="https://umami.ymg.digital/script.js"
           data-website-id="67d5aff1-4e96-4bf8-a53f-d65b7d8328a3"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
         />
       </body>
     </html>

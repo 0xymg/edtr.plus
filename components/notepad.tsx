@@ -175,7 +175,20 @@ export function Notepad() {
   const [fontSize, setFontSize] = useState<number>(14)
   const [fontFamily, setFontFamily] = useState<string>("'JetBrains Mono', monospace")
   const [pickerTarget, setPickerTarget] = useState<"bg" | "text">("bg")
-  const [activePickerColor, setActivePickerColor] = useState<string>("")
+  
+  const activePickerColor = pickerTarget === "bg" ? (statusBarColor || "#1e1e2e") : (statusBarTextColor || "#cccccc")
+
+  const handleColorChange = useCallback((color: string) => {
+    if (pickerTarget === "bg") {
+      setStatusBarColor(color)
+      if (color) localStorage.setItem("notepad-statusbar-color", color)
+      else localStorage.removeItem("notepad-statusbar-color")
+    } else {
+      setStatusBarTextColor(color)
+      if (color) localStorage.setItem("notepad-statusbar-text-color", color)
+      else localStorage.removeItem("notepad-statusbar-text-color")
+    }
+  }, [pickerTarget])
 
   const updateTheme = useCallback((newTheme: "light" | "dark") => {
     if (newTheme === "dark") {
@@ -261,25 +274,7 @@ export function Notepad() {
     resetFont()
   }
 
-  useEffect(() => {
-    if (pickerTarget === "bg") {
-      setActivePickerColor(statusBarColor || "#1e1e2e")
-    } else {
-      setActivePickerColor(statusBarTextColor || "#cccccc")
-    }
-  }, [pickerTarget, statusBarColor, statusBarTextColor])
 
-  useEffect(() => {
-    if (activePickerColor) {
-      if (pickerTarget === "bg") {
-        setStatusBarColor(activePickerColor)
-        localStorage.setItem("notepad-statusbar-color", activePickerColor)
-      } else {
-        setStatusBarTextColor(activePickerColor)
-        localStorage.setItem("notepad-statusbar-text-color", activePickerColor)
-      }
-    }
-  }, [activePickerColor, pickerTarget])
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const languageMenuRef = useRef<HTMLDivElement>(null)
@@ -1255,7 +1250,7 @@ export function Notepad() {
                         <div className="rounded-lg overflow-hidden border border-border">
                           <HexColorPicker
                             color={activePickerColor}
-                            onChange={setActivePickerColor}
+                            onChange={handleColorChange}
                             style={{ width: "100%", height: "120px" }}
                           />
                         </div>
@@ -1270,7 +1265,7 @@ export function Notepad() {
                             onChange={(e) => {
                               const val = e.target.value
                               if (val === "" || /^#[0-9a-fA-F]{0,6}$/.test(val)) {
-                                setActivePickerColor(val)
+                                handleColorChange(val)
                               }
                             }}
                             className="flex-1 rounded border border-border bg-background px-2 py-1 text-[11px] text-foreground font-mono outline-none focus:ring-1 focus:ring-primary h-7"
