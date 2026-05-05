@@ -6,11 +6,15 @@ import { Tab } from "../notepad"
 import { Group, Panel, Separator } from "react-resizable-panels"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
 import rehypeHighlight from "rehype-highlight"
+import rehypeKatex from "rehype-katex"
 import "github-markdown-css/github-markdown.css"
 import "highlight.js/styles/github.css"
 
 import { Mermaid } from "../mermaid"
+import { AbcNotation } from "../abc-notation"
+import { VegaChart } from "../vega-chart"
 
 interface EditorAreaProps {
     activeTab: Tab | undefined
@@ -177,13 +181,19 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                 {activeTab?.language === "markdown" ? (
                     <article className="markdown-body !bg-transparent !text-foreground transition-all duration-200">
                         <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeHighlight]}
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeHighlight, rehypeKatex]}
                             components={{
                                 code({ node, inline, className, children, ...props }: any) {
                                     const match = /language-(\w+)/.exec(className || '')
                                     if (!inline && match && match[1] === 'mermaid') {
                                         return <Mermaid chart={String(children).replace(/\n$/, '')} />
+                                    }
+                                    if (!inline && match && match[1] === 'abc') {
+                                        return <AbcNotation notation={String(children).replace(/\n$/, '')} />
+                                    }
+                                    if (!inline && match && (match[1] === 'vega' || match[1] === 'vega-lite')) {
+                                        return <VegaChart specString={String(children).replace(/\n$/, '')} />
                                     }
                                     return (
                                         <code className={className} {...props}>

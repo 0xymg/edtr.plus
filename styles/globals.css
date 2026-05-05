@@ -136,6 +136,12 @@
   padding: 1rem !important;
 }
 
+.markdown-body pre:has(.mermaid) {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
 .markdown-body table,
 .markdown-body table th,
 .markdown-body table td {
