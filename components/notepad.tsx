@@ -269,6 +269,13 @@ export function Notepad() {
         if (settings.theme) {
           setTheme(settings.theme)
           updateTheme(settings.theme, false)
+        } else {
+          // Fallback to legacy theme key
+          const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
+          if (savedTheme) {
+            setTheme(savedTheme)
+            updateTheme(savedTheme, false)
+          }
         }
         if (settings.sidebarOpen !== undefined) setSidebarOpen(settings.sidebarOpen)
         if (settings.sidebarWidth !== undefined) setSidebarWidth(settings.sidebarWidth)

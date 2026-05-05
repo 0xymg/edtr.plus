@@ -16,14 +16,14 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col bg-white text-neutral-900">
+    <div className="flex flex-col bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
       {/* Editor Section */}
       <section className="h-screen w-full shrink-0 overflow-hidden bg-background">
         <Notepad />
       </section>
 
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-neutral-200/80 bg-white/80 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-neutral-900">
@@ -57,7 +57,7 @@ export default function LandingPage() {
         <section className="px-6 pt-20 pb-16 lg:pt-28 lg:pb-24">
           <div className="mx-auto max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-[13px] font-medium text-neutral-600">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-4 py-1.5 text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
                 <Zap className="h-3.5 w-3.5 text-amber-500" />
                 Simple. Ultra fast. Open source.
               </div>
@@ -85,7 +85,7 @@ export default function LandingPage() {
                   href="https://github.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-8 text-[14px] font-semibold text-neutral-700 transition-all hover:border-neutral-300 hover:bg-neutral-50 sm:w-auto"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-8 text-[14px] font-semibold text-neutral-700 dark:text-neutral-300 transition-all hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 sm:w-auto"
                 >
                   <Github className="h-4 w-4" />
                   Star on GitHub
@@ -116,10 +116,10 @@ export default function LandingPage() {
         </section>
 
         {/* Open Source */}
-        <section className="border-t border-neutral-100 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Open Source</h2>
-            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600">
+            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               <p>
                 EDTR is free and open source software. The source code is available on GitHub. If you find a bug, want to request a feature, or want to contribute code, you are welcome to do so. The project is built with Next.js, React, TypeScript, and Tailwind CSS.
               </p>
@@ -137,8 +137,8 @@ export default function LandingPage() {
               </a>
             </div>
 
-            <div className="mt-10 border-t border-neutral-100 pt-8">
-              <p className="mb-4 text-[13px] font-medium text-neutral-400">Contributors</p>
+            <div className="mt-10 border-t border-neutral-100 dark:border-neutral-800 pt-8">
+              <p className="mb-4 text-[13px] font-medium text-neutral-400 dark:text-neutral-500">Contributors</p>
               <div className="flex gap-3">
                 {["0xymg"].map((username) => (
                   <a
@@ -162,10 +162,10 @@ export default function LandingPage() {
         </section>
 
         {/* What is EDTR */}
-        <section className="border-t border-neutral-100 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Free Online Notepad for Writing and Code</h2>
-            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600">
+            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               <p>
                 EDTR is a free online notepad and code editor that works directly in your browser. It is inspired by Notepad++ and built for people who want a fast, simple text editor without downloading any software. You can use EDTR to write quick notes, draft documents, edit code snippets, keep to-do lists, or work on any kind of plain text file.
               </p>
@@ -180,10 +180,10 @@ export default function LandingPage() {
         </section>
 
         {/* How to use */}
-        <section className="border-t border-neutral-100 bg-neutral-50/50 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">How to use EDTR</h2>
-            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600">
+            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               <p>
                 Using EDTR is straightforward. Here is how to get started:
               </p>
@@ -200,12 +200,12 @@ export default function LandingPage() {
         </section>
 
         {/* Features */}
-        <section className="border-t border-neutral-100 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">EDTR Notepad Features</h2>
-            <div className="mt-6 space-y-6 text-[15px] leading-[1.8] text-neutral-600">
+            <div className="mt-6 space-y-6 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               <div>
-                <h3 className="font-semibold text-neutral-900">A. Syntax Highlighting</h3>
+                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">A. Syntax Highlighting</h3>
                 <p className="mt-1">EDTR highlights your code with proper colors as you type. It supports over 20 languages including JavaScript, TypeScript, Python, HTML, CSS, JSON, Go, Rust, C, C++, Java, PHP, Ruby, Swift, Kotlin, SQL, Bash, Markdown, YAML, and XML. You can select the language from the status bar at the bottom of the editor.</p>
               </div>
               <div>
@@ -237,13 +237,13 @@ export default function LandingPage() {
         </section>
 
         {/* Keyboard Shortcuts Table */}
-        <section className="border-t border-neutral-100 bg-neutral-50/50 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Keyboard Shortcuts</h2>
-            <p className="mt-3 text-[15px] leading-[1.8] text-neutral-600">
+            <p className="mt-3 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               EDTR supports the following keyboard shortcuts for faster editing. On Windows and Linux, use Ctrl instead of ⌘.
             </p>
-            <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200">
+            <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800">
               <table className="w-full text-left text-[14px]">
                 <thead>
                   <tr className="border-b border-neutral-100 bg-neutral-50">
@@ -276,10 +276,10 @@ export default function LandingPage() {
         </section>
 
         {/* Supported Languages */}
-        <section className="border-t border-neutral-100 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Supported Programming Languages</h2>
-            <p className="mt-3 text-[15px] leading-[1.8] text-neutral-600">
+            <p className="mt-3 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               EDTR includes syntax highlighting for the following programming and markup languages. The highlighting is powered by highlight.js and works as you type. You can select the language from the status bar at the bottom of the editor.
             </p>
 
