@@ -5,8 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
         name: 'EDTR',
         short_name: 'EDTR',
         description: 'An online Notepad++ for quick notes.',
-        start_url: '/notepad',
-        id: '/notepad',
+        start_url: '/',
+        id: '/',
         scope: '/',
         display: 'standalone',
         orientation: 'any',
@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
         theme_color: '#000000',
         file_handlers: [
             {
-                action: '/notepad',
+                action: '/',
                 accept: {
                     'text/plain': ['.txt'],
                     'text/javascript': ['.js', '.jsx', '.mjs'],

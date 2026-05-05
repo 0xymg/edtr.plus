@@ -50,7 +50,7 @@ export default function BlogPage() {
               GitHub
             </a>
             <Link
-              href="/notepad"
+              href="/"
               className="flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1.5 text-[13px] font-semibold text-white transition-all hover:bg-neutral-700"
             >
               Open EDTR

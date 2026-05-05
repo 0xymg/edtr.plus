@@ -74,21 +74,21 @@ Unlike a browser tab, EDTR as a PWA gets its own clean window. No distracting bo
 
 ### On Desktop (Chrome or Edge)
 
-1. Go to [edtr.cc/notepad](https://edtr.cc/notepad)
+1. Go to [edtr.cc](https://edtr.cc)
 2. Look for the install icon in the address bar (it looks like a small screen with an arrow)
 3. Click "Install"
 4. EDTR is now on your desktop
 
 ### On Mobile (Android)
 
-1. Open [edtr.cc/notepad](https://edtr.cc/notepad) in Chrome
+1. Open [edtr.cc](https://edtr.cc) in Chrome
 2. Tap the three-dot menu
 3. Tap "Add to Home Screen"
 4. EDTR is now on your home screen
 
 ### On iPhone/iPad
 
-1. Open [edtr.cc/notepad](https://edtr.cc/notepad) in Safari
+1. Open [edtr.cc](https://edtr.cc) in Safari
 2. Tap the Share button
 3. Tap "Add to Home Screen"
 4. EDTR is now on your home screen

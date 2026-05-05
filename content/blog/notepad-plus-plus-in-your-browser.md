@@ -73,7 +73,7 @@ Unlike basic online editors, EDTR lets you create folders. You can drag and drop
 
 ## How to Start Using EDTR
 
-1. Go to [edtr.cc/notepad](https://edtr.cc/notepad)
+1. Go to [edtr.cc](https://edtr.cc)
 2. Start typing
 3. That is it. Really.
 

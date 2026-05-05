@@ -15,7 +15,12 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-neutral-900">
+    <div className="flex flex-col bg-white text-neutral-900">
+      {/* Editor Section */}
+      <section className="h-screen w-full shrink-0 overflow-hidden bg-background">
+        <Notepad />
+      </section>
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-neutral-200/80 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
@@ -35,13 +40,13 @@ export default function LandingPage() {
               <Github className="h-4 w-4" />
               GitHub
             </a>
-            <Link
-              href="/notepad"
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1.5 text-[13px] font-semibold text-white transition-all hover:bg-neutral-700"
             >
-              Open EDTR
+              Back to Editor
               <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            </button>
           </div>
         </div>
       </nav>
@@ -68,13 +73,13 @@ export default function LandingPage() {
               </p>
 
               <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link
-                  href="/notepad"
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 px-8 text-[14px] font-semibold text-white transition-all hover:bg-neutral-700 hover:shadow-lg sm:w-auto"
                 >
-                  Open EDTR
+                  Start Writing
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
                 <a
                   href="https://github.com"
                   target="_blank"
@@ -87,44 +92,24 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* App Preview */}
-            <div className="relative mx-auto mt-16 max-w-5xl">
-              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-neutral-100/80 to-transparent" />
-              <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl shadow-neutral-200/50">
-                <div className="flex h-10 items-center gap-2 border-b border-neutral-100 bg-neutral-50/80 px-4">
-                  <div className="flex gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-                  </div>
-                  <div className="mx-auto flex items-center gap-1.5 rounded-md bg-neutral-100 px-3 py-1 text-[11px] text-neutral-400">
-                    edtr.cc/notepad
-                  </div>
-                </div>
-                <div className="h-[400px] sm:h-[480px] lg:h-[560px]">
-                  <Notepad />
-                </div>
-              </div>
-
-              {/* Keyboard shortcuts */}
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-neutral-400">
-                <span className="flex items-center gap-1.5">
-                  <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘T</kbd>
-                  New tab
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘W</kbd>
-                  Close tab
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘S</kbd>
-                  Save
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘L</kbd>
-                  Toggle sidebar
-                </span>
-              </div>
+            {/* Keyboard shortcuts */}
+            <div className="mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-neutral-400">
+              <span className="flex items-center gap-1.5">
+                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘T</kbd>
+                New tab
+              </span>
+              <span className="flex items-center gap-1.5">
+                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘W</kbd>
+                Close tab
+              </span>
+              <span className="flex items-center gap-1.5">
+                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘S</kbd>
+                Save
+              </span>
+              <span className="flex items-center gap-1.5">
+                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘L</kbd>
+                Toggle sidebar
+              </span>
             </div>
           </div>
         </section>
@@ -202,7 +187,7 @@ export default function LandingPage() {
                 Using EDTR is straightforward. Here is how to get started:
               </p>
               <ol className="list-decimal space-y-3 pl-5">
-                <li><strong>Open the editor.</strong> Go to <Link href="/notepad" className="text-neutral-900 underline underline-offset-2">edtr.cc/notepad</Link> in any modern browser. The editor loads instantly with no waiting time.</li>
+                <li><strong>Open the editor.</strong> Go to <Link href="/" className="text-neutral-900 underline underline-offset-2">edtr.cc</Link> in any modern browser. The editor loads instantly at the top of the page.</li>
                 <li><strong>Start typing.</strong> You can begin writing immediately. Your content is saved automatically after every change.</li>
                 <li><strong>Create multiple tabs.</strong> Press <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">⌘T</kbd> (or <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">Ctrl+T</kbd> on Windows) to open a new tab. You can work on multiple files at the same time.</li>
                 <li><strong>Choose a language.</strong> Click the language selector in the bottom status bar to enable syntax highlighting for your code.</li>

@@ -66,7 +66,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     const lines = (activeTab?.content || "").split("\n")
 
     return (
-        <div className="flex flex-1 overflow-auto">
+        <div className="flex flex-1 overflow-auto overscroll-contain">
             {/* Line numbers — scroll with the content */}
             <div className="w-12 shrink-0 select-none border-r border-border bg-card py-3 text-right font-mono text-xs text-muted-foreground">
                 {lines.map((_, i) => (

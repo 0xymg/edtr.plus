@@ -85,7 +85,7 @@ This is especially important for:
 
 Install EDTR as a Progressive Web App on your computer:
 
-1. Visit [edtr.cc/notepad](https://edtr.cc/notepad)
+1. Visit [edtr.cc](https://edtr.cc)
 2. Click the install icon in your browser
 3. EDTR now lives on your desktop
 

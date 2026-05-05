@@ -23,7 +23,7 @@ export const TabBar: React.FC<TabBarProps> = ({
 }) => {
     return (
         <div className="flex items-center border-b border-border bg-card" onDoubleClick={handleTabBarDoubleClick}>
-            <div className="flex flex-1 items-center overflow-x-auto">
+            <div className="flex flex-1 items-center overflow-x-auto overscroll-contain">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}

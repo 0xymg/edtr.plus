@@ -272,7 +272,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto overscroll-contain">
                         <div className="p-2">
                             <div className="space-y-1">
                                 {/* Root-level folders (recursive render) */}

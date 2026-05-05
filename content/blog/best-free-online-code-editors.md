@@ -100,7 +100,7 @@ EDTR is one of the fastest online code editors you can find. It is:
 - Installable (works as a desktop app via PWA)
 - Open source (anyone can contribute)
 
-Go to [edtr.cc/notepad](https://edtr.cc/notepad) and see for yourself. Your next code editor might already be in your browser.
+Go to [edtr.cc](https://edtr.cc) and see for yourself. Your next code editor might already be in your browser.
 
 ---
 

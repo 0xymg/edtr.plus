@@ -11,11 +11,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
-    {
-      url: `${siteUrl}/notepad`,
-      lastModified,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
   ]
 }
