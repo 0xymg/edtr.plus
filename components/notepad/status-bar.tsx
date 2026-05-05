@@ -107,14 +107,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
             style={Object.keys(customStyle).length > 0 ? customStyle : undefined}
         >
             <div className="flex items-center gap-2 sm:gap-4">
-                <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className={cn("rounded p-1 transition-colors", hoverClass)}
-                    title={`${sidebarOpen ? "Hide" : "Show"} sidebar (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘L' : 'Ctrl+L'})`}
-                    aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-                >
-                    <Menu className="h-4 w-4" />
-                </button>
+
                 <div className="flex items-center gap-2 sm:gap-4">
                     <span>
                         L: {(activeTab?.content || "").split("\n").length}
@@ -127,13 +120,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                     </span>
                 </div>
             </div>
-            <div
-                className="hidden lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:flex items-center gap-1.5 font-semibold"
-                style={statusBarTextColor ? { color: statusBarTextColor } : undefined}
-            >
-                <img src="/icon.svg" alt="" className="h-3.5 w-3.5 rounded-sm" aria-hidden="true" />
-                EDTR.CC
-            </div>
+
             <div className="flex items-center gap-1.5 sm:gap-4">
                 {saveStatus && (
                     <span className={cn(
@@ -198,154 +185,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                         </div>
                     )}
                 </div>
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                    <button
-                        onClick={save}
-                        className={cn("rounded p-1 transition-colors", hoverClass)}
-                        title={isFileSystemTab ? "Save to disk (Ctrl+S / Cmd+S)" : "Save (Ctrl+S / Cmd+S)"}
-                        aria-label={isFileSystemTab ? "Save to disk" : "Save document"}
-                    >
-                        <Save className="h-4 w-4" />
-                    </button>
-                    <button
-                        onClick={downloadFile}
-                        className={cn("rounded p-1 transition-colors", hoverClass)}
-                        title="Download file (Ctrl+Shift+S / Cmd+Shift+S)"
-                        aria-label="Download file"
-                    >
-                        <Download className="h-4 w-4" />
-                    </button>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <button
-                                className={cn("relative rounded p-1 transition-colors", hoverClass)}
-                                title="Status bar colors"
-                                aria-label="Customize status bar colors"
-                            >
-                                <Palette className="h-4 w-4" />
-                            </button>
-                        </PopoverTrigger>
-                        <PopoverContent side="top" align="end" className="w-64 p-0">
-                            <div className="p-3 space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-foreground">Status Bar Colors</span>
-                                    {hasCustomColors && (
-                                        <button
-                                            onClick={resetAll}
-                                            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                                        >
-                                            <RotateCcw className="h-3 w-3" />
-                                            Reset
-                                        </button>
-                                    )}
-                                </div>
 
-                                {/* Presets */}
-                                <div className="space-y-1.5">
-                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Presets</span>
-                                    <div className="grid grid-cols-2 gap-1">
-                                        {PRESETS.map((preset) => (
-                                            <button
-                                                key={preset.name}
-                                                onClick={() => {
-                                                    setStatusBarColor(preset.bg)
-                                                    setStatusBarTextColor(preset.text)
-                                                }}
-                                                className={cn(
-                                                    "flex items-center gap-1.5 rounded px-2 py-1 text-[11px] font-medium transition-colors hover:ring-1 hover:ring-primary/50",
-                                                    statusBarColor === preset.bg && statusBarTextColor === preset.text && "ring-1 ring-primary"
-                                                )}
-                                                style={{ backgroundColor: preset.bg, color: preset.text }}
-                                            >
-                                                <span className="truncate">{preset.name}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="border-t border-border" />
-
-                                {/* Custom picker toggle */}
-                                <div className="space-y-2">
-                                    <div className="flex gap-1">
-                                        <button
-                                            onClick={() => setPickerTarget("bg")}
-                                            className={cn(
-                                                "flex-1 rounded px-2 py-1.5 text-xs font-semibold transition-colors",
-                                                pickerTarget === "bg"
-                                                    ? "bg-black text-white"
-                                                    : "bg-white text-black border border-border hover:bg-neutral-100"
-                                            )}
-                                        >
-                                            Background
-                                        </button>
-                                        <button
-                                            onClick={() => setPickerTarget("text")}
-                                            className={cn(
-                                                "flex-1 rounded px-2 py-1.5 text-xs font-semibold transition-colors",
-                                                pickerTarget === "text"
-                                                    ? "bg-black text-white"
-                                                    : "bg-white text-black border border-border hover:bg-neutral-100"
-                                            )}
-                                        >
-                                            Text
-                                        </button>
-                                    </div>
-                                    <HexColorPicker
-                                        color={activePickerColor || (pickerTarget === "bg" ? "#1e1e2e" : "#cccccc")}
-                                        onChange={setActivePickerColor}
-                                        style={{ width: "100%", height: "120px" }}
-                                    />
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="h-6 w-6 shrink-0 rounded border border-border"
-                                            style={{ backgroundColor: activePickerColor || "transparent" }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={activePickerColor || ""}
-                                            onChange={(e) => {
-                                                const val = e.target.value
-                                                if (val === "" || /^#[0-9a-fA-F]{0,6}$/.test(val)) {
-                                                    setActivePickerColor(val)
-                                                }
-                                            }}
-                                            placeholder={pickerTarget === "bg" ? "#1e1e2e" : "#cccccc"}
-                                            className="flex-1 rounded border border-border bg-background px-2 py-0.5 text-[11px] text-foreground font-mono outline-none focus:ring-1 focus:ring-primary"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Live preview */}
-                                <div className="space-y-1">
-                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Preview</span>
-                                    <div
-                                        className="flex items-center justify-between rounded px-2 py-1 text-[10px] border border-border"
-                                        style={{
-                                            backgroundColor: statusBarColor || "var(--card)",
-                                            color: statusBarTextColor || "var(--muted-foreground)"
-                                        }}
-                                    >
-                                        <span>L: 42  W: 128</span>
-                                        <span>EDTR.CC</span>
-                                        <span>UTF-8  JavaScript</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
-                    <button
-                        onClick={toggleTheme}
-                        className={cn("rounded p-1 transition-colors", hoverClass)}
-                        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-                    >
-                        {theme === "light" ? (
-                            <Moon className="h-4 w-4" />
-                        ) : (
-                            <Sun className="h-4 w-4" />
-                        )}
-                    </button>
-                </div>
             </div>
         </div>
     )

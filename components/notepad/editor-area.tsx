@@ -9,9 +9,11 @@ interface EditorAreaProps {
     tabs: Tab[]
     textareaRef: RefObject<HTMLTextAreaElement | null>
     updateContent: (content: string) => void
-    handleKeyDown: (e: React.KeyboardEvent) => void
+    handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
     getHighlightedCode: (content: string, language: string) => string
     createNewTab: () => void
+    fontSize?: number
+    fontFamily?: string
 }
 
 export const EditorArea: React.FC<EditorAreaProps> = ({
@@ -21,7 +23,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     updateContent,
     handleKeyDown,
     getHighlightedCode,
-    createNewTab
+    createNewTab,
+    fontSize = 14,
+    fontFamily = "JetBrains Mono"
 }) => {
     if (tabs.length === 0) {
         return (
@@ -68,7 +72,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     return (
         <div className="flex flex-1 overflow-auto overscroll-contain">
             {/* Line numbers — scroll with the content */}
-            <div className="w-12 shrink-0 select-none border-r border-border bg-card py-3 text-right font-mono text-xs text-muted-foreground">
+            <div 
+                className="w-12 shrink-0 select-none border-r border-border bg-card py-3 text-right text-muted-foreground"
+                style={{ fontSize: `${Math.max(10, fontSize - 2)}px`, fontFamily }}
+            >
                 {lines.map((_, i) => (
                     <div key={i} className="px-2 leading-6">
                         {i + 1}
@@ -80,11 +87,12 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             <div className="flex-1 min-w-0 min-h-full" style={{ display: "grid" }}>
                 <pre
                     className={cn(
-                        "col-start-1 row-start-1 m-0 w-full whitespace-pre-wrap break-words p-3 font-mono text-sm leading-6",
+                        "col-start-1 row-start-1 m-0 w-full whitespace-pre-wrap break-words p-3 leading-6",
                         activeTab?.language !== "plaintext" && activeTab?.content
                             ? "pointer-events-none"
                             : "invisible pointer-events-none"
                     )}
+                    style={{ fontSize: `${fontSize}px`, fontFamily }}
                     aria-hidden="true"
                     dangerouslySetInnerHTML={{
                         __html: activeTab?.language !== "plaintext" && activeTab?.content
@@ -98,11 +106,12 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                     onChange={(e) => updateContent(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className={cn(
-                        "col-start-1 row-start-1 resize-none bg-transparent p-3 font-mono text-sm leading-6 outline-none overflow-hidden w-full placeholder:text-muted-foreground",
+                        "col-start-1 row-start-1 resize-none bg-transparent p-3 leading-6 outline-none overflow-hidden w-full placeholder:text-muted-foreground",
                         activeTab?.language !== "plaintext" && activeTab?.content
                             ? "text-transparent caret-foreground"
                             : "text-foreground"
                     )}
+                    style={{ fontSize: `${fontSize}px`, fontFamily }}
                     placeholder="Start typing..."
                     spellCheck={false}
                 />

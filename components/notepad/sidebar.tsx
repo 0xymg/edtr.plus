@@ -1,5 +1,5 @@
 import React from "react"
-import { Plus, X, Folder, FolderOpen, ChevronDown, ChevronRight, FileUp, HardDrive } from "lucide-react"
+import { Plus, X, Folder, FolderOpen, ChevronDown, ChevronRight, FileUp, HardDrive, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tab, FolderItem } from "../notepad"
 import { FileIcon } from "./file-icon"
@@ -15,6 +15,7 @@ interface SidebarProps {
     createNewFolder: () => void
     toggleFolder: (id: string) => void
     deleteFolder: (id: string, e: React.MouseEvent) => void
+    deleteFile: (id: string, e: React.MouseEvent) => void
     startRenamingFolder: (folder: FolderItem) => void
     editingFolderId: string | null
     editingFolderName: string
@@ -59,6 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     createNewFolder,
     toggleFolder,
     deleteFolder,
+    deleteFile,
     startRenamingFolder,
     editingFolderId,
     editingFolderName,
@@ -140,9 +142,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                 </span>
             )}
-            {tab.isModified && (
+            {tab.isModified && !activeTabId?.includes(tab.id) && (
                 <span className="h-2 w-2 shrink-0 rounded-full bg-foreground" />
             )}
+            <button
+                onClick={(e) => { e.stopPropagation(); deleteFile(tab.id, e) }}
+                className="opacity-0 group-hover/file:opacity-100 rounded p-0.5 hover:bg-destructive/10 shrink-0 text-muted-foreground hover:text-destructive transition-all"
+                aria-label="Delete file"
+            >
+                <Trash2 className="h-3.5 w-3.5" />
+            </button>
         </div>
     )
 

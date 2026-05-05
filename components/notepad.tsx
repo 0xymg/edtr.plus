@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useState, useCallback, useEffect, useRef } from "react"
+import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
 import hljs from "highlight.js/lib/core"
@@ -25,7 +25,7 @@ import ruby from "highlight.js/lib/languages/ruby"
 import swift from "highlight.js/lib/languages/swift"
 import kotlin from "highlight.js/lib/languages/kotlin"
 import yaml from "highlight.js/lib/languages/yaml"
-import { Edit2, Trash2, Download } from "lucide-react"
+import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon } from "lucide-react"
 import JSZip from "jszip"
 import {
   supportsFileSystemAccess,
@@ -41,6 +41,22 @@ import { Sidebar } from "./notepad/sidebar"
 import { TabBar } from "./notepad/tab-bar"
 import { EditorArea } from "./notepad/editor-area"
 import { StatusBar } from "./notepad/status-bar"
+import { HexColorPicker } from "react-colorful"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Types
 export interface Tab {
@@ -133,6 +149,7 @@ export function Notepad() {
   const [tabs, setTabs] = useState<Tab[]>([
     { id: "1", name: "e-1", content: "", isModified: false, language: "plaintext" }
   ])
+  const [openTabIds, setOpenTabIds] = useState<string[]>(["1"])
   const [activeTabId, setActiveTabId] = useState<string | null>("1")
   const [editingTabId, setEditingTabId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState("")
@@ -153,6 +170,89 @@ export function Notepad() {
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false)
   const [isFormatting, setIsFormatting] = useState(false)
   const [formatError, setFormatError] = useState<string | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [tabToDelete, setTabToDelete] = useState<string | null>(null)
+  const [fontSize, setFontSize] = useState<number>(14)
+  const [fontFamily, setFontFamily] = useState<string>("'JetBrains Mono', monospace")
+  const [pickerTarget, setPickerTarget] = useState<"bg" | "text">("bg")
+  const [activePickerColor, setActivePickerColor] = useState<string>("")
+
+  useEffect(() => {
+    const savedSize = localStorage.getItem("notepad-font-size")
+    if (savedSize) setFontSize(parseInt(savedSize))
+    
+    const savedFamily = localStorage.getItem("notepad-font-family")
+    if (savedFamily) setFontFamily(savedFamily)
+  }, [])
+
+  const updateFontSize = (size: number) => {
+    const newSize = Math.min(Math.max(size, 8), 32)
+    setFontSize(newSize)
+    localStorage.setItem("notepad-font-size", newSize.toString())
+  }
+
+  const updateFontFamily = (family: string) => {
+    setFontFamily(family)
+    localStorage.setItem("notepad-font-family", family)
+  }
+
+  const FONT_FAMILIES = [
+    { name: "JetBrains Mono", value: "'JetBrains Mono', monospace" },
+    { name: "Fira Code", value: "'Fira Code', monospace" },
+    { name: "Roboto Mono", value: "'Roboto Mono', monospace" },
+    { name: "Source Code Pro", value: "'Source Code Pro', monospace" },
+    { name: "IBM Plex Mono", value: "'IBM Plex Mono', monospace" },
+    { name: "Inter", value: "'Inter', sans-serif" },
+  ]
+
+  const PRESETS = [
+    { name: "Default", bg: "", text: "" },
+    { name: "Dark Blue", bg: "#1e3a8a", text: "#ffffff" },
+    { name: "Forest", bg: "#064e3b", text: "#ffffff" },
+    { name: "Wine", bg: "#4c0519", text: "#ffffff" },
+    { name: "Slate", bg: "#334155", text: "#ffffff" },
+    { name: "Purple", bg: "#4c1d95", text: "#ffffff" },
+    { name: "VS Code", bg: "#007acc", text: "#ffffff" },
+  ]
+
+  const resetColors = () => {
+    setStatusBarColor("")
+    setStatusBarTextColor("")
+    localStorage.removeItem("notepad-statusbar-color")
+    localStorage.removeItem("notepad-statusbar-text-color")
+  }
+
+  const resetFont = () => {
+    setFontSize(14)
+    setFontFamily("'JetBrains Mono', monospace")
+    localStorage.removeItem("notepad-font-size")
+    localStorage.removeItem("notepad-font-family")
+  }
+
+  const resetAllSettings = () => {
+    resetColors()
+    resetFont()
+  }
+
+  useEffect(() => {
+    if (pickerTarget === "bg") {
+      setActivePickerColor(statusBarColor || "#1e1e2e")
+    } else {
+      setActivePickerColor(statusBarTextColor || "#cccccc")
+    }
+  }, [pickerTarget, statusBarColor, statusBarTextColor])
+
+  useEffect(() => {
+    if (activePickerColor) {
+      if (pickerTarget === "bg") {
+        setStatusBarColor(activePickerColor)
+        localStorage.setItem("notepad-statusbar-color", activePickerColor)
+      } else {
+        setStatusBarTextColor(activePickerColor)
+        localStorage.setItem("notepad-statusbar-text-color", activePickerColor)
+      }
+    }
+  }, [activePickerColor, pickerTarget])
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const languageMenuRef = useRef<HTMLDivElement>(null)
@@ -161,6 +261,15 @@ export function Notepad() {
   const editingFolderNameRef = useRef("")
   const fileHandleMapRef = useRef<Map<string, FileSystemFileHandle>>(new Map())
   const dirHandleMapRef = useRef<Map<string, FileSystemDirectoryHandle>>(new Map())
+
+  const openTabs = useMemo(() => {
+    return openTabIds.map(id => tabs.find(t => t.id === id)).filter(Boolean) as Tab[]
+  }, [tabs, openTabIds])
+
+  const selectTab = useCallback((id: string) => {
+    setActiveTabId(id)
+    setOpenTabIds(prev => prev.includes(id) ? prev : [...prev, id])
+  }, [])
 
   // Actions
   const createNewTab = useCallback(() => {
@@ -173,7 +282,8 @@ export function Notepad() {
       language: "plaintext"
     }
     setTabs(prev => [...prev, newTab])
-    setActiveTabId(newTab.id)
+    setOpenTabIds(prev => [...prev, id])
+    setActiveTabId(id)
     // Auto-start rename mode for new file (open sidebar if needed)
     setSidebarOpen(true)
     editingNameRef.current = newTab.name
@@ -189,6 +299,7 @@ export function Notepad() {
       const memoryFolders = folders.filter(f => !f.source || f.source === "memory")
       localStorage.setItem("notepad-tabs", JSON.stringify(memoryTabs))
       localStorage.setItem("notepad-folders", JSON.stringify(memoryFolders))
+      localStorage.setItem("notepad-open-tabs", JSON.stringify(openTabIds))
       setTabs(prev => prev.map(tab =>
         tab.id === activeTabId
           ? { ...tab, isModified: false }
@@ -199,7 +310,7 @@ export function Notepad() {
     } catch (e) {
       console.error("Failed to save to localStorage", e)
     }
-  }, [tabs, folders, activeTabId])
+  }, [tabs, folders, openTabIds, activeTabId])
 
   const updateTheme = useCallback((newTheme: "light" | "dark") => {
     if (newTheme === "dark") {
@@ -218,18 +329,18 @@ export function Notepad() {
 
   const closeTab = useCallback((tabId: string, e?: React.MouseEvent | KeyboardEvent) => {
     if (e && 'stopPropagation' in e) e.stopPropagation()
-    setTabs(prev => {
-      const newTabs = prev.filter(tab => tab.id !== tabId)
-      if (newTabs.length === 0) {
-        setActiveTabId("")
-        return []
-      }
+    setOpenTabIds(prev => {
+      const newOpenIds = prev.filter(id => id !== tabId)
       if (activeTabId === tabId) {
-        const closedIndex = prev.findIndex(tab => tab.id === tabId)
-        const newActiveIndex = Math.min(closedIndex, newTabs.length - 1)
-        setActiveTabId(newTabs[newActiveIndex].id)
+        if (newOpenIds.length > 0) {
+          const closedIndex = prev.indexOf(tabId)
+          const newActiveId = newOpenIds[Math.min(closedIndex, newOpenIds.length - 1)]
+          setActiveTabId(newActiveId)
+        } else {
+          setActiveTabId(null)
+        }
       }
-      return newTabs
+      return newOpenIds
     })
   }, [activeTabId])
 
@@ -589,17 +700,31 @@ export function Notepad() {
     } finally { setIsFormatting(false) }
   }, [tabs, activeTabId])
 
-  const deleteFile = useCallback((tabId: string) => {
-    setTabs(prev => {
-      const newTabs = prev.filter(tab => tab.id !== tabId)
-      if (activeTabId === tabId && newTabs.length > 0) {
-        const closedIndex = prev.findIndex(tab => tab.id === tabId)
-        setActiveTabId(newTabs[Math.min(closedIndex, newTabs.length - 1)].id)
-      } else if (newTabs.length === 0) setActiveTabId(null)
-      return newTabs
+  const performDelete = useCallback((tabId: string) => {
+    setTabs(prev => prev.filter(tab => tab.id !== tabId))
+    setOpenTabIds(prev => {
+      const newOpenIds = prev.filter(id => id !== tabId)
+      if (activeTabId === tabId) {
+        if (newOpenIds.length > 0) {
+          const closedIndex = prev.indexOf(tabId)
+          setActiveTabId(newOpenIds[Math.min(closedIndex, newOpenIds.length - 1)])
+        } else setActiveTabId(null)
+      }
+      return newOpenIds
     })
     closeContextMenu()
   }, [activeTabId, closeContextMenu])
+
+  const deleteFile = useCallback((tabId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    const file = tabs.find(t => t.id === tabId)
+    if (file && file.content.trim().length > 0) {
+      setTabToDelete(tabId)
+      setDeleteConfirmOpen(true)
+      return
+    }
+    performDelete(tabId)
+  }, [tabs, performDelete])
 
   const renameFileFromContext = useCallback((tabId: string) => {
     const tab = tabs.find(t => t.id === tabId)
@@ -769,6 +894,7 @@ export function Notepad() {
   useEffect(() => {
     const savedTabs = localStorage.getItem("notepad-tabs")
     const savedFolders = localStorage.getItem("notepad-folders")
+    const savedOpenTabs = localStorage.getItem("notepad-open-tabs")
     if (savedFolders) {
       try { setFolders(JSON.parse(savedFolders)) } catch (e) { }
     }
@@ -780,7 +906,20 @@ export function Notepad() {
             ...tab, language: tab.language || "plaintext", isModified: false
           }))
           setTabs(tabsWithLanguage)
-          setActiveTabId(tabsWithLanguage[0].id)
+
+          if (savedOpenTabs) {
+            try {
+              const openIds = JSON.parse(savedOpenTabs)
+              setOpenTabIds(openIds)
+              if (openIds.length > 0) setActiveTabId(openIds[0])
+            } catch (e) {
+              setOpenTabIds([tabsWithLanguage[0].id])
+              setActiveTabId(tabsWithLanguage[0].id)
+            }
+          } else {
+            setOpenTabIds([tabsWithLanguage[0].id])
+            setActiveTabId(tabsWithLanguage[0].id)
+          }
         }
       } catch (e) { }
     }
@@ -930,11 +1069,262 @@ export function Notepad() {
   }, [activeTabId, activeTab?.contentLoaded, loadFileContent])
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div
+      className="flex h-full flex-col bg-background overscroll-contain"
+      onWheel={(e) => e.stopPropagation()}
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    >
+      <link 
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" 
+        rel="stylesheet" 
+      />
+      {/* Window Title Bar */}
+      <div className="flex h-10 items-center border-b border-border bg-card/50 shrink-0 relative">
+        {/* Traffic Lights */}
+        <div className="flex items-center gap-2 px-4 border-r border-border h-full shrink-0">
+          <div className="h-3 w-3 rounded-full bg-[#ff5f56] border border-[#e0443e]" />
+          <div className="h-3 w-3 rounded-full bg-[#ffbd2e] border border-[#dea123]" />
+          <div className="h-3 w-3 rounded-full bg-[#27c93f] border border-[#1aab29]" />
+        </div>
+
+        {/* Sidebar Toggle Button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setSidebarOpen(!sidebarOpen) }}
+          className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘L' : 'Ctrl+L'})`}
+        >
+          <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
+        </button>
+
+        {/* Centered Brand */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 font-semibold text-[13px] text-muted-foreground select-none pointer-events-none">
+          <img src="/icon.svg" alt="" className="h-3.5 w-3.5 rounded-sm" aria-hidden="true" />
+          EDTR+
+        </div>
+
+        <div className="flex items-center h-full ml-auto">
+          {/* Settings Button */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4 transition-transform group-active:rotate-90" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80 p-0 overflow-hidden">
+              <div className="p-4 border-b border-border bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <h4 className="font-semibold text-sm">Settings</h4>
+                    <p className="text-[10px] text-muted-foreground">Manage your editor preferences.</p>
+                  </div>
+                  <button
+                    onClick={resetAllSettings}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-background hover:bg-accent text-[10px] font-medium transition-colors shadow-sm"
+                  >
+                    <RotateCcw className="h-3 w-3" /> Reset All
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 space-y-5 max-h-[70vh] overflow-y-auto">
+                {/* Font Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      <Type className="h-3.5 w-3.5" /> Typography
+                    </label>
+                    <button
+                      onClick={resetFont}
+                      className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Reset Font
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground">Font Family</span>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {FONT_FAMILIES.map((f) => (
+                          <button
+                            key={f.name}
+                            onClick={() => updateFontFamily(f.value)}
+                            className={cn(
+                              "px-2 py-1.5 rounded border border-border text-[10px] text-left transition-all hover:bg-accent",
+                              fontFamily === f.value ? "bg-accent border-primary/50 font-semibold" : "bg-background"
+                            )}
+                            style={{ fontFamily: f.value }}
+                          >
+                            {f.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground">Size</span>
+                        <span className="text-[10px] font-mono text-muted-foreground">{fontSize}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="8"
+                        max="32"
+                        step="1"
+                        value={fontSize}
+                        onChange={(e) => updateFontSize(parseInt(e.target.value))}
+                        className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Bar Section */}
+                <div className="space-y-4 pt-4 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      <Palette className="h-3.5 w-3.5" /> Status Bar
+                    </label>
+                    {(statusBarColor || statusBarTextColor) && (
+                      <button
+                        onClick={resetColors}
+                        className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Reset Colors
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Presets */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {PRESETS.map((p) => (
+                        <button
+                          key={p.name}
+                          onClick={() => {
+                            setStatusBarColor(p.bg)
+                            setStatusBarTextColor(p.text)
+                            if (p.bg) localStorage.setItem("notepad-statusbar-color", p.bg)
+                            else localStorage.removeItem("notepad-statusbar-color")
+                            if (p.text) localStorage.setItem("notepad-statusbar-text-color", p.text)
+                            else localStorage.removeItem("notepad-statusbar-text-color")
+                          }}
+                          className={cn(
+                            "h-10 rounded border border-border flex items-center justify-center relative overflow-hidden transition-all hover:ring-2 hover:ring-primary/20",
+                            (statusBarColor === p.bg && statusBarTextColor === p.text) && "ring-2 ring-primary"
+                          )}
+                          style={{ backgroundColor: p.bg || "var(--card)", color: p.text || "var(--foreground)" }}
+                        >
+                          <span className="text-[9px] font-medium">{p.name}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Custom Picker Logic */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setPickerTarget("bg")}
+                          className={cn(
+                            "flex-1 rounded px-2 py-1.5 text-[11px] font-semibold transition-colors",
+                            pickerTarget === "bg"
+                              ? "bg-foreground text-background"
+                              : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                          )}
+                        >
+                          Background
+                        </button>
+                        <button
+                          onClick={() => setPickerTarget("text")}
+                          className={cn(
+                            "flex-1 rounded px-2 py-1.5 text-[11px] font-semibold transition-colors",
+                            pickerTarget === "text"
+                              ? "bg-foreground text-background"
+                              : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                          )}
+                        >
+                          Text
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="rounded-lg overflow-hidden border border-border">
+                          <HexColorPicker
+                            color={activePickerColor}
+                            onChange={setActivePickerColor}
+                            style={{ width: "100%", height: "120px" }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-7 w-7 shrink-0 rounded border border-border shadow-sm"
+                            style={{ backgroundColor: activePickerColor }}
+                          />
+                          <input
+                            type="text"
+                            value={activePickerColor}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              if (val === "" || /^#[0-9a-fA-F]{0,6}$/.test(val)) {
+                                setActivePickerColor(val)
+                              }
+                            }}
+                            className="flex-1 rounded border border-border bg-background px-2 py-1 text-[11px] text-foreground font-mono outline-none focus:ring-1 focus:ring-primary h-7"
+                            placeholder="#000000"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Appearance Section */}
+                <div className="pt-4 border-t border-border">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Appearance</span>
+                    <button
+                      onClick={toggleTheme}
+                      className="flex h-7 w-full items-center justify-center gap-2 rounded border border-border bg-background text-[11px] font-medium transition-colors hover:bg-accent"
+                    >
+                      {theme === "dark" ? (
+                        <><Sun className="h-3 w-3" /> Light Mode</>
+                      ) : (
+                        <><Moon className="h-3 w-3" /> Dark Mode</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Save Button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); saveFile() }}
+            className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+            title={activeTab?.source === "filesystem" ? "Save to disk (Ctrl+S / Cmd+S)" : "Save (Ctrl+S / Cmd+S)"}
+          >
+            <Save className="h-4 w-4 transition-transform group-active:scale-90" />
+          </button>
+
+          {/* Download Button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); downloadFile() }}
+            className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+            title="Download file (Ctrl+Shift+S / Cmd+Shift+S)"
+          >
+            <Download className="h-4 w-4 transition-transform group-active:scale-90" />
+          </button>
+        </div>
+      </div>
+
       <TabBar
-        tabs={tabs}
+        tabs={openTabs}
         activeTabId={activeTabId}
-        setActiveTabId={setActiveTabId}
+        setActiveTabId={selectTab}
         handleTabBarDoubleClick={() => createNewTab()}
         createNewTab={createNewTab}
         closeTab={closeTab}
@@ -953,11 +1343,12 @@ export function Notepad() {
                 tabs={tabs}
                 folders={folders}
                 activeTabId={activeTabId}
-                setActiveTabId={setActiveTabId}
+                setActiveTabId={selectTab}
                 createNewTab={createNewTab}
                 createNewFolder={createNewFolder}
                 toggleFolder={toggleFolder}
                 deleteFolder={deleteFolder}
+                deleteFile={deleteFile}
                 startRenamingFolder={startRenamingFolder}
                 editingFolderId={editingFolderId}
                 editingFolderName={editingFolderName}
@@ -1006,6 +1397,8 @@ export function Notepad() {
             handleKeyDown={handleKeyDown}
             getHighlightedCode={getHighlightedCode}
             createNewTab={createNewTab}
+            fontSize={fontSize}
+            fontFamily={fontFamily}
           />
         </div>
       </div>
@@ -1018,19 +1411,85 @@ export function Notepad() {
         >
           {contextMenu.type === "tab" ? (
             <>
-              <button onClick={() => renameFileFromContext(contextMenu.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors hover:bg-accent"><Edit2 className="h-4 w-4" /><span>Rename</span></button>
-              <button onClick={() => downloadFileById(contextMenu.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors hover:bg-accent"><Download className="h-4 w-4" /><span>Download</span></button>
-              <button onClick={() => deleteFile(contextMenu.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-destructive transition-colors hover:bg-destructive/10"><Trash2 className="h-4 w-4" /><span>Delete</span></button>
+              <button
+                onClick={() => renameFileFromContext(contextMenu.id)}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+              >
+                <Edit2 className="h-4 w-4" /> Rename
+              </button>
+              <button
+                onClick={() => {
+                  downloadFileById(contextMenu.id)
+                  closeContextMenu()
+                }}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+              >
+                <Download className="h-4 w-4" /> Download
+              </button>
+              <div className="my-1 h-px bg-border" />
+              <button
+                onClick={() => {
+                  setTabToDelete(contextMenu.id)
+                  setDeleteConfirmOpen(true)
+                  closeContextMenu()
+                }}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" /> Delete
+              </button>
             </>
           ) : (
             <>
-              <button onClick={() => renameFolderFromContext(contextMenu.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors hover:bg-accent"><Edit2 className="h-4 w-4" /><span>Rename</span></button>
-              <button onClick={() => downloadFolderAsZip(contextMenu.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors hover:bg-accent"><Download className="h-4 w-4" /><span>Download (.zip)</span></button>
-              <button onClick={() => deleteFolderFromContext(contextMenu.id)} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-destructive transition-colors hover:bg-destructive/10"><Trash2 className="h-4 w-4" /><span>Delete</span></button>
+              <button
+                onClick={() => renameFolderFromContext(contextMenu.id)}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+              >
+                <Edit2 className="h-4 w-4" /> Rename
+              </button>
+              <button
+                onClick={() => {
+                  downloadFolderAsZip(contextMenu.id)
+                  closeContextMenu()
+                }}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+              >
+                <Download className="h-4 w-4" /> Download (.zip)
+              </button>
+              <div className="my-1 h-px bg-border" />
+              <button
+                onClick={() => deleteFolderFromContext(contextMenu.id)}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" /> Delete
+              </button>
             </>
           )}
         </div>
       )}
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This file contains content. Deleting it will permanently remove it from your workspace.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (tabToDelete) performDelete(tabToDelete)
+                setTabToDelete(null)
+              }}
+            >
+              Delete File
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <StatusBar
         sidebarOpen={sidebarOpen}
