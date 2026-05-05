@@ -119,6 +119,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -130,7 +131,8 @@
 }
 
 .markdown-body pre {
-  background-color: color-mix(in srgb, var(--foreground) 5%, transparent) !important;
+  background-color: var(--sidebar) !important;
+  color: var(--foreground) !important;
   border: 1px solid var(--border) !important;
   border-radius: 8px !important;
   padding: 1rem !important;
@@ -235,7 +237,7 @@
 }
 
 .dark .markdown-body pre code {
-  color: #e6edf3 !important;
+  color: var(--foreground) !important;
 }
 
 .dark .markdown-body img {
