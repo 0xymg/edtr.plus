@@ -181,26 +181,33 @@ export function Notepad() {
   
   const activePickerColor = pickerTarget === "bg" ? (statusBarColor || "#1e1e2e") : (statusBarTextColor || "#cccccc")
 
+  const updateUserSettings = useCallback((updates: Record<string, any>) => {
+    try {
+      const current = JSON.parse(localStorage.getItem("notepad-user-settings") || "{}")
+      localStorage.setItem("notepad-user-settings", JSON.stringify({ ...current, ...updates }))
+    } catch (e) {
+      console.error("Failed to save user settings", e)
+    }
+  }, [])
+
   const handleColorChange = useCallback((color: string) => {
     if (pickerTarget === "bg") {
       setStatusBarColor(color)
-      if (color) localStorage.setItem("notepad-statusbar-color", color)
-      else localStorage.removeItem("notepad-statusbar-color")
+      updateUserSettings({ statusBarColor: color })
     } else {
       setStatusBarTextColor(color)
-      if (color) localStorage.setItem("notepad-statusbar-text-color", color)
-      else localStorage.removeItem("notepad-statusbar-text-color")
+      updateUserSettings({ statusBarTextColor: color })
     }
-  }, [pickerTarget])
+  }, [pickerTarget, updateUserSettings])
 
-  const updateTheme = useCallback((newTheme: "light" | "dark") => {
+  const updateTheme = useCallback((newTheme: "light" | "dark", save: boolean = true) => {
     if (newTheme === "dark") {
       document.documentElement.classList.add("dark")
     } else {
       document.documentElement.classList.remove("dark")
     }
-    localStorage.setItem("theme", newTheme)
-  }, [])
+    if (save) updateUserSettings({ theme: newTheme })
+  }, [updateUserSettings])
 
   const toggleTheme = useCallback(() => {
     const newTheme = theme === "light" ? "dark" : "light"
@@ -208,36 +215,89 @@ export function Notepad() {
     updateTheme(newTheme)
   }, [theme, updateTheme])
 
-  useEffect(() => {
-    const savedSize = localStorage.getItem("notepad-font-size")
-    if (savedSize) setFontSize(parseInt(savedSize))
-    
-    const savedFamily = localStorage.getItem("notepad-font-family")
-    if (savedFamily) setFontFamily(savedFamily)
-
-    const savedStatusColor = localStorage.getItem("notepad-statusbar-color")
-    if (savedStatusColor) setStatusBarColor(savedStatusColor)
-
-    const savedStatusTextColor = localStorage.getItem("notepad-statusbar-text-color")
-    if (savedStatusTextColor) setStatusBarTextColor(savedStatusTextColor)
-
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-      updateTheme(savedTheme)
-    }
-  }, [updateTheme])
-
   const updateFontSize = (size: number) => {
     const newSize = Math.min(Math.max(size, 8), 32)
     setFontSize(newSize)
-    localStorage.setItem("notepad-font-size", newSize.toString())
+    updateUserSettings({ fontSize: newSize })
   }
 
   const updateFontFamily = (family: string) => {
     setFontFamily(family)
-    localStorage.setItem("notepad-font-family", family)
+    updateUserSettings({ fontFamily: family })
   }
+
+  const updateActiveTabId = useCallback((id: string | null) => {
+    setActiveTabId(id)
+    updateUserSettings({ activeTabId: id })
+  }, [updateUserSettings])
+
+  const updateSidebarOpen = useCallback((open: boolean) => {
+    setSidebarOpen(open)
+    updateUserSettings({ sidebarOpen: open })
+  }, [updateUserSettings])
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen(prev => {
+      const next = !prev
+      updateUserSettings({ sidebarOpen: next })
+      return next
+    })
+  }, [updateUserSettings])
+
+  const updateShowPreview = useCallback((show: boolean) => {
+    setShowPreview(show)
+    updateUserSettings({ showPreview: show })
+  }, [updateUserSettings])
+
+  const togglePreview = useCallback(() => {
+    setShowPreview(prev => {
+      const next = !prev
+      updateUserSettings({ showPreview: next })
+      return next
+    })
+  }, [updateUserSettings])
+
+  useEffect(() => {
+    try {
+      const savedSettingsStr = localStorage.getItem("notepad-user-settings")
+      if (savedSettingsStr) {
+        const settings = JSON.parse(savedSettingsStr)
+        if (settings.fontSize) setFontSize(settings.fontSize)
+        if (settings.fontFamily) setFontFamily(settings.fontFamily)
+        if (settings.statusBarColor !== undefined) setStatusBarColor(settings.statusBarColor)
+        if (settings.statusBarTextColor !== undefined) setStatusBarTextColor(settings.statusBarTextColor)
+        if (settings.theme) {
+          setTheme(settings.theme)
+          updateTheme(settings.theme, false)
+        }
+        if (settings.sidebarOpen !== undefined) setSidebarOpen(settings.sidebarOpen)
+        if (settings.sidebarWidth !== undefined) setSidebarWidth(settings.sidebarWidth)
+        if (settings.showPreview !== undefined) setShowPreview(settings.showPreview)
+        if (settings.activeTabId !== undefined) setActiveTabId(settings.activeTabId)
+      } else {
+        // Fallback for older version
+        const savedSize = localStorage.getItem("notepad-font-size")
+        if (savedSize) setFontSize(parseInt(savedSize))
+        
+        const savedFamily = localStorage.getItem("notepad-font-family")
+        if (savedFamily) setFontFamily(savedFamily)
+
+        const savedStatusColor = localStorage.getItem("notepad-statusbar-color")
+        if (savedStatusColor) setStatusBarColor(savedStatusColor)
+
+        const savedStatusTextColor = localStorage.getItem("notepad-statusbar-text-color")
+        if (savedStatusTextColor) setStatusBarTextColor(savedStatusTextColor)
+
+        const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
+        if (savedTheme) {
+          setTheme(savedTheme)
+          updateTheme(savedTheme, false)
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load user settings", e)
+    }
+  }, [updateTheme])
 
   const FONT_FAMILIES = [
     { name: "JetBrains Mono", value: "'JetBrains Mono', monospace" },
@@ -261,15 +321,13 @@ export function Notepad() {
   const resetColors = () => {
     setStatusBarColor("")
     setStatusBarTextColor("")
-    localStorage.removeItem("notepad-statusbar-color")
-    localStorage.removeItem("notepad-statusbar-text-color")
+    updateUserSettings({ statusBarColor: "", statusBarTextColor: "" })
   }
 
   const resetFont = () => {
     setFontSize(14)
     setFontFamily("'JetBrains Mono', monospace")
-    localStorage.removeItem("notepad-font-size")
-    localStorage.removeItem("notepad-font-family")
+    updateUserSettings({ fontSize: 14, fontFamily: "'JetBrains Mono', monospace" })
   }
 
   const resetAllSettings = () => {
@@ -292,9 +350,9 @@ export function Notepad() {
   }, [tabs, openTabIds])
 
   const selectTab = useCallback((id: string) => {
-    setActiveTabId(id)
+    updateActiveTabId(id)
     setOpenTabIds(prev => prev.includes(id) ? prev : [...prev, id])
-  }, [])
+  }, [updateActiveTabId])
 
   // Actions
   const createNewTab = useCallback(() => {
@@ -308,8 +366,8 @@ export function Notepad() {
     }
     setTabs(prev => [...prev, newTab])
     setOpenTabIds(prev => [...prev, id])
-    setActiveTabId(id)
-  }, [])
+    updateActiveTabId(id)
+  }, [updateActiveTabId])
 
   const saveToLocalStorage = useCallback(() => {
     setSaveStatus("saving")
@@ -342,14 +400,14 @@ export function Notepad() {
         if (newOpenIds.length > 0) {
           const closedIndex = prev.indexOf(tabId)
           const newActiveId = newOpenIds[Math.min(closedIndex, newOpenIds.length - 1)]
-          setActiveTabId(newActiveId)
+          updateActiveTabId(newActiveId)
         } else {
-          setActiveTabId(null)
+          updateActiveTabId(null)
         }
       }
       return newOpenIds
     })
-  }, [activeTabId])
+  }, [activeTabId, updateActiveTabId])
 
   const updateContent = useCallback((content: string) => {
     setTabs(prev => prev.map(tab => {
@@ -562,21 +620,23 @@ export function Notepad() {
     e.preventDefault()
     const startX = e.clientX
     const startWidth = sidebarWidth
+    let currentWidth = startWidth
     const onMouseMove = (ev: MouseEvent) => {
-      const newWidth = Math.min(384, Math.max(128, startWidth + (ev.clientX - startX)))
-      setSidebarWidth(newWidth)
+      currentWidth = Math.min(384, Math.max(128, startWidth + (ev.clientX - startX)))
+      setSidebarWidth(currentWidth)
     }
     const onMouseUp = () => {
       document.removeEventListener("mousemove", onMouseMove)
       document.removeEventListener("mouseup", onMouseUp)
       document.body.style.cursor = ""
       document.body.style.userSelect = ""
+      updateUserSettings({ sidebarWidth: currentWidth })
     }
     document.body.style.cursor = "col-resize"
     document.body.style.userSelect = "none"
     document.addEventListener("mousemove", onMouseMove)
     document.addEventListener("mouseup", onMouseUp)
-  }, [sidebarWidth])
+  }, [sidebarWidth, updateUserSettings])
 
   const changeLanguage = useCallback((languageId: string) => {
     setTabs(prev => prev.map(tab =>
@@ -700,8 +760,8 @@ export function Notepad() {
       if (activeTabId === tabId) {
         if (newOpenIds.length > 0) {
           const closedIndex = prev.indexOf(tabId)
-          setActiveTabId(newOpenIds[Math.min(closedIndex, newOpenIds.length - 1)])
-        } else setActiveTabId(null)
+          updateActiveTabId(newOpenIds[Math.min(closedIndex, newOpenIds.length - 1)])
+        } else updateActiveTabId(null)
       }
       return newOpenIds
     })
@@ -766,13 +826,13 @@ export function Notepad() {
       }
       setTabs(prev => [...prev, ...newTabs])
       if (newTabs.length > 0) {
-        setActiveTabId(newTabs[newTabs.length - 1].id)
+        updateActiveTabId(newTabs[newTabs.length - 1].id)
       }
-      setSidebarOpen(true)
+      updateSidebarOpen(true)
     } catch (e) {
       console.error("Failed to open file:", e)
     }
-  }, [])
+  }, [updateActiveTabId, updateSidebarOpen])
 
   const openFolderFromDisk = useCallback(async () => {
     try {
@@ -838,7 +898,7 @@ export function Notepad() {
 
       setFolders(prev => [...prev, ...newFolders])
       setTabs(prev => [...prev, ...newTabs])
-      setSidebarOpen(true)
+      updateSidebarOpen(true)
     } catch (e) {
       console.error("Failed to open folder:", e)
     }
@@ -863,8 +923,8 @@ export function Notepad() {
 
       setTabs(prev => [...prev, newTab])
       setOpenTabIds(prev => [...prev, tabId])
-      setActiveTabId(tabId)
-      setSidebarOpen(true)
+      updateActiveTabId(tabId)
+      updateSidebarOpen(true)
 
       if (lang === "svg") {
         setShowPreview(true)
@@ -934,14 +994,14 @@ export function Notepad() {
             try {
               const openIds = JSON.parse(savedOpenTabs)
               setOpenTabIds(openIds)
-              if (openIds.length > 0) setActiveTabId(openIds[0])
+              if (openIds.length > 0) updateActiveTabId(openIds[0])
             } catch (e) {
               setOpenTabIds([tabsWithLanguage[0].id])
-              setActiveTabId(tabsWithLanguage[0].id)
+              updateActiveTabId(tabsWithLanguage[0].id)
             }
           } else {
             setOpenTabIds([tabsWithLanguage[0].id])
-            setActiveTabId(tabsWithLanguage[0].id)
+            updateActiveTabId(tabsWithLanguage[0].id)
           }
         }
       } catch (e) { }
@@ -989,8 +1049,8 @@ export function Notepad() {
       }
       if (newTabs.length > 0) {
         setTabs(prev => [...prev, ...newTabs])
-        setActiveTabId(newTabs[newTabs.length - 1].id)
-        setSidebarOpen(true)
+        updateActiveTabId(newTabs[newTabs.length - 1].id)
+        updateSidebarOpen(true)
       }
     })
   }, [])
@@ -1028,11 +1088,11 @@ export function Notepad() {
       if (isCmd && e.key === "j") { e.preventDefault(); createNewTab() }
       if (isCmd && e.key === "w") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
       if (isCmd && e.key === "k") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
-      if (isCmd && e.key === "l") { e.preventDefault(); setSidebarOpen(prev => !prev) }
+      if (isCmd && e.key === "l") { e.preventDefault(); toggleSidebar() }
       if (isCmd && e.shiftKey && e.key === "p") { 
         e.preventDefault()
         if (activeTab?.language === "markdown") {
-          setShowPreview(prev => !prev)
+          togglePreview()
         }
       }
       if (e.shiftKey && e.altKey && e.key === "F") { e.preventDefault(); formatCode() }
@@ -1133,7 +1193,7 @@ export function Notepad() {
 
         {/* Sidebar Toggle Button */}
         <button
-          onClick={(e) => { e.stopPropagation(); setSidebarOpen(!sidebarOpen) }}
+          onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
           className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
           title={`${sidebarOpen ? "Hide" : "Show"} sidebar (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘L' : 'Ctrl+L'})`}
         >
@@ -1366,7 +1426,7 @@ export function Notepad() {
           {/* Preview Toggle Button */}
           {(activeTab?.language === "markdown" || activeTab?.language === "svg") && (
             <button
-              onClick={(e) => { e.stopPropagation(); setShowPreview(!showPreview) }}
+              onClick={(e) => { e.stopPropagation(); togglePreview() }}
               className={cn(
                 "flex items-center px-4 border-l border-border h-full transition-colors outline-none group",
                 showPreview ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -1400,7 +1460,7 @@ export function Notepad() {
             >
               <Sidebar
                 sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
+                setSidebarOpen={updateSidebarOpen}
                 tabs={tabs}
                 folders={folders}
                 activeTabId={activeTabId}
@@ -1461,7 +1521,7 @@ export function Notepad() {
             fontSize={fontSize}
             fontFamily={fontFamily}
             showPreview={showPreview}
-            setShowPreview={setShowPreview}
+            setShowPreview={updateShowPreview}
             onExternalFileDrop={handleExternalFileDrop}
           />
         </div>
@@ -1557,7 +1617,7 @@ export function Notepad() {
 
       <StatusBar
         sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
+        setSidebarOpen={updateSidebarOpen}
         activeTab={activeTab}
         getWordCount={getWordCount}
         saveStatus={saveStatus}

@@ -164,7 +164,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                     {languageMenuOpen && (
                         <div
                             ref={languageMenuRef}
-                            className="absolute bottom-full right-0 mb-1 max-h-64 w-40 overflow-y-auto rounded-none border border-border bg-popover p-1 shadow-lg z-[100]"
+                            className="absolute bottom-full right-0 mb-1 max-h-64 w-40 overflow-y-auto rounded-none border border-border bg-popover p-1 shadow-lg z-[100] text-popover-foreground"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {languages.map(lang => (
