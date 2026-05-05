@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata, Viewport } from 'next'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import Script from 'next/script'
 import './globals.css'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -95,6 +96,11 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
         <Analytics />
+        <Script
+          async
+          src="https://umami.ymg.digital/script.js"
+          data-website-id="67d5aff1-4e96-4bf8-a53f-d65b7d8328a3"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

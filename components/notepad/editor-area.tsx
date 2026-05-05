@@ -112,7 +112,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                             : "text-foreground"
                     )}
                     style={{ fontSize: `${fontSize}px`, fontFamily }}
-                    placeholder="Start typing..."
+                    placeholder="Type something"
                     spellCheck={false}
                 />
             </div>

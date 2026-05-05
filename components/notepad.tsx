@@ -177,13 +177,40 @@ export function Notepad() {
   const [pickerTarget, setPickerTarget] = useState<"bg" | "text">("bg")
   const [activePickerColor, setActivePickerColor] = useState<string>("")
 
+  const updateTheme = useCallback((newTheme: "light" | "dark") => {
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+    localStorage.setItem("theme", newTheme)
+  }, [])
+
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === "light" ? "dark" : "light"
+    setTheme(newTheme)
+    updateTheme(newTheme)
+  }, [theme, updateTheme])
+
   useEffect(() => {
     const savedSize = localStorage.getItem("notepad-font-size")
     if (savedSize) setFontSize(parseInt(savedSize))
     
     const savedFamily = localStorage.getItem("notepad-font-family")
     if (savedFamily) setFontFamily(savedFamily)
-  }, [])
+
+    const savedStatusColor = localStorage.getItem("notepad-statusbar-color")
+    if (savedStatusColor) setStatusBarColor(savedStatusColor)
+
+    const savedStatusTextColor = localStorage.getItem("notepad-statusbar-text-color")
+    if (savedStatusTextColor) setStatusBarTextColor(savedStatusTextColor)
+
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
+    if (savedTheme) {
+      setTheme(savedTheme)
+      updateTheme(savedTheme)
+    }
+  }, [updateTheme])
 
   const updateFontSize = (size: number) => {
     const newSize = Math.min(Math.max(size, 8), 32)
@@ -284,11 +311,6 @@ export function Notepad() {
     setTabs(prev => [...prev, newTab])
     setOpenTabIds(prev => [...prev, id])
     setActiveTabId(id)
-    // Auto-start rename mode for new file (open sidebar if needed)
-    setSidebarOpen(true)
-    editingNameRef.current = newTab.name
-    setEditingTabId(newTab.id)
-    setEditingName(newTab.name)
   }, [])
 
   const saveToLocalStorage = useCallback(() => {
@@ -312,20 +334,7 @@ export function Notepad() {
     }
   }, [tabs, folders, openTabIds, activeTabId])
 
-  const updateTheme = useCallback((newTheme: "light" | "dark") => {
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-    localStorage.setItem("theme", newTheme)
-  }, [])
 
-  const toggleTheme = useCallback(() => {
-    const newTheme = theme === "light" ? "dark" : "light"
-    setTheme(newTheme)
-    updateTheme(newTheme)
-  }, [theme, updateTheme])
 
   const closeTab = useCallback((tabId: string, e?: React.MouseEvent | KeyboardEvent) => {
     if (e && 'stopPropagation' in e) e.stopPropagation()
@@ -347,21 +356,7 @@ export function Notepad() {
   const updateContent = useCallback((content: string) => {
     setTabs(prev => prev.map(tab => {
       if (tab.id !== activeTabId) return tab
-      let newName = tab.name
-      // Skip auto-rename for filesystem files
-      if (!tab.source || tab.source === "memory") {
-        if (tab.name.startsWith("e-") && content.trim()) {
-          const hasWordBreak = /[\s\n\r]/.test(content)
-          if (hasWordBreak) {
-            const firstWord = content.trim().split(/[\s\n\r]+/)[0]
-            if (firstWord && firstWord.length > 0 && firstWord.length <= 30) {
-              const cleanWord = firstWord.replace(/[^a-zA-Z0-9_\-\.]/g, "")
-              if (cleanWord.length > 0) newName = cleanWord
-            }
-          }
-        }
-      }
-      return { ...tab, content, isModified: true, name: newName }
+      return { ...tab, content, isModified: true }
     }))
   }, [activeTabId])
 
@@ -929,6 +924,12 @@ export function Notepad() {
     if (savedStatusBarTextColor) setStatusBarTextColor(savedStatusBarTextColor)
     setTimeout(() => textareaRef.current?.focus(), 0)
   }, [])
+
+  useEffect(() => {
+    if (activeTabId) {
+      textareaRef.current?.focus()
+    }
+  }, [activeTabId])
 
   // Launch Queue - handle "Open with EDTR" from OS
   useEffect(() => {

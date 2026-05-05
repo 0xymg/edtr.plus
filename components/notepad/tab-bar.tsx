@@ -23,13 +23,13 @@ export const TabBar: React.FC<TabBarProps> = ({
 }) => {
     return (
         <div className="flex items-center border-b border-border bg-card" onDoubleClick={handleTabBarDoubleClick}>
-            <div className="flex flex-1 items-center overflow-x-auto overscroll-contain">
+            <div className="flex items-center overflow-x-auto overscroll-contain">
                 {tabs.map(tab => (
-                    <button
+                    <div
                         key={tab.id}
                         onClick={() => setActiveTabId(tab.id)}
                         className={cn(
-                            "group flex items-center gap-2 border-r border-border px-3 py-2 text-sm transition-colors",
+                            "group flex items-center gap-2 border-r border-border px-3 py-2 text-sm transition-colors cursor-pointer",
                             tab.id === activeTabId
                                 ? "bg-background text-foreground"
                                 : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -48,17 +48,17 @@ export const TabBar: React.FC<TabBarProps> = ({
                         >
                             <X className="h-3.5 w-3.5" />
                         </button>
-                    </button>
+                    </div>
                 ))}
+                <button
+                    onClick={createNewTab}
+                    className="flex shrink-0 items-center px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    title={`New file (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘T' : 'Ctrl+T'})`}
+                    aria-label="New tab"
+                >
+                    <Plus className="h-4 w-4" />
+                </button>
             </div>
-            <button
-                onClick={createNewTab}
-                className="flex h-full items-center px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                title={`New file (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘T' : 'Ctrl+T'})`}
-                aria-label="New tab"
-            >
-                <Plus className="h-4 w-4" />
-            </button>
         </div>
     )
 }

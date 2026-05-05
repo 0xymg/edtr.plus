@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Notepad } from "@/components/notepad"
 import {
+  ArrowUp,
   ArrowRight,
   Github,
   Zap,
@@ -45,7 +46,7 @@ export default function LandingPage() {
               className="flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1.5 text-[13px] font-semibold text-white transition-all hover:bg-neutral-700"
             >
               Back to Editor
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowUp className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
