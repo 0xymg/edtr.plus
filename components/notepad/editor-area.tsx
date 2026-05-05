@@ -6,6 +6,7 @@ import { Tab } from "../notepad"
 import { Group, Panel, Separator } from "react-resizable-panels"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkSupersub from "remark-supersub"
 import remarkMath from "remark-math"
 import rehypeHighlight from "rehype-highlight"
 import rehypeKatex from "rehype-katex"
@@ -181,7 +182,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                 {activeTab?.language === "markdown" ? (
                     <article className="markdown-body !bg-transparent !text-foreground transition-all duration-200">
                         <ReactMarkdown 
-                            remarkPlugins={[remarkGfm, remarkMath]}
+                            remarkPlugins={[remarkGfm, remarkMath, remarkSupersub]}
                             rehypePlugins={[rehypeHighlight, rehypeKatex]}
                             components={{
                                 code({ node, inline, className, children, ...props }: any) {
