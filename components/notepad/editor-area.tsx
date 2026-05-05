@@ -1,3 +1,5 @@
+"use client"
+
 import React, { RefObject } from "react"
 import { Plus, FileText, GripVertical } from "lucide-react"
 import { cn } from "@/lib/utils"

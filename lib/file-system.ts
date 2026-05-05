@@ -81,13 +81,15 @@ const EXT_TO_LANGUAGE: Record<string, string> = {
   svg: "svg",
 }
 
-const TEXT_EXTENSIONS = new Set(Object.keys(EXT_TO_LANGUAGE))
+const TEXT_EXTENSIONS = Object.keys(EXT_TO_LANGUAGE)
 
 // Additional extensions that are text but not in language map
-const EXTRA_TEXT_EXTENSIONS = new Set([
+const EXTRA_TEXT_EXTENSIONS = [
   "log", "csv", "tsv", "svg", "lock", "conf", "config",
   "editorconfig", "prettierrc", "eslintrc", "babelrc",
-])
+]
+
+
 
 export function detectLanguageFromExtension(filename: string): string {
   const ext = filename.split(".").pop()?.toLowerCase() || ""
@@ -98,8 +100,8 @@ export function isTextFile(filename: string): boolean {
   const ext = filename.split(".").pop()?.toLowerCase() || ""
   const baseName = filename.toLowerCase()
   // Files without extensions or known text extensions
-  return TEXT_EXTENSIONS.has(ext) ||
-    EXTRA_TEXT_EXTENSIONS.has(ext) ||
+  return TEXT_EXTENSIONS.includes(ext) ||
+    EXTRA_TEXT_EXTENSIONS.includes(ext) ||
     baseName === "makefile" ||
     baseName === "dockerfile" ||
     baseName === ".gitignore" ||
