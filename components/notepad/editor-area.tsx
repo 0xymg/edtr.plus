@@ -1,8 +1,14 @@
 import React, { RefObject } from "react"
-import { Plus, FileText } from "lucide-react"
+import { Plus, FileText, GripVertical } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Kbd } from "@/components/ui/kbd"
 import { Tab } from "../notepad"
+import { Group, Panel, Separator } from "react-resizable-panels"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import rehypeHighlight from "rehype-highlight"
+import "github-markdown-css/github-markdown.css"
+import "highlight.js/styles/github.css"
 
 interface EditorAreaProps {
     activeTab: Tab | undefined
@@ -14,6 +20,8 @@ interface EditorAreaProps {
     createNewTab: () => void
     fontSize?: number
     fontFamily?: string
+    showPreview?: boolean
+    setShowPreview?: (show: boolean) => void
 }
 
 export const EditorArea: React.FC<EditorAreaProps> = ({
@@ -25,7 +33,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     getHighlightedCode,
     createNewTab,
     fontSize = 14,
-    fontFamily = "JetBrains Mono"
+    fontFamily = "JetBrains Mono",
+    showPreview = false,
+    setShowPreview
 }) => {
     if (tabs.length === 0) {
         return (
@@ -69,11 +79,11 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
     const lines = (activeTab?.content || "").split("\n")
 
-    return (
-        <div className="flex flex-1 overflow-auto overscroll-contain">
+    const Editor = (
+        <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background">
             {/* Line numbers — scroll with the content */}
             <div 
-                className="w-12 shrink-0 select-none border-r border-border bg-card py-3 text-right text-muted-foreground"
+                className="w-12 shrink-0 select-none border-r border-border bg-card/30 py-3 text-right text-muted-foreground"
                 style={{ fontSize: `${Math.max(10, fontSize - 2)}px`, fontFamily }}
             >
                 {lines.map((_, i) => (
@@ -118,4 +128,38 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
             </div>
         </div>
     )
+
+    const Preview = (
+        <div className="flex-1 overflow-auto h-full border-l border-border bg-card/10">
+            <div className="p-8 max-w-4xl mx-auto">
+                <article className="markdown-body !bg-transparent !text-foreground transition-all duration-200">
+                    <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                    >
+                        {activeTab?.content || ""}
+                    </ReactMarkdown>
+                </article>
+            </div>
+        </div>
+    )
+
+    if (showPreview && activeTab?.language === "markdown") {
+        return (
+            <Group orientation="horizontal" className="h-full">
+                <Panel defaultSize={50} minSize={20}>
+                    {Editor}
+                </Panel>
+                <Separator className="w-1.5 bg-border hover:bg-primary/50 transition-colors flex items-center justify-center group relative">
+                    <div className="absolute inset-y-0 -left-1 -right-1 cursor-col-resize" />
+                    <GripVertical className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
+                </Separator>
+                <Panel defaultSize={50} minSize={20}>
+                    {Preview}
+                </Panel>
+            </Group>
+        )
+    }
+
+    return Editor
 }

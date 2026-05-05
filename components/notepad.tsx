@@ -25,7 +25,7 @@ import ruby from "highlight.js/lib/languages/ruby"
 import swift from "highlight.js/lib/languages/swift"
 import kotlin from "highlight.js/lib/languages/kotlin"
 import yaml from "highlight.js/lib/languages/yaml"
-import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon } from "lucide-react"
+import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText } from "lucide-react"
 import JSZip from "jszip"
 import {
   supportsFileSystemAccess,
@@ -175,6 +175,7 @@ export function Notepad() {
   const [fontSize, setFontSize] = useState<number>(14)
   const [fontFamily, setFontFamily] = useState<string>("'JetBrains Mono', monospace")
   const [pickerTarget, setPickerTarget] = useState<"bg" | "text">("bg")
+  const [showPreview, setShowPreview] = useState<boolean>(false)
   
   const activePickerColor = pickerTarget === "bg" ? (statusBarColor || "#1e1e2e") : (statusBarTextColor || "#cccccc")
 
@@ -996,6 +997,12 @@ export function Notepad() {
       if (isCmd && e.key === "w") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
       if (isCmd && e.key === "k") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
       if (isCmd && e.key === "l") { e.preventDefault(); setSidebarOpen(prev => !prev) }
+      if (isCmd && e.shiftKey && e.key === "p") { 
+        e.preventDefault()
+        if (activeTab?.language === "markdown") {
+          setShowPreview(prev => !prev)
+        }
+      }
       if (e.shiftKey && e.altKey && e.key === "F") { e.preventDefault(); formatCode() }
     }
     window.addEventListener("keydown", handleKeyDown)
@@ -1063,6 +1070,15 @@ export function Notepad() {
       loadFileContent(activeTab.id)
     }
   }, [activeTabId, activeTab?.contentLoaded, loadFileContent])
+
+  // Automatically show preview for markdown files
+  useEffect(() => {
+    if (activeTab?.language === "markdown") {
+      setShowPreview(true)
+    } else {
+      setShowPreview(false)
+    }
+  }, [activeTabId, activeTab?.language])
 
   return (
     <div
@@ -1314,6 +1330,23 @@ export function Notepad() {
           >
             <Download className="h-4 w-4 transition-transform group-active:scale-90" />
           </button>
+
+          {/* Preview Toggle Button */}
+          {activeTab?.language === "markdown" && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowPreview(!showPreview) }}
+              className={cn(
+                "flex items-center px-4 border-l border-border h-full transition-colors outline-none group",
+                showPreview ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
+              title="Toggle Markdown Preview"
+            >
+              <div className="relative">
+                <FileText className="h-4 w-4 transition-transform group-active:scale-90" />
+                {showPreview && <div className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-primary" />}
+              </div>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1395,6 +1428,8 @@ export function Notepad() {
             createNewTab={createNewTab}
             fontSize={fontSize}
             fontFamily={fontFamily}
+            showPreview={showPreview}
+            setShowPreview={setShowPreview}
           />
         </div>
       </div>
