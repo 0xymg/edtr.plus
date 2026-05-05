@@ -10,6 +10,8 @@ import rehypeHighlight from "rehype-highlight"
 import "github-markdown-css/github-markdown.css"
 import "highlight.js/styles/github.css"
 
+import { Mermaid } from "../mermaid"
+
 interface EditorAreaProps {
     activeTab: Tab | undefined
     tabs: Tab[]
@@ -22,6 +24,7 @@ interface EditorAreaProps {
     fontFamily?: string
     showPreview?: boolean
     setShowPreview?: (show: boolean) => void
+    onExternalFileDrop?: (file: File) => void
 }
 
 export const EditorArea: React.FC<EditorAreaProps> = ({
@@ -35,11 +38,50 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     fontSize = 14,
     fontFamily = "JetBrains Mono",
     showPreview = false,
-    setShowPreview
+    setShowPreview,
+    onExternalFileDrop
 }) => {
+    const [isDraggingExternal, setIsDraggingExternal] = React.useState(false)
+
+    const handleExternalDragOver = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingExternal(true)
+    }
+
+    const handleExternalDragLeave = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingExternal(false)
+    }
+
+    const handleExternalDrop = async (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingExternal(false)
+
+        const files = Array.from(e.dataTransfer.files)
+        if (files.length > 0 && onExternalFileDrop) {
+            files.forEach(file => {
+                if (file.name.toLowerCase().endsWith('.svg') || file.type === 'image/svg+xml') {
+                    onExternalFileDrop(file)
+                }
+            })
+        }
+    }
+
     if (tabs.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center">
+            <div 
+                className={cn(
+                    "flex flex-1 items-center justify-center transition-colors duration-200",
+                    isDraggingExternal && "bg-primary/5 ring-2 ring-inset ring-primary/20"
+                )}
+                onDragOver={handleExternalDragOver}
+                onDragEnter={handleExternalDragOver}
+                onDragLeave={handleExternalDragLeave}
+                onDrop={handleExternalDrop}
+            >
                 <div className="flex flex-col items-center gap-6 text-center">
                     <FileText className="h-16 w-16 text-muted-foreground/50" />
                     <div className="space-y-2">
@@ -131,20 +173,40 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
     const Preview = (
         <div className="flex-1 overflow-auto h-full border-l border-border bg-card/10">
-            <div className="p-8 max-w-4xl mx-auto">
-                <article className="markdown-body !bg-transparent !text-foreground transition-all duration-200">
-                    <ReactMarkdown 
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeHighlight]}
-                    >
-                        {activeTab?.content || ""}
-                    </ReactMarkdown>
-                </article>
+            <div className="p-8 max-w-4xl mx-auto h-full flex flex-col">
+                {activeTab?.language === "markdown" ? (
+                    <article className="markdown-body !bg-transparent !text-foreground transition-all duration-200">
+                        <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight]}
+                            components={{
+                                code({ node, inline, className, children, ...props }: any) {
+                                    const match = /language-(\w+)/.exec(className || '')
+                                    if (!inline && match && match[1] === 'mermaid') {
+                                        return <Mermaid chart={String(children).replace(/\n$/, '')} />
+                                    }
+                                    return (
+                                        <code className={className} {...props}>
+                                            {children}
+                                        </code>
+                                    )
+                                }
+                            }}
+                        >
+                            {activeTab?.content || ""}
+                        </ReactMarkdown>
+                    </article>
+                ) : activeTab?.language === "svg" ? (
+                    <div 
+                        className="flex-1 flex items-center justify-center p-4 bg-white/5 rounded-lg border border-border/50 shadow-inner overflow-auto"
+                        dangerouslySetInnerHTML={{ __html: activeTab.content }}
+                    />
+                ) : null}
             </div>
         </div>
     )
 
-    if (showPreview && activeTab?.language === "markdown") {
+    if (showPreview && (activeTab?.language === "markdown" || activeTab?.language === "svg")) {
         return (
             <Group orientation="horizontal" className="h-full">
                 <Panel defaultSize={50} minSize={20}>
@@ -161,5 +223,18 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         )
     }
 
-    return Editor
+    return (
+        <div 
+            className={cn(
+                "flex-1 flex flex-col min-h-0 relative",
+                isDraggingExternal && "after:absolute after:inset-0 after:bg-primary/5 after:border-2 after:border-dashed after:border-primary/40 after:z-50 after:pointer-events-none"
+            )}
+            onDragOver={handleExternalDragOver}
+            onDragEnter={handleExternalDragOver}
+            onDragLeave={handleExternalDragLeave}
+            onDrop={handleExternalDrop}
+        >
+            {Editor}
+        </div>
+    )
 }

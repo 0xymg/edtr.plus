@@ -11,9 +11,24 @@ interface LaunchQueue {
   setConsumer(consumer: (params: LaunchParams) => void): void
 }
 
+interface FilePickerAcceptType {
+  description?: string
+  accept: Record<string, string[]>
+}
+
 declare global {
   interface Window {
     launchQueue?: LaunchQueue
+    showOpenFilePicker(options?: {
+      types?: FilePickerAcceptType[]
+      excludeAcceptAllOption?: boolean
+      multiple?: boolean
+    }): Promise<FileSystemFileHandle[]>
+    showDirectoryPicker(options?: {
+      id?: string
+      mode?: "read" | "readwrite"
+      startIn?: FileSystemHandle | "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos"
+    }): Promise<FileSystemDirectoryHandle>
   }
 }
 
@@ -63,6 +78,7 @@ const EXT_TO_LANGUAGE: Record<string, string> = {
   gitignore: "plaintext",
   dockerfile: "bash",
   makefile: "bash",
+  svg: "svg",
 }
 
 const TEXT_EXTENSIONS = new Set(Object.keys(EXT_TO_LANGUAGE))

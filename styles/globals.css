@@ -123,3 +123,115 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Markdown Preview Overrides */
+.markdown-body {
+  font-family: inherit !important;
+}
+
+.markdown-body pre {
+  background-color: color-mix(in srgb, var(--foreground) 5%, transparent) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+}
+
+.markdown-body table,
+.markdown-body table th,
+.markdown-body table td {
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+.markdown-body table tr {
+  background-color: transparent !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: color-mix(in srgb, var(--foreground) 2%, transparent) !important;
+}
+
+.markdown-body code {
+  font-family: 'JetBrains Mono', monospace !important;
+  background-color: color-mix(in srgb, var(--foreground) 5%, transparent) !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 4px !important;
+  color: var(--foreground) !important;
+}
+
+.markdown-body pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+/* Ensure syntax highlighting colors are readable */
+.hljs {
+  background: transparent !important;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: #8b949e !important;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-subst {
+  color: #ff7b72 !important;
+}
+
+.dark .hljs-string,
+.dark .hljs-doctag,
+.dark .hljs-regexp,
+.dark .hljs-attr,
+.dark .hljs-variable,
+.dark .hljs-template-variable,
+.dark .hljs-type,
+.dark .hljs-selector-id,
+.dark .hljs-selector-class,
+.dark .hljs-quote,
+.dark .hljs-template-tag,
+.dark .hljs-deletion {
+  color: #a5d6ff !important;
+}
+
+.dark .hljs-section,
+.dark .hljs-title,
+.dark .hljs-name,
+.dark .hljs-selector-attr,
+.dark .hljs-selector-pseudo {
+  color: #79c0ff !important;
+}
+
+.dark .hljs-symbol,
+.dark .hljs-bullet,
+.dark .hljs-link,
+.dark .hljs-meta,
+.dark .hljs-selector-id,
+.dark .hljs-title,
+.dark .hljs-emphasis {
+  color: #ffa657 !important;
+}
+
+.dark .hljs-built_in,
+.dark .hljs-class,
+.dark .hljs-number,
+.dark .hljs-params,
+.dark .hljs-addition {
+  color: #ffca85 !important;
+}
+
+.dark .hljs-attr {
+  color: #79c0ff !important;
+}
+
+.dark .markdown-body pre code {
+  color: #e6edf3 !important;
+}
+
+.dark .markdown-body img {
+  filter: brightness(.8) contrast(1.2);
+}

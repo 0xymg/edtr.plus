@@ -101,6 +101,7 @@ hljs.registerLanguage("ruby", ruby)
 hljs.registerLanguage("swift", swift)
 hljs.registerLanguage("kotlin", kotlin)
 hljs.registerLanguage("yaml", yaml)
+hljs.registerLanguage("svg", xml)
 
 const LANGUAGES = [
   { id: "plaintext", name: "Plain Text" },
@@ -127,6 +128,7 @@ const LANGUAGES = [
   { id: "kotlin", name: "Kotlin" },
   { id: "yaml", name: "YAML" },
   { id: "xml", name: "XML" },
+  { id: "svg", name: "SVG" },
 ]
 
 const EXTENSION_MAP: Record<string, string> = {
@@ -134,7 +136,7 @@ const EXTENSION_MAP: Record<string, string> = {
   python: "py", css: "css", html: "html", xml: "xml", json: "json",
   markdown: "md", bash: "sh", sql: "sql", java: "java", c: "c",
   cpp: "cpp", csharp: "cs", go: "go", rust: "rs", php: "php",
-  ruby: "rb", swift: "swift", kotlin: "kt", yaml: "yaml",
+  ruby: "rb", swift: "swift", kotlin: "kt", yaml: "yaml", svg: "svg",
 }
 
 function getFilename(tab: Tab): string {
@@ -842,6 +844,36 @@ export function Notepad() {
     }
   }, [])
 
+  const handleExternalFileDrop = useCallback(async (file: File) => {
+    try {
+      const content = await file.text()
+      const lang = detectLanguageFromExtension(file.name)
+      const nameWithoutExt = file.name.replace(/\.[^.]+$/, "")
+      const tabId = uid()
+
+      const newTab: Tab = {
+        id: tabId,
+        name: nameWithoutExt,
+        content,
+        isModified: false,
+        language: lang,
+        source: "memory",
+        contentLoaded: true,
+      }
+
+      setTabs(prev => [...prev, newTab])
+      setOpenTabIds(prev => [...prev, tabId])
+      setActiveTabId(tabId)
+      setSidebarOpen(true)
+
+      if (lang === "svg") {
+        setShowPreview(true)
+      }
+    } catch (e) {
+      console.error("Failed to read dropped file:", e)
+    }
+  }, [])
+
   const loadFileContent = useCallback(async (tabId: string) => {
     const handle = fileHandleMapRef.current.get(tabId)
     if (!handle) return
@@ -1071,9 +1103,9 @@ export function Notepad() {
     }
   }, [activeTabId, activeTab?.contentLoaded, loadFileContent])
 
-  // Automatically show preview for markdown files
+  // Automatically show preview for markdown and svg files
   useEffect(() => {
-    if (activeTab?.language === "markdown") {
+    if (activeTab?.language === "markdown" || activeTab?.language === "svg") {
       setShowPreview(true)
     } else {
       setShowPreview(false)
@@ -1332,7 +1364,7 @@ export function Notepad() {
           </button>
 
           {/* Preview Toggle Button */}
-          {activeTab?.language === "markdown" && (
+          {(activeTab?.language === "markdown" || activeTab?.language === "svg") && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowPreview(!showPreview) }}
               className={cn(
@@ -1430,6 +1462,7 @@ export function Notepad() {
             fontFamily={fontFamily}
             showPreview={showPreview}
             setShowPreview={setShowPreview}
+            onExternalFileDrop={handleExternalFileDrop}
           />
         </div>
       </div>
