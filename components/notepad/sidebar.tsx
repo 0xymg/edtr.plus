@@ -267,7 +267,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 onClick={createNewTab}
                                 className="rounded p-1 transition-colors hover:bg-accent"
-                                title={`New file (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘T' : 'Ctrl+T'})`}
+                                title="New file (Ctrl+T / ⌘T)"
                                 aria-label="New file"
                             >
                                 <Plus className="h-4 w-4" />
@@ -275,7 +275,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 onClick={() => setSidebarOpen(false)}
                                 className="rounded p-1 transition-colors hover:bg-accent"
-                                title={`Hide sidebar (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘L' : 'Ctrl+L'})`}
+                                title="Hide sidebar (Ctrl+L / ⌘L)"
                                 aria-label="Hide sidebar"
                             >
                                 <X className="h-4 w-4" />

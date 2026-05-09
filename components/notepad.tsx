@@ -1227,7 +1227,7 @@ export function Notepad() {
         <button
           onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
           className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘L' : 'Ctrl+L'})`}
+          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (Ctrl+L / ⌘L)`}
         >
           <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
         </button>

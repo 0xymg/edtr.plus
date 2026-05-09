@@ -1,7 +1,9 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { Notepad } from "@/components/notepad"
+import { toast } from "sonner"
 import {
   ArrowUp,
   ArrowRight,
@@ -12,9 +14,62 @@ import {
   Layers,
   Download,
   FolderOpen,
+  X,
 } from "lucide-react"
 
 export default function LandingPage() {
+  useEffect(() => {
+    const toastKey = "edtr-markdown-toast-shown"
+
+    if (window.sessionStorage.getItem(toastKey)) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      toast.custom(
+        (id) => (
+          <div className="relative grid min-w-0 grid-cols-[auto_1fr] gap-x-3 gap-y-2 rounded-[inherit] bg-card pr-6 text-card-foreground">
+            <button
+              type="button"
+              onClick={() => toast.dismiss(id)}
+              className="absolute right-0 top-0 rounded-sm p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Dismiss"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <img
+              src="/icon.svg"
+              alt="EDTR.md"
+              className="mt-0.5 h-9 w-9 shrink-0 object-contain"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-bold tracking-[0.02em] text-card-foreground">TRY EDTR.MD</p>
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                A fast <strong>Markdown</strong> editor with live preview, diagrams, math, and export tools.
+              </p>
+            </div>
+            <a
+              href="https://edtr.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="col-start-2 text-sm font-medium text-primary underline underline-offset-4"
+            >
+              Open edtr.md
+            </a>
+          </div>
+        ),
+        {
+          id: "edtr-markdown-prompt",
+          duration: 6000,
+        }
+      )
+      window.sessionStorage.setItem(toastKey, "true")
+    }, 450)
+
+    return () => window.clearTimeout(timer)
+  }, [])
+
   return (
     <div className="flex flex-col bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
       {/* Editor Section */}

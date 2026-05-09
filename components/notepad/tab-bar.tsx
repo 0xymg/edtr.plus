@@ -43,7 +43,7 @@ export const TabBar: React.FC<TabBarProps> = ({
                         <button
                             onClick={(e) => closeTab(tab.id, e)}
                             className="ml-1 rounded p-0.5 opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100"
-                            title={`Close ${tab.name} (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘K' : 'Ctrl+K'})`}
+                            title={`Close ${tab.name} (Ctrl+K / ⌘K)`}
                             aria-label={`Close ${tab.name}`}
                         >
                             <X className="h-3.5 w-3.5" />
@@ -53,7 +53,7 @@ export const TabBar: React.FC<TabBarProps> = ({
                 <button
                     onClick={createNewTab}
                     className="flex shrink-0 items-center px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    title={`New file (${typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘T' : 'Ctrl+T'})`}
+                    title="New file (Ctrl+T / ⌘T)"
                     aria-label="New tab"
                 >
                     <Plus className="h-4 w-4" />

@@ -106,12 +106,12 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                         <div className="flex flex-col gap-2 text-xs text-muted-foreground">
                             <div className="flex items-center justify-center gap-2">
                                 <span>New File:</span>
-                                <Kbd>{typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}</Kbd>
+                                <Kbd>Ctrl/⌘</Kbd>
                                 <Kbd>T</Kbd>
                             </div>
                             <div className="flex items-center justify-center gap-2">
                                 <span>Save:</span>
-                                <Kbd>{typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}</Kbd>
+                                <Kbd>Ctrl/⌘</Kbd>
                                 <Kbd>S</Kbd>
                             </div>
                             <div className="flex items-center justify-center gap-2 text-[10px] opacity-70">
