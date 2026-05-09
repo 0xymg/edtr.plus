@@ -25,7 +25,7 @@ import ruby from "highlight.js/lib/languages/ruby"
 import swift from "highlight.js/lib/languages/swift"
 import kotlin from "highlight.js/lib/languages/kotlin"
 import yaml from "highlight.js/lib/languages/yaml"
-import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText } from "lucide-react"
+import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
 import JSZip from "jszip"
 import {
   supportsFileSystemAccess,
@@ -243,6 +243,10 @@ export function Notepad() {
       return next
     })
   }, [updateUserSettings])
+
+  const scrollBelowEditor = useCallback(() => {
+    window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
+  }, [])
 
   const updateShowPreview = useCallback((show: boolean) => {
     setShowPreview(show)
@@ -1193,9 +1197,30 @@ export function Notepad() {
       <div className="flex h-10 items-center border-b border-border bg-card/50 shrink-0 relative">
         {/* Traffic Lights */}
         <div className="flex items-center gap-2 px-4 border-r border-border h-full shrink-0">
-          <div className="h-3 w-3 rounded-full bg-[#ff5f56] border border-[#e0443e]" />
-          <div className="h-3 w-3 rounded-full bg-[#ffbd2e] border border-[#dea123]" />
-          <div className="h-3 w-3 rounded-full bg-[#27c93f] border border-[#1aab29]" />
+          <button
+            onClick={(e) => { e.stopPropagation(); scrollBelowEditor() }}
+            className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#e0443e] bg-[#ff5f56] transition-transform hover:scale-110 active:scale-95"
+            title="Scroll below editor"
+            aria-label="Scroll below editor"
+          >
+            <X className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
+            className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#dea123] bg-[#ffbd2e] transition-transform hover:scale-110 active:scale-95"
+            title={`${sidebarOpen ? "Hide" : "Show"} sidebar`}
+            aria-label={`${sidebarOpen ? "Hide" : "Show"} sidebar`}
+          >
+            <Menu className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); createNewTab() }}
+            className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#1aab29] bg-[#27c93f] transition-transform hover:scale-110 active:scale-95"
+            title="New tab"
+            aria-label="New tab"
+          >
+            <Plus className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
+          </button>
         </div>
 
         {/* Sidebar Toggle Button */}
@@ -1208,8 +1233,7 @@ export function Notepad() {
         </button>
 
         {/* Centered Brand */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 font-semibold text-[13px] text-muted-foreground select-none pointer-events-none">
-          <img src="/icon.svg" alt="" className="h-3.5 w-3.5 rounded-sm" aria-hidden="true" />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-semibold text-[13px] text-muted-foreground select-none pointer-events-none">
           EDTR+
         </div>
 
