@@ -19,20 +19,14 @@ import {
 
 export default function LandingPage() {
   useEffect(() => {
-    const toastKey = "edtr-markdown-toast-shown"
-
-    if (window.sessionStorage.getItem(toastKey)) {
-      return
-    }
-
     const timer = window.setTimeout(() => {
       toast.custom(
         (id) => (
-          <div className="relative grid min-w-0 grid-cols-[auto_1fr] gap-x-3 gap-y-2 rounded-[inherit] bg-card pr-6 text-card-foreground">
+          <div className="relative grid min-w-0 grid-cols-[auto_1fr] gap-x-3 gap-y-2 rounded-[inherit] bg-card p-4 pr-10 text-card-foreground">
             <button
               type="button"
               onClick={() => toast.dismiss(id)}
-              className="absolute right-0 top-0 rounded-sm p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="absolute right-3 top-3 rounded-sm p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Dismiss"
             >
               <X className="h-4 w-4" />
@@ -64,7 +58,6 @@ export default function LandingPage() {
           duration: 6000,
         }
       )
-      window.sessionStorage.setItem(toastKey, "true")
     }, 450)
 
     return () => window.clearTimeout(timer)
