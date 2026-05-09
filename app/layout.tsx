@@ -11,9 +11,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-const siteName = "EDTR"
-const siteTitle = "EDTR — Online Notepad++ for Quick Notes"
-const siteDescription = "An online Notepad++ for quick notes."
+const siteName = "EDTR+"
+const siteTitle = "EDTR+ — Online Notepad++ alternative for Quick Notes"
+const siteDescription = "An online Notepad++ alternative for quick notes."
 
 export const viewport: Viewport = {
   width: "device-width",
