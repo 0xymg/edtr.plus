@@ -74,14 +74,12 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-neutral-900">
-              <img src="/icon.svg" alt="EDTR" className="h-full w-full object-cover" />
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight">EDTR</span>
+
+            <span className="text-[15px] font-semibold tracking-tight">EDTR+</span>
           </Link>
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com"
+              href="https://github.com/0xymg/edtrcc"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
@@ -130,7 +128,7 @@ export default function LandingPage() {
                   <ArrowRight className="h-4 w-4" />
                 </button>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/0xymg/edtrcc"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-8 text-[14px] font-semibold text-neutral-700 dark:text-neutral-300 transition-all hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 sm:w-auto"
@@ -175,7 +173,7 @@ export default function LandingPage() {
 
             <div className="mt-8 flex items-center gap-3">
               <a
-                href="https://github.com"
+                href="https://github.com/0xymg/edtrcc"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 items-center gap-2 rounded-lg bg-neutral-900 px-6 text-[13px] font-semibold text-white transition-all hover:bg-neutral-700"
@@ -442,7 +440,7 @@ export default function LandingPage() {
             </span>
           </div>
           <a
-            href="https://github.com"
+            href="https://github.com/0xymg/edtrcc"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[13px] font-medium text-neutral-400 transition-colors hover:text-neutral-600"
