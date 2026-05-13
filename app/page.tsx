@@ -124,10 +124,7 @@ export default function LandingPage() {
               </div>
 
               <h1 className="text-[clamp(2.5rem,5.5vw,4.25rem)] font-bold leading-[1.05] tracking-tight">
-                The notepad you{" "}
-                <span className="bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">
-                  actually wanted.
-                </span>
+                The notepad you actually wanted.
               </h1>
 
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -173,11 +170,11 @@ export default function LandingPage() {
             {/* Keyboard shortcuts */}
             <div className="mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-neutral-500 dark:text-neutral-500">
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌥T</kbd>
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">Alt+N</kbd>
                 New tab
               </span>
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌥W</kbd>
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">Alt+X</kbd>
                 Close tab
               </span>
               <span className="flex items-center gap-1.5">
@@ -185,8 +182,8 @@ export default function LandingPage() {
                 Save
               </span>
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌘B</kbd>
-                Toggle sidebar
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">Alt+B</kbd>
+                Sidebar
               </span>
             </div>
           </div>
@@ -280,7 +277,7 @@ export default function LandingPage() {
               {[
                 { title: "Open the editor", body: <>Go to <Link href="/" className="font-medium text-neutral-900 dark:text-neutral-100 underline underline-offset-2">edtr.plus</Link> in any modern browser. The editor loads instantly at the top of the page.</> },
                 { title: "Start typing", body: <>You can begin writing immediately. Your content is saved automatically after every change.</> },
-                { title: "Create multiple tabs", body: <>Press <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥T</kbd> (or <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt+T</kbd> on Windows) to open a new tab. Work on multiple files at the same time.</> },
+                { title: "Create multiple tabs", body: <>Press <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt+N</kbd> to open a new tab and <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt+X</kbd> to close one. Work on multiple files at the same time.</> },
                 { title: "Choose a language", body: <>Click the language selector in the bottom status bar to enable syntax highlighting for your code.</> },
                 { title: "Open files from your computer", body: <>On Chrome and Edge, open files and folders directly from your file system. Changes are saved back to disk when you press <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌘S</kbd>.</> },
               ].map((step, i) => (
@@ -391,7 +388,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Keyboard Shortcuts</h2>
             <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
-              On Windows and Linux, use <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Ctrl</kbd> instead of <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌘</kbd> and <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt</kbd> instead of <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥</kbd>. Tab/sidebar shortcuts use <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥</kbd> to avoid conflicts with your browser.
+              Designed to avoid conflicts with your browser. On macOS, <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt</kbd> is <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥ Option</kbd>; on Windows/Linux, <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌘</kbd> is <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Ctrl</kbd>.
             </p>
             <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/40">
               <table className="w-full text-left text-[14px]">
@@ -403,14 +400,14 @@ export default function LandingPage() {
                 </thead>
                 <tbody className="text-neutral-600 dark:text-neutral-400">
                   {[
-                    ["⌥T", "Open a new tab"],
-                    ["⌥W", "Close the current tab"],
+                    ["Alt+N", "Open a new tab"],
+                    ["Alt+X", "Close the current tab"],
+                    ["Alt+B", "Toggle sidebar"],
+                    ["Alt+P", "Toggle markdown preview"],
                     ["⌘S", "Save file"],
                     ["⌘⇧S", "Download file"],
-                    ["⌘B", "Toggle sidebar"],
-                    ["⌘⇧V", "Toggle markdown preview"],
                     ["⌘/", "Toggle comment"],
-                    ["⇧⌥F", "Format code (JSON)"],
+                    ["Alt+⇧F", "Format code (JSON)"],
                     ["Tab", "Insert indentation"],
                   ].map(([shortcut, action], i) => (
                     <tr key={i} className="border-b border-neutral-100 dark:border-neutral-800 last:border-0 transition-colors hover:bg-neutral-50/60 dark:hover:bg-neutral-900/40">

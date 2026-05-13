@@ -1093,21 +1093,23 @@ export function Notepad() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isCmd = e.ctrlKey || e.metaKey
-      // Save / Download — preventDefault is reliable for these
+      const isAlt = e.altKey && !e.ctrlKey && !e.metaKey
+      // Save / Download — universal pattern, preventDefault is reliable
       if (isCmd && e.shiftKey && (e.key === "s" || e.key === "S")) { e.preventDefault(); downloadFile(); return }
-      if (isCmd && (e.key === "s" || e.key === "S")) { e.preventDefault(); saveFile() }
-      // Tab management — use Alt to avoid browser's ⌘T/⌘W
-      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "t" || e.key === "T")) { e.preventDefault(); createNewTab() }
-      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "w" || e.key === "W")) { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
-      // Sidebar — VS Code style ⌘B (was ⌘L which focuses address bar)
-      if (isCmd && !e.shiftKey && !e.altKey && (e.key === "b" || e.key === "B")) { e.preventDefault(); toggleSidebar() }
-      // Markdown preview — ⌘⇧V (was ⌘⇧P which can trigger profile menu)
-      if (isCmd && e.shiftKey && (e.key === "v" || e.key === "V")) {
+      if (isCmd && !e.shiftKey && !e.altKey && (e.key === "s" || e.key === "S")) { e.preventDefault(); saveFile() }
+      // Tab management — Alt+N / Alt+X (avoid Alt+T/W which can trigger menu access on Windows)
+      if (isAlt && (e.key === "n" || e.key === "N")) { e.preventDefault(); createNewTab() }
+      if (isAlt && (e.key === "x" || e.key === "X")) { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
+      // Sidebar — Alt+B (avoid ⌘B which opens Firefox bookmarks sidebar)
+      if (isAlt && (e.key === "b" || e.key === "B")) { e.preventDefault(); toggleSidebar() }
+      // Markdown preview — Alt+P (avoid ⌘⇧P which can trigger browser profile menu)
+      if (isAlt && (e.key === "p" || e.key === "P")) {
         if (activeTab?.language === "markdown") {
           e.preventDefault()
           togglePreview()
         }
       }
+      // Format code — Alt+Shift+F (VS Code standard)
       if (e.shiftKey && e.altKey && (e.key === "f" || e.key === "F")) { e.preventDefault(); formatCode() }
     }
     window.addEventListener("keydown", handleKeyDown)
@@ -1229,7 +1231,7 @@ export function Notepad() {
         <button
           onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
           className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (Ctrl+B / ⌘B)`}
+          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (Alt+B)`}
         >
           <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
         </button>

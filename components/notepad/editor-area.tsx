@@ -106,8 +106,8 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                         <div className="flex flex-col gap-2 text-xs text-muted-foreground">
                             <div className="flex items-center justify-center gap-2">
                                 <span>New File:</span>
-                                <Kbd>⌥</Kbd>
-                                <Kbd>T</Kbd>
+                                <Kbd>Alt</Kbd>
+                                <Kbd>N</Kbd>
                             </div>
                             <div className="flex items-center justify-center gap-2">
                                 <span>Save:</span>
@@ -115,9 +115,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                                 <Kbd>S</Kbd>
                             </div>
                             <div className="flex items-center justify-center gap-2 text-[10px] opacity-70">
-                                <span>Close Tab: <Kbd>⌥</Kbd><Kbd>W</Kbd></span>
+                                <span>Close Tab: <Kbd>Alt</Kbd><Kbd>X</Kbd></span>
                                 <span className="mx-1">•</span>
-                                <span>Sidebar: <Kbd>⌘</Kbd><Kbd>B</Kbd></span>
+                                <span>Sidebar: <Kbd>Alt</Kbd><Kbd>B</Kbd></span>
                             </div>
                         </div>
                     </div>
