@@ -1076,7 +1076,7 @@ export function Notepad() {
     if (savedStatusBarColor) setStatusBarColor(savedStatusBarColor)
   }, [updateTheme])
 
-  // Sync PWA title bar (theme-color) with status bar color
+  // Sync browser title bar (theme-color) with status bar color
   useEffect(() => {
     const metas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
     const color = statusBarColor || (theme === "dark" ? "#000000" : "#ffffff")
@@ -1093,20 +1093,22 @@ export function Notepad() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isCmd = e.ctrlKey || e.metaKey
-      if (isCmd && e.shiftKey && e.key === "s") { e.preventDefault(); downloadFile(); return }
-      if (isCmd && e.key === "s") { e.preventDefault(); saveFile() }
-      if (isCmd && e.key === "t") { e.preventDefault(); createNewTab() }
-      if (isCmd && e.key === "j") { e.preventDefault(); createNewTab() }
-      if (isCmd && e.key === "w") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
-      if (isCmd && e.key === "k") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
-      if (isCmd && e.key === "l") { e.preventDefault(); toggleSidebar() }
-      if (isCmd && e.shiftKey && e.key === "p") { 
-        e.preventDefault()
+      // Save / Download — preventDefault is reliable for these
+      if (isCmd && e.shiftKey && (e.key === "s" || e.key === "S")) { e.preventDefault(); downloadFile(); return }
+      if (isCmd && (e.key === "s" || e.key === "S")) { e.preventDefault(); saveFile() }
+      // Tab management — use Alt to avoid browser's ⌘T/⌘W
+      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "t" || e.key === "T")) { e.preventDefault(); createNewTab() }
+      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "w" || e.key === "W")) { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
+      // Sidebar — VS Code style ⌘B (was ⌘L which focuses address bar)
+      if (isCmd && !e.shiftKey && !e.altKey && (e.key === "b" || e.key === "B")) { e.preventDefault(); toggleSidebar() }
+      // Markdown preview — ⌘⇧V (was ⌘⇧P which can trigger profile menu)
+      if (isCmd && e.shiftKey && (e.key === "v" || e.key === "V")) {
         if (activeTab?.language === "markdown") {
+          e.preventDefault()
           togglePreview()
         }
       }
-      if (e.shiftKey && e.altKey && e.key === "F") { e.preventDefault(); formatCode() }
+      if (e.shiftKey && e.altKey && (e.key === "f" || e.key === "F")) { e.preventDefault(); formatCode() }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
@@ -1227,7 +1229,7 @@ export function Notepad() {
         <button
           onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
           className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (Ctrl+L / ⌘L)`}
+          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (Ctrl+B / ⌘B)`}
         >
           <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
         </button>

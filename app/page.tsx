@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import Link from "next/link"
 import { Notepad } from "@/components/notepad"
+import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import {
   ArrowUp,
@@ -15,6 +16,10 @@ import {
   Download,
   FolderOpen,
   X,
+  Save,
+  KeyRound,
+  Sparkles,
+  Star,
 } from "lucide-react"
 
 export default function LandingPage() {
@@ -74,7 +79,6 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
-
             <span className="text-[15px] font-semibold tracking-tight">EDTR+</span>
           </Link>
           <div className="flex items-center gap-3">
@@ -82,14 +86,14 @@ export default function LandingPage() {
               href="https://github.com/0xymg/edtrcc"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-neutral-900 dark:hover:text-neutral-100"
             >
               <Github className="h-4 w-4" />
               GitHub
             </a>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1.5 text-[13px] font-semibold text-white transition-all hover:bg-neutral-700"
+              className="flex items-center gap-1.5 rounded-lg bg-neutral-900 dark:bg-white px-4 py-1.5 text-[13px] font-semibold text-white dark:text-neutral-900 transition-all hover:bg-neutral-700 dark:hover:bg-neutral-200"
             >
               Back to Editor
               <ArrowUp className="h-3.5 w-3.5" />
@@ -100,61 +104,88 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="px-6 pt-20 pb-16 lg:pt-28 lg:pb-24">
+        <section className="relative overflow-hidden px-6 pt-20 pb-16 lg:pt-28 lg:pb-24">
+          {/* Dotted background pattern */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_1px_1px,_rgb(0_0_0/0.08)_1px,_transparent_0)] dark:[background-image:radial-gradient(circle_at_1px_1px,_rgb(255_255_255/0.08)_1px,_transparent_0)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,_black_30%,_transparent_75%)]"
+          />
+          {/* Soft glow */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-gradient-to-br from-indigo-200/40 via-fuchsia-200/30 to-amber-200/30 blur-3xl dark:from-indigo-500/10 dark:via-fuchsia-500/10 dark:to-amber-500/5"
+          />
+
           <div className="mx-auto max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-4 py-1.5 text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 px-4 py-1.5 text-[13px] font-medium text-neutral-600 dark:text-neutral-400 backdrop-blur-sm shadow-sm">
+                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                 Simple. Ultra fast. Open source.
               </div>
 
-              <h1 className="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight">
+              <h1 className="text-[clamp(2.5rem,5.5vw,4.25rem)] font-bold leading-[1.05] tracking-tight">
                 The notepad you{" "}
-                <span className="bg-gradient-to-r from-neutral-400 to-neutral-300 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">
                   actually wanted.
                 </span>
               </h1>
 
-              <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-500">
+              <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-600 dark:text-neutral-400">
                 Notepad++ speed meets modern design. No installs, no accounts, no waiting. Open a tab and start typing.
               </p>
 
               <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 px-8 text-[14px] font-semibold text-white transition-all hover:bg-neutral-700 hover:shadow-lg sm:w-auto"
+                  className="group flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 dark:bg-white px-8 text-[14px] font-semibold text-white dark:text-neutral-900 shadow-lg shadow-neutral-900/10 dark:shadow-white/10 transition-all hover:-translate-y-0.5 hover:bg-neutral-700 dark:hover:bg-neutral-200 hover:shadow-xl sm:w-auto"
                 >
                   Start Writing
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </button>
                 <a
                   href="https://github.com/0xymg/edtrcc"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-8 text-[14px] font-semibold text-neutral-700 dark:text-neutral-300 transition-all hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 sm:w-auto"
+                  className="group flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-8 text-[14px] font-semibold text-neutral-700 dark:text-neutral-300 transition-all hover:-translate-y-0.5 hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 sm:w-auto"
                 >
-                  <Github className="h-4 w-4" />
+                  <Star className="h-4 w-4 text-amber-500 transition-transform group-hover:scale-110" />
                   Star on GitHub
                 </a>
+              </div>
+
+              {/* Trust line */}
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] text-neutral-500 dark:text-neutral-500">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  No sign-up
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Saved locally
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Open source
+                </span>
               </div>
             </div>
 
             {/* Keyboard shortcuts */}
-            <div className="mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-neutral-400">
+            <div className="mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-neutral-500 dark:text-neutral-500">
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘T</kbd>
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌥T</kbd>
                 New tab
               </span>
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘W</kbd>
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌥W</kbd>
                 Close tab
               </span>
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘S</kbd>
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌘S</kbd>
                 Save
               </span>
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500">⌘L</kbd>
+                <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">⌘B</kbd>
                 Toggle sidebar
               </span>
             </div>
@@ -164,27 +195,39 @@ export default function LandingPage() {
         {/* Open Source */}
         <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Open Source</h2>
+            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-3 py-1 text-[12px] font-medium text-neutral-600 dark:text-neutral-400">
+              <Github className="h-3.5 w-3.5" />
+              MIT Licensed
+            </div>
+            <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">Open Source</h2>
             <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
               <p>
                 EDTR is free and open source software. The source code is available on GitHub. If you find a bug, want to request a feature, or want to contribute code, you are welcome to do so. The project is built with Next.js, React, TypeScript, and Tailwind CSS.
               </p>
             </div>
 
-            <div className="mt-8 flex items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <a
                 href="https://github.com/0xymg/edtrcc"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-10 items-center gap-2 rounded-lg bg-neutral-900 px-6 text-[13px] font-semibold text-white transition-all hover:bg-neutral-700"
+                className="flex h-10 items-center gap-2 rounded-lg bg-neutral-900 dark:bg-white px-6 text-[13px] font-semibold text-white dark:text-neutral-900 transition-all hover:bg-neutral-700 dark:hover:bg-neutral-200"
               >
                 <Github className="h-4 w-4" />
                 View on GitHub
               </a>
+              <a
+                href="https://github.com/0xymg/edtrcc/issues/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-6 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300 transition-all hover:bg-neutral-50 dark:hover:bg-neutral-800"
+              >
+                Report an issue
+              </a>
             </div>
 
             <div className="mt-10 border-t border-neutral-100 dark:border-neutral-800 pt-8">
-              <p className="mb-4 text-[13px] font-medium text-neutral-400 dark:text-neutral-500">Contributors</p>
+              <p className="mb-4 text-[13px] font-medium text-neutral-500 dark:text-neutral-400">Contributors</p>
               <div className="flex gap-3">
                 {["0xymg"].map((username) => (
                   <a
@@ -192,13 +235,13 @@ export default function LandingPage() {
                     href={`https://github.com/${username}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group"
+                    className="group relative"
                     title={username}
                   >
                     <img
                       src={`https://github.com/${username}.png`}
                       alt={username}
-                      className="h-9 w-9 rounded-full transition-transform group-hover:scale-110"
+                      className="h-10 w-10 rounded-full ring-2 ring-white dark:ring-neutral-950 transition-transform group-hover:scale-110"
                     />
                   </a>
                 ))}
@@ -226,91 +269,153 @@ export default function LandingPage() {
         </section>
 
         {/* How to use */}
-        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">How to use EDTR</h2>
-            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
-              <p>
-                Using EDTR is straightforward. Here is how to get started:
-              </p>
-              <ol className="list-decimal space-y-3 pl-5">
-                <li><strong>Open the editor.</strong> Go to <Link href="/" className="text-neutral-900 underline underline-offset-2">edtr.cc</Link> in any modern browser. The editor loads instantly at the top of the page.</li>
-                <li><strong>Start typing.</strong> You can begin writing immediately. Your content is saved automatically after every change.</li>
-                <li><strong>Create multiple tabs.</strong> Press <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">⌘T</kbd> (or <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">Ctrl+T</kbd> on Windows) to open a new tab. You can work on multiple files at the same time.</li>
-                <li><strong>Choose a language.</strong> Click the language selector in the bottom status bar to enable syntax highlighting for your code.</li>
-                <li><strong>Open files from your computer.</strong> On Chrome and Edge, you can open files and folders directly from your file system. Changes are saved back to disk when you press <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">⌘S</kbd>.</li>
-                <li><strong>Install as an app.</strong> You can install EDTR as a Progressive Web App (PWA) from your browser. Once installed, it works offline and appears in your dock or taskbar like a native application.</li>
-              </ol>
-            </div>
+            <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
+              Five steps. No setup required.
+            </p>
+
+            <ol className="mt-8 space-y-4">
+              {[
+                { title: "Open the editor", body: <>Go to <Link href="/" className="font-medium text-neutral-900 dark:text-neutral-100 underline underline-offset-2">edtr.plus</Link> in any modern browser. The editor loads instantly at the top of the page.</> },
+                { title: "Start typing", body: <>You can begin writing immediately. Your content is saved automatically after every change.</> },
+                { title: "Create multiple tabs", body: <>Press <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥T</kbd> (or <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt+T</kbd> on Windows) to open a new tab. Work on multiple files at the same time.</> },
+                { title: "Choose a language", body: <>Click the language selector in the bottom status bar to enable syntax highlighting for your code.</> },
+                { title: "Open files from your computer", body: <>On Chrome and Edge, open files and folders directly from your file system. Changes are saved back to disk when you press <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌘S</kbd>.</> },
+              ].map((step, i) => (
+                <li key={i} className="flex gap-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-4 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 dark:bg-white text-[13px] font-semibold text-white dark:text-neutral-900">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1 pt-0.5">
+                    <h3 className="text-[14.5px] font-semibold text-neutral-900 dark:text-neutral-100">{step.title}</h3>
+                    <p className="mt-1 text-[14px] leading-[1.65] text-neutral-600 dark:text-neutral-400">{step.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
         {/* Features */}
         <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">EDTR Notepad Features</h2>
-            <div className="mt-6 space-y-6 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
-              <div>
-                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">A. Syntax Highlighting</h3>
-                <p className="mt-1">EDTR highlights your code with proper colors as you type. It supports over 20 languages including JavaScript, TypeScript, Python, HTML, CSS, JSON, Go, Rust, C, C++, Java, PHP, Ruby, Swift, Kotlin, SQL, Bash, Markdown, YAML, and XML. You can select the language from the status bar at the bottom of the editor.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">B. Multi-tab Editing</h3>
-                <p className="mt-1">You can open multiple files in separate tabs, just like in Notepad++ or any desktop code editor. Each tab has its own content, language setting, and file name. Use <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">⌘T</kbd> to create a new tab and <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">⌘W</kbd> to close the current tab.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">C. Automatic Saving</h3>
-                <p className="mt-1">Your notes are saved automatically to your browser&apos;s LocalStorage after every change. You do not need to press a save button. If you close the browser and open EDTR again later, all your tabs and content will be restored exactly as you left them.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">D. No Login Required</h3>
-                <p className="mt-1">EDTR does not require you to create an account or log in. There are no user accounts, no email verification, and no passwords. You can start using the editor immediately without any sign-up process.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">E. Open Files From Your Computer</h3>
-                <p className="mt-1">On supported browsers (Chrome, Edge), you can open individual files or entire folders from your local file system using the File System Access API. You can edit these files in the browser and save your changes directly back to disk with <kbd className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[12px] text-neutral-500">⌘S</kbd>.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">F. Works Offline as a PWA</h3>
-                <p className="mt-1">EDTR can be installed as a Progressive Web App. Once installed, it works without an internet connection. You can also set it as the default app for opening text files on your operating system, so you can right-click a file and choose &quot;Open with EDTR&quot;.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">G. Private and Secure</h3>
-                <p className="mt-1">All your data is stored locally on your device. EDTR does not send your content to any server. There is no tracking, no analytics on your text, and no third-party access to your notes. Your files stay on your machine.</p>
-              </div>
+          <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Everything you need, nothing you don&apos;t</h2>
+              <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
+                A focused set of features built around speed and privacy.
+              </p>
+            </div>
+
+            <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                {
+                  icon: Code2,
+                  iconColor: "text-indigo-500",
+                  iconBg: "bg-indigo-50 dark:bg-indigo-500/10",
+                  title: "Syntax Highlighting",
+                  desc: "Color-coded highlighting for 20+ languages including JavaScript, TypeScript, Python, Go, Rust, and more. Powered by highlight.js.",
+                },
+                {
+                  icon: Layers,
+                  iconColor: "text-fuchsia-500",
+                  iconBg: "bg-fuchsia-50 dark:bg-fuchsia-500/10",
+                  title: "Multi-tab Editing",
+                  desc: "Open multiple files in separate tabs, just like a desktop editor. Each tab has its own language and filename.",
+                },
+                {
+                  icon: Save,
+                  iconColor: "text-emerald-500",
+                  iconBg: "bg-emerald-50 dark:bg-emerald-500/10",
+                  title: "Automatic Saving",
+                  desc: "Every keystroke is persisted to your browser's LocalStorage. Close the tab, come back later — your work is still there.",
+                },
+                {
+                  icon: KeyRound,
+                  iconColor: "text-amber-500",
+                  iconBg: "bg-amber-50 dark:bg-amber-500/10",
+                  title: "No Login Required",
+                  desc: "No accounts, no email verification, no passwords. Open the page and start typing. That's it.",
+                },
+                {
+                  icon: FolderOpen,
+                  iconColor: "text-sky-500",
+                  iconBg: "bg-sky-50 dark:bg-sky-500/10",
+                  title: "Open Local Files",
+                  desc: "On Chrome and Edge, open files and folders directly from your disk via the File System Access API. Save back with ⌘S.",
+                },
+                {
+                  icon: Shield,
+                  iconColor: "text-violet-500",
+                  iconBg: "bg-violet-50 dark:bg-violet-500/10",
+                  title: "Private by Default",
+                  desc: "Your text never leaves your device. No content tracking, no third-party access. Just local storage.",
+                },
+                {
+                  icon: Zap,
+                  iconColor: "text-yellow-500",
+                  iconBg: "bg-yellow-50 dark:bg-yellow-500/10",
+                  title: "Ultra Fast",
+                  desc: "No heavy frameworks in the editor path. Type, switch tabs, and search with near-zero latency.",
+                },
+                {
+                  icon: Download,
+                  iconColor: "text-teal-500",
+                  iconBg: "bg-teal-50 dark:bg-teal-500/10",
+                  title: "Export Anywhere",
+                  desc: "Download files individually or export your entire workspace. Take your data with you whenever you want.",
+                },
+              ].map(({ icon: Icon, iconColor, iconBg, title, desc }) => (
+                <div
+                  key={title}
+                  className="group relative rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/40 p-6 transition-all hover:-translate-y-0.5 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-lg hover:shadow-neutral-200/40 dark:hover:shadow-black/30"
+                >
+                  <div className={cn("inline-flex h-10 w-10 items-center justify-center rounded-xl", iconBg)}>
+                    <Icon className={cn("h-5 w-5", iconColor)} />
+                  </div>
+                  <h3 className="mt-4 text-[15px] font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+                    {title}
+                  </h3>
+                  <p className="mt-1.5 text-[13.5px] leading-[1.65] text-neutral-600 dark:text-neutral-400">
+                    {desc}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Keyboard Shortcuts Table */}
-        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Keyboard Shortcuts</h2>
-            <p className="mt-3 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
-              EDTR supports the following keyboard shortcuts for faster editing. On Windows and Linux, use Ctrl instead of ⌘.
+            <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
+              On Windows and Linux, use <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Ctrl</kbd> instead of <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌘</kbd> and <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">Alt</kbd> instead of <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥</kbd>. Tab/sidebar shortcuts use <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">⌥</kbd> to avoid conflicts with your browser.
             </p>
-            <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800">
+            <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/40">
               <table className="w-full text-left text-[14px]">
                 <thead>
-                  <tr className="border-b border-neutral-100 bg-neutral-50">
-                    <th className="px-5 py-3 font-semibold text-neutral-700">Shortcut</th>
-                    <th className="px-5 py-3 font-semibold text-neutral-700">Action</th>
+                  <tr className="border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60">
+                    <th className="px-5 py-3 font-semibold text-neutral-700 dark:text-neutral-300">Shortcut</th>
+                    <th className="px-5 py-3 font-semibold text-neutral-700 dark:text-neutral-300">Action</th>
                   </tr>
                 </thead>
-                <tbody className="text-neutral-600">
+                <tbody className="text-neutral-600 dark:text-neutral-400">
                   {[
-                    ["⌘T", "Open a new tab"],
-                    ["⌘W", "Close the current tab"],
+                    ["⌥T", "Open a new tab"],
+                    ["⌥W", "Close the current tab"],
                     ["⌘S", "Save file"],
                     ["⌘⇧S", "Download file"],
-                    ["⌘L", "Toggle sidebar"],
+                    ["⌘B", "Toggle sidebar"],
+                    ["⌘⇧V", "Toggle markdown preview"],
                     ["⌘/", "Toggle comment"],
                     ["⇧⌥F", "Format code (JSON)"],
                     ["Tab", "Insert indentation"],
                   ].map(([shortcut, action], i) => (
-                    <tr key={i} className="border-b border-neutral-100 last:border-0">
+                    <tr key={i} className="border-b border-neutral-100 dark:border-neutral-800 last:border-0 transition-colors hover:bg-neutral-50/60 dark:hover:bg-neutral-900/40">
                       <td className="px-5 py-3">
-                        <kbd className="rounded bg-neutral-100 px-2 py-0.5 font-mono text-[12px] text-neutral-500">{shortcut}</kbd>
+                        <kbd className="rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-2 py-0.5 font-mono text-[12px] text-neutral-700 dark:text-neutral-300">{shortcut}</kbd>
                       </td>
                       <td className="px-5 py-3">{action}</td>
                     </tr>
@@ -325,8 +430,8 @@ export default function LandingPage() {
         <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Supported Programming Languages</h2>
-            <p className="mt-3 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">
-              EDTR includes syntax highlighting for the following programming and markup languages. The highlighting is powered by highlight.js and works as you type. You can select the language from the status bar at the bottom of the editor.
+            <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
+              Syntax highlighting for 20+ languages and markup formats, powered by highlight.js. Pick a language from the status bar.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2">
@@ -338,7 +443,7 @@ export default function LandingPage() {
               ].map((lang) => (
                 <span
                   key={lang}
-                  className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-1 text-[13px] font-medium text-neutral-600"
+                  className="rounded-md border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-3 py-1 text-[13px] font-medium text-neutral-600 dark:text-neutral-400 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-white dark:hover:bg-neutral-800"
                 >
                   {lang}
                 </span>
@@ -348,28 +453,43 @@ export default function LandingPage() {
         </section>
 
         {/* Who can use */}
-        <section className="border-t border-neutral-100 bg-neutral-50/50 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Who Can Use EDTR?</h2>
-            <div className="mt-6 space-y-4 text-[15px] leading-[1.8] text-neutral-600">
-              <p>EDTR is useful for anyone who needs a quick, distraction-free text editor in the browser. Here are some common use cases:</p>
-              <ul className="list-disc space-y-3 pl-5">
-                <li><strong>Developers</strong> who need to quickly edit or review code snippets without opening a full IDE. EDTR works well for writing JavaScript, Python, HTML, CSS, JSON, and other languages with syntax highlighting.</li>
-                <li><strong>Students</strong> who want to take notes, draft assignments, or organize study material in a simple text editor. Everything is saved locally so there is no risk of losing work.</li>
-                <li><strong>Writers and bloggers</strong> who need a clean writing environment without formatting distractions. EDTR gives you plain text with no toolbars, no formatting buttons, and no unnecessary UI elements.</li>
-                <li><strong>Researchers</strong> who need to collect notes, paste text from different sources, or keep track of ideas while browsing. You can create multiple tabs to organize your research by topic.</li>
-                <li><strong>Anyone</strong> who needs a quick notepad while browsing the internet. Whether you want to save a phone number, draft a quick email, or write down a to-do list, EDTR is there when you need it.</li>
-              </ul>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Who is EDTR for?</h2>
+            <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
+              Anyone who needs a quick, distraction-free text editor in the browser.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {[
+                { tag: "Developers", desc: "Quickly edit or review code snippets without opening a full IDE." },
+                { tag: "Students", desc: "Take notes, draft assignments, and organize study material locally." },
+                { tag: "Writers", desc: "A clean writing environment with no toolbars or formatting distractions." },
+                { tag: "Researchers", desc: "Collect notes from different sources across multiple organized tabs." },
+                { tag: "Engineers", desc: "Scratch space for diffs, config snippets, and quick JSON inspection." },
+                { tag: "Anyone", desc: "A reliable notepad you can open in seconds while browsing the web." },
+              ].map(({ tag, desc }) => (
+                <div
+                  key={tag}
+                  className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-4 transition-colors hover:border-neutral-300 dark:hover:border-neutral-700"
+                >
+                  <h3 className="text-[14.5px] font-semibold text-neutral-900 dark:text-neutral-100">{tag}</h3>
+                  <p className="mt-1 text-[13.5px] leading-[1.65] text-neutral-600 dark:text-neutral-400">{desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="border-t border-neutral-100 bg-neutral-50/50 px-6 py-16 lg:py-20">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-16 lg:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Frequently Asked Questions</h2>
+            <p className="mt-3 text-[15px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
+              Everything you might wonder about EDTR.
+            </p>
 
-            <div className="mt-8 space-y-4">
+            <div className="mt-8 space-y-3">
               {[
                 {
                   q: "Is EDTR free to use?",
@@ -381,15 +501,11 @@ export default function LandingPage() {
                 },
                 {
                   q: "Where are my notes stored?",
-                  a: "Your notes are stored in your browser's LocalStorage. This means they stay on your device and are never uploaded to any server. If you clear your browser's storage or cache, your notes will be deleted, so make sure to export important files.",
-                },
-                {
-                  q: "Can I use EDTR offline?",
-                  a: "Yes. You can install EDTR as a Progressive Web App (PWA) from your browser. Once installed, it works fully offline without needing an internet connection.",
+                  a: "Your notes are stored in your browser's LocalStorage. They stay on your device and are never uploaded to any server. If you clear your browser's storage or cache, your notes will be deleted, so make sure to export important files.",
                 },
                 {
                   q: "How is EDTR different from Notepad++?",
-                  a: "Notepad++ is a desktop application that you download and install on Windows. EDTR is a browser-based editor inspired by Notepad++ that offers a similar experience with syntax highlighting, multi-tab editing, and fast performance. The difference is that EDTR runs in your browser on any operating system without needing to install anything.",
+                  a: "Notepad++ is a desktop application that you download and install on Windows. EDTR is a browser-based editor inspired by Notepad++ that offers a similar experience with syntax highlighting, multi-tab editing, and fast performance — running in your browser on any operating system without installation.",
                 },
                 {
                   q: "Can I open files from my computer?",
@@ -401,15 +517,20 @@ export default function LandingPage() {
                 },
                 {
                   q: "Can I use EDTR on my phone or tablet?",
-                  a: "EDTR is designed for desktop browsers but works on mobile devices as well. The editor is responsive and adapts to smaller screens, though the full experience is best on a desktop or laptop computer.",
+                  a: "EDTR is designed for desktop browsers but works on mobile devices as well. The editor is responsive and adapts to smaller screens, though the full experience is best on a desktop or laptop.",
                 },
               ].map((faq, i) => (
-                <details key={i} className="group border-b border-neutral-200 pb-4 last:border-0">
-                  <summary className="flex cursor-pointer items-center justify-between py-2 text-[15px] font-medium [&::-webkit-details-marker]:hidden">
+                <details
+                  key={i}
+                  className="group rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/40 px-5 transition-colors open:border-neutral-300 dark:open:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-700"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between py-4 text-[15px] font-medium text-neutral-900 dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
                     {faq.q}
-                    <span className="ml-4 text-neutral-400 transition-transform group-open:rotate-45">+</span>
+                    <span className="ml-4 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 transition-transform group-open:rotate-45">
+                      +
+                    </span>
                   </summary>
-                  <p className="mt-2 text-[14px] leading-[1.7] text-neutral-500">
+                  <p className="pb-5 pr-8 text-[14px] leading-[1.7] text-neutral-600 dark:text-neutral-400">
                     {faq.a}
                   </p>
                 </details>
@@ -419,34 +540,37 @@ export default function LandingPage() {
         </section>
 
         {/* Disclaimer */}
-        <section className="border-t border-neutral-100 px-6 py-10">
+        <section className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-10">
           <div className="mx-auto max-w-3xl">
-            <p className="text-[12px] leading-[1.7] text-neutral-400">
-              Disclaimer: EDTR stores your notes in your browser&apos;s LocalStorage. If you clear your browser&apos;s cache, cookies, or storage, your notes will be deleted. Please export important files to your local device regularly. EDTR is not affiliated with Notepad++ or any other text editor. EDTR.CC is an independent, open source project.
+            <p className="text-[12px] leading-[1.7] text-neutral-500 dark:text-neutral-500">
+              Disclaimer: EDTR stores your notes in your browser&apos;s LocalStorage. If you clear your browser&apos;s cache, cookies, or storage, your notes will be deleted. Please export important files to your local device regularly. EDTR is not affiliated with Notepad++ or any other text editor. EDTR.PLUS is an independent, open source project.
             </p>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-100 px-6 py-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-md bg-neutral-900">
-              <img src="/icon.svg" alt="EDTR" className="h-full w-full object-cover" />
-            </div>
-            <span className="text-[13px] font-medium text-neutral-400">
-              © {new Date().getFullYear()} EDTR.CC
-            </span>
+      <footer className="border-t border-neutral-100 dark:border-neutral-800 px-6 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
+          <span className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">
+            © {new Date().getFullYear()} EDTR+
+          </span>
+          <div className="flex items-center gap-5">
+            <a
+              href="https://github.com/0xymg/edtrcc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              GitHub
+            </a>
+            <Link
+              href="/blog"
+              className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              Blog
+            </Link>
           </div>
-          <a
-            href="https://github.com/0xymg/edtrcc"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[13px] font-medium text-neutral-400 transition-colors hover:text-neutral-600"
-          >
-            GitHub
-          </a>
         </div>
       </footer>
     </div>

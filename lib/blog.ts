@@ -60,43 +60,55 @@ function parseMeta(raw: string): {
 function mdToHtml(md: string): string {
   let html = md
 
+  // Fenced code blocks ```lang ... ```
+  html = html.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)\n```/g, (_m, _lang: string, code: string) => {
+    const escaped = code
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+    return `<pre class="my-6 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-4"><code class="font-mono text-[13px] leading-[1.7] text-neutral-700 dark:text-neutral-300 whitespace-pre">${escaped}</code></pre>`
+  })
+
   // Headers
-  html = html.replace(/^### (.+)$/gm, '<h3 class="mt-8 mb-3 text-lg font-semibold text-neutral-900">$1</h3>')
-  html = html.replace(/^## (.+)$/gm, '<h2 class="mt-10 mb-4 text-xl font-bold text-neutral-900">$1</h2>')
+  html = html.replace(/^### (.+)$/gm, '<h3 class="mt-8 mb-3 text-lg font-semibold text-neutral-900 dark:text-neutral-100">$1</h3>')
+  html = html.replace(/^## (.+)$/gm, '<h2 class="mt-10 mb-4 text-xl font-bold text-neutral-900 dark:text-neutral-100">$1</h2>')
 
   // Bold
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-neutral-900">$1</strong>')
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-neutral-900 dark:text-neutral-100">$1</strong>')
 
-  // Inline code
+  // Inline code (avoid matching inside <pre> blocks already produced)
   html = html.replace(
-    /`([^`]+)`/g,
-    '<code class="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[13px] text-neutral-600">$1</code>'
+    /`([^`\n]+)`/g,
+    '<code class="rounded bg-neutral-100 dark:bg-neutral-900 px-1.5 py-0.5 font-mono text-[13px] text-neutral-700 dark:text-neutral-300">$1</code>'
   )
 
   // Links
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" class="text-neutral-900 underline underline-offset-2 hover:text-neutral-600">$1</a>'
+    '<a href="$2" class="text-neutral-900 dark:text-neutral-100 underline underline-offset-2 hover:text-neutral-600 dark:hover:text-neutral-400">$1</a>'
   )
+
+  // Blockquotes
+  html = html.replace(/^> (.+)$/gm, '<blockquote class="my-4 border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic text-neutral-700 dark:text-neutral-300">$1</blockquote>')
 
   // Tables
   html = html.replace(/^(\|.+\|)\n(\|[-| :]+\|)\n((?:\|.+\|\n?)+)/gm, (_match, header: string, _sep: string, body: string) => {
     const headers = header.split("|").filter((c: string) => c.trim()).map((c: string) => c.trim())
     const rows = body.trim().split("\n").map((r: string) => r.split("|").filter((c: string) => c.trim()).map((c: string) => c.trim()))
 
-    const th = headers.map((h: string) => `<th class="px-4 py-2.5 text-left text-[13px] font-semibold text-neutral-700">${h}</th>`).join("")
+    const th = headers.map((h: string) => `<th class="px-4 py-2.5 text-left text-[13px] font-semibold text-neutral-700 dark:text-neutral-300">${h}</th>`).join("")
     const tr = rows.map((row: string[]) => {
-      const td = row.map((c: string) => `<td class="px-4 py-2.5 text-[13px] text-neutral-600">${c}</td>`).join("")
-      return `<tr class="border-b border-neutral-100 last:border-0">${td}</tr>`
+      const td = row.map((c: string) => `<td class="px-4 py-2.5 text-[13px] text-neutral-600 dark:text-neutral-400">${c}</td>`).join("")
+      return `<tr class="border-b border-neutral-100 dark:border-neutral-800 last:border-0">${td}</tr>`
     }).join("")
 
-    return `<div class="my-6 overflow-hidden rounded-xl border border-neutral-200"><table class="w-full"><thead><tr class="border-b border-neutral-100 bg-neutral-50">${th}</tr></thead><tbody>${tr}</tbody></table></div>`
+    return `<div class="my-6 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800"><table class="w-full"><thead><tr class="border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">${th}</tr></thead><tbody>${tr}</tbody></table></div>`
   })
 
   // Unordered lists
   html = html.replace(
     /^- (.+)$/gm,
-    '<li class="ml-5 list-disc text-neutral-600">$1</li>'
+    '<li class="ml-5 list-disc text-neutral-600 dark:text-neutral-400">$1</li>'
   )
   html = html.replace(
     /((?:<li class="ml-5 list-disc[^>]*>.*<\/li>\n?)+)/g,
@@ -106,7 +118,7 @@ function mdToHtml(md: string): string {
   // Ordered lists
   html = html.replace(
     /^\d+\. (.+)$/gm,
-    '<li class="ml-5 list-decimal text-neutral-600">$1</li>'
+    '<li class="ml-5 list-decimal text-neutral-600 dark:text-neutral-400">$1</li>'
   )
   html = html.replace(
     /((?:<li class="ml-5 list-decimal[^>]*>.*<\/li>\n?)+)/g,
@@ -114,10 +126,10 @@ function mdToHtml(md: string): string {
   )
 
   // Horizontal rules
-  html = html.replace(/^---$/gm, '<hr class="my-8 border-neutral-200" />')
+  html = html.replace(/^---$/gm, '<hr class="my-8 border-neutral-200 dark:border-neutral-800" />')
 
   // Italics
-  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>")
+  html = html.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
 
   // Paragraphs: wrap remaining lines
   html = html
@@ -126,7 +138,7 @@ function mdToHtml(md: string): string {
       const trimmed = block.trim()
       if (!trimmed) return ""
       if (trimmed.startsWith("<")) return trimmed
-      return `<p class="my-4 text-[15px] leading-[1.8] text-neutral-600">${trimmed.replace(/\n/g, " ")}</p>`
+      return `<p class="my-4 text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400">${trimmed.replace(/\n/g, " ")}</p>`
     })
     .join("\n")
 
