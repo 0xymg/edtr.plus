@@ -129,10 +129,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     const lines = (activeTab?.content || "").split("\n")
 
     const Editor = (
-        <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background">
+        <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background items-start">
             {/* Line numbers — scroll with the content */}
-            <div 
-                className="w-12 shrink-0 select-none border-r border-border bg-card/30 py-3 text-right text-muted-foreground"
+            <div
+                className="w-12 shrink-0 select-none border-r border-border bg-card/30 py-3 text-right text-muted-foreground min-h-full"
                 style={{ fontSize: `${Math.max(10, fontSize - 2)}px`, fontFamily }}
             >
                 {lines.map((_, i) => (

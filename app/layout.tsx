@@ -99,9 +99,9 @@ export default function RootLayout({
         <Toaster richColors />
         <Analytics />
         <Script
-          async
+          defer
           src="https://umami.ymg.digital/script.js"
-          data-website-id="67d5aff1-4e96-4bf8-a53f-d65b7d8328a3"
+          data-website-id="760f938a-09c8-4d87-b21e-d51c36c7fe50"
         />
       </body>
     </html>
