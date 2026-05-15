@@ -1,4 +1,4 @@
-# EDTR.CC 
+# EDTR+
 
 **The legendary efficiency of Notepad++, available in your browser.**
 
