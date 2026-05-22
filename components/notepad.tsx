@@ -178,6 +178,7 @@ export function Notepad() {
   const [fontFamily, setFontFamily] = useState<string>("'JetBrains Mono', monospace")
   const [pickerTarget, setPickerTarget] = useState<"bg" | "text">("bg")
   const [showPreview, setShowPreview] = useState<boolean>(false)
+  const [wordWrap, setWordWrap] = useState<boolean>(true)
   
   const activePickerColor = pickerTarget === "bg" ? (statusBarColor || "#1e1e2e") : (statusBarTextColor || "#cccccc")
 
@@ -261,6 +262,14 @@ export function Notepad() {
     })
   }, [updateUserSettings])
 
+  const toggleWordWrap = useCallback(() => {
+    setWordWrap(prev => {
+      const next = !prev
+      updateUserSettings({ wordWrap: next })
+      return next
+    })
+  }, [updateUserSettings])
+
   useEffect(() => {
     try {
       const savedSettingsStr = localStorage.getItem("notepad-user-settings")
@@ -284,6 +293,7 @@ export function Notepad() {
         if (settings.sidebarOpen !== undefined) setSidebarOpen(settings.sidebarOpen)
         if (settings.sidebarWidth !== undefined) setSidebarWidth(settings.sidebarWidth)
         if (settings.showPreview !== undefined) setShowPreview(settings.showPreview)
+        if (settings.wordWrap !== undefined) setWordWrap(settings.wordWrap)
         if (settings.activeTabId !== undefined) setActiveTabId(settings.activeTabId)
       } else {
         // Fallback for older version
@@ -1555,6 +1565,7 @@ export function Notepad() {
             createNewTab={createNewTab}
             fontSize={fontSize}
             fontFamily={fontFamily}
+            wordWrap={wordWrap}
             showPreview={showPreview}
             setShowPreview={updateShowPreview}
             onExternalFileDrop={handleExternalFileDrop}
@@ -1665,6 +1676,8 @@ export function Notepad() {
         languages={LANGUAGES}
         changeLanguage={changeLanguage}
         languageMenuRef={languageMenuRef}
+        wordWrap={wordWrap}
+        toggleWordWrap={toggleWordWrap}
         save={saveFile}
         isFileSystemTab={activeTab?.source === "filesystem"}
         downloadFile={downloadFile}

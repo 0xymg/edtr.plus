@@ -1,5 +1,5 @@
 import React, { RefObject, useState } from "react"
-import { Menu, Wand2, ChevronDown, Check, Save, Download, Moon, Sun, Palette, RotateCcw } from "lucide-react"
+import { Menu, Wand2, ChevronDown, Check, Save, Download, Moon, Sun, Palette, RotateCcw, WrapText } from "lucide-react"
 import { HexColorPicker } from "react-colorful"
 import { cn } from "@/lib/utils"
 import { Tab } from "../notepad"
@@ -47,6 +47,8 @@ interface StatusBarProps {
     languages: { id: string; name: string }[]
     changeLanguage: (id: string) => void
     languageMenuRef: RefObject<HTMLDivElement | null>
+    wordWrap: boolean
+    toggleWordWrap: () => void
     save: () => void
     isFileSystemTab: boolean
     downloadFile: () => void
@@ -74,6 +76,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     languages,
     changeLanguage,
     languageMenuRef,
+    wordWrap,
+    toggleWordWrap,
     save,
     isFileSystemTab,
     downloadFile,
@@ -147,6 +151,19 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                 >
                     <Wand2 className={cn("h-3.5 w-3.5", isFormatting && "animate-spin")} />
                     <span className="hidden md:inline">{isFormatting ? "Formatting..." : "Format"}</span>
+                </button>
+                <button
+                    onClick={toggleWordWrap}
+                    className={cn(
+                        `flex items-center gap-1 rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`,
+                        wordWrap && "text-foreground"
+                    )}
+                    title={wordWrap ? "Word wrap: on" : "Word wrap: off"}
+                    aria-label="Toggle word wrap"
+                    aria-pressed={wordWrap}
+                >
+                    <WrapText className="h-3.5 w-3.5" />
+                    <span className="hidden md:inline">Wrap</span>
                 </button>
                 <span className="hidden sm:inline">UTF-8</span>
                 <div className="relative">

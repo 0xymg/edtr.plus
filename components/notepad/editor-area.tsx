@@ -29,6 +29,7 @@ interface EditorAreaProps {
     createNewTab: () => void
     fontSize?: number
     fontFamily?: string
+    wordWrap?: boolean
     showPreview?: boolean
     setShowPreview?: (show: boolean) => void
     onExternalFileDrop?: (file: File) => void
@@ -44,6 +45,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     createNewTab,
     fontSize = 14,
     fontFamily = "JetBrains Mono",
+    wordWrap = true,
     showPreview = false,
     setShowPreview,
     onExternalFileDrop
@@ -128,25 +130,58 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
     const lines = (activeTab?.content || "").split("\n")
 
+    // When wrapping is on, a single logical line can occupy several visual rows.
+    // Measure each line's rendered height from a hidden mirror so the gutter
+    // numbers can be sized to match and stay aligned with the text.
+    const measureRef = React.useRef<HTMLDivElement>(null)
+    const [lineHeights, setLineHeights] = React.useState<number[]>([])
+
+    React.useLayoutEffect(() => {
+        if (!wordWrap) {
+            setLineHeights(prev => (prev.length ? [] : prev))
+            return
+        }
+        const el = measureRef.current
+        if (!el) return
+        const measure = () => {
+            const next = Array.from(el.children).map(c => (c as HTMLElement).offsetHeight)
+            setLineHeights(prev =>
+                prev.length === next.length && prev.every((v, i) => v === next[i]) ? prev : next
+            )
+        }
+        measure()
+        const ro = new ResizeObserver(measure)
+        ro.observe(el)
+        return () => ro.disconnect()
+    }, [wordWrap, activeTab?.id, activeTab?.content, fontSize, fontFamily])
+
     const Editor = (
-        <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background items-start">
-            {/* Line numbers — scroll with the content */}
+        <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background">
+            {/* Line numbers — pinned horizontally, scroll vertically with the content */}
             <div
-                className="w-12 shrink-0 select-none border-r border-border bg-card/30 py-3 text-right text-muted-foreground min-h-full"
+                className="w-12 shrink-0 select-none border-r border-border bg-card sticky left-0 z-10 py-3 text-right text-muted-foreground"
                 style={{ fontSize: `${Math.max(10, fontSize - 2)}px`, fontFamily }}
             >
                 {lines.map((_, i) => (
-                    <div key={i} className="px-2 leading-6">
+                    <div
+                        key={i}
+                        className="px-2"
+                        style={{ height: wordWrap ? (lineHeights[i] ?? 24) : 24, lineHeight: "24px" }}
+                    >
                         {i + 1}
                     </div>
                 ))}
             </div>
 
             {/* Editor: grid layering so pre and textarea share the same cell and grow together */}
-            <div className="flex-1 min-w-0 min-h-full" style={{ display: "grid" }}>
+            <div
+                className={cn("min-h-full", wordWrap ? "flex-1 min-w-0" : "shrink-0 min-w-full")}
+                style={{ display: "grid" }}
+            >
                 <pre
                     className={cn(
-                        "col-start-1 row-start-1 m-0 w-full whitespace-pre-wrap break-words p-3 leading-6",
+                        "col-start-1 row-start-1 m-0 w-full p-3 leading-6",
+                        wordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre",
                         activeTab?.language !== "plaintext" && activeTab?.content
                             ? "pointer-events-none"
                             : "invisible pointer-events-none"
@@ -164,8 +199,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                     value={activeTab?.content || ""}
                     onChange={(e) => updateContent(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    wrap={wordWrap ? "soft" : "off"}
                     className={cn(
                         "col-start-1 row-start-1 resize-none bg-transparent p-3 leading-6 outline-none overflow-hidden w-full placeholder:text-muted-foreground",
+                        wordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre",
                         activeTab?.language !== "plaintext" && activeTab?.content
                             ? "text-transparent caret-foreground"
                             : "text-foreground"
@@ -174,6 +211,18 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                     placeholder="Type something"
                     spellCheck={false}
                 />
+                {wordWrap && (
+                    <div
+                        ref={measureRef}
+                        aria-hidden="true"
+                        className="col-start-1 row-start-1 m-0 w-full whitespace-pre-wrap break-words p-3 leading-6 invisible pointer-events-none"
+                        style={{ fontSize: `${fontSize}px`, fontFamily }}
+                    >
+                        {lines.map((line, i) => (
+                            <div key={i}>{line === "" ? " " : line}</div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     )
