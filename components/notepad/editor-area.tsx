@@ -129,12 +129,17 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     }
 
     const lines = (activeTab?.content || "").split("\n")
+    const LINE_PX = 24
 
     // When wrapping is on, a single logical line can occupy several visual rows.
-    // Measure each line's rendered height from a hidden mirror so the gutter
-    // numbers can be sized to match and stay aligned with the text.
+    // Measure each line's rendered height from a hidden mirror so every visual
+    // row (including wrapped continuations) gets its own sequential number.
     const measureRef = React.useRef<HTMLDivElement>(null)
     const [lineHeights, setLineHeights] = React.useState<number[]>([])
+
+    const totalVisualRows = wordWrap && lineHeights.length
+        ? lineHeights.reduce((sum, h) => sum + Math.max(1, Math.round(h / LINE_PX)), 0)
+        : lines.length
 
     React.useLayoutEffect(() => {
         if (!wordWrap) {
@@ -162,11 +167,11 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                 className="w-12 shrink-0 select-none border-r border-border bg-card sticky left-0 z-10 py-3 text-right text-muted-foreground"
                 style={{ fontSize: `${Math.max(10, fontSize - 2)}px`, fontFamily }}
             >
-                {lines.map((_, i) => (
+                {Array.from({ length: totalVisualRows }, (_, i) => (
                     <div
                         key={i}
                         className="px-2"
-                        style={{ height: wordWrap ? (lineHeights[i] ?? 24) : 24, lineHeight: "24px" }}
+                        style={{ height: LINE_PX, lineHeight: `${LINE_PX}px` }}
                     >
                         {i + 1}
                     </div>
