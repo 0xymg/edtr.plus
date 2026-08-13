@@ -22,7 +22,7 @@ There is no account to create and no sign-up process. You open the website, star
 EDTR highlights your code with proper colors as you type. It supports over 20 languages including JavaScript, TypeScript, Python, HTML, CSS, JSON, Go, Rust, C, C++, Java, PHP, Ruby, Swift, Kotlin, SQL, Bash, Markdown, YAML, and XML. You can select the language from the status bar at the bottom of the editor.
 
 ### Multi-tab Editing
-You can open multiple files in separate tabs, just like in Notepad++ or any desktop code editor. Each tab has its own content, language setting, and file name. Use ⌘T to create a new tab and ⌘W to close the current tab.
+You can open multiple files in separate tabs, just like in Notepad++ or any desktop code editor. Each tab has its own content, language setting, and file name. Use Alt+N (⌃⌥N on macOS) to create a new tab and Alt+X (⌃⌥X on macOS) to close the current tab.
 
 ### Automatic Saving
 Your notes are saved automatically to your browser's LocalStorage after every change. You do not need to press a save button. If you close the browser and open EDTR again later, all your tabs and content will be restored exactly as you left them.
@@ -43,7 +43,7 @@ All your data is stored locally on your device. EDTR does not send your content 
 EDTR supports both dark and light themes. You can switch between them from the editor. The status bar color can also be customized with a built-in color picker.
 
 ### Code Formatting
-EDTR supports code formatting for JSON files. Press Shift+Alt+F to format your JSON code.
+EDTR supports code formatting for JSON files. Press Alt+Shift+F (⌃⌥⇧F on macOS) to format your JSON code.
 
 ### Word and Character Count
 The status bar shows real-time line count, word count, and character count as you type.
@@ -57,7 +57,7 @@ You can download your files as .txt files using ⌘⇧S. You can also export all
 
 1. Open the editor: Go to edtr.cc/notepad in any modern browser. The editor loads instantly.
 2. Start typing: You can begin writing immediately. Your content is saved automatically.
-3. Create multiple tabs: Press ⌘T (or Ctrl+T on Windows) to open a new tab.
+3. Create multiple tabs: Press Alt+N (⌃⌥N on macOS) to open a new tab.
 4. Choose a language: Click the language selector in the bottom status bar to enable syntax highlighting.
 5. Open files from your computer: On Chrome and Edge, use the sidebar buttons to open files or folders from your disk.
 6. Install as an app: Install EDTR as a PWA from your browser for offline access.
@@ -66,18 +66,20 @@ You can download your files as .txt files using ⌘⇧S. You can also export all
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| ⌘T | Open a new tab |
-| ⌘W | Close the current tab |
-| ⌘S | Save file |
-| ⌘⇧S | Download file |
-| ⌘L | Toggle sidebar |
-| ⌘/ | Toggle comment |
-| ⇧⌥F | Format code (JSON) |
-| Tab | Insert indentation |
+The app modifier is Alt on Windows/Linux and ⌃⌥ (Control+Option) on macOS, chosen so shortcuts never collide with system or browser shortcuts, or with the characters the Option key types.
 
-On Windows and Linux, use Ctrl instead of ⌘.
+| Windows / Linux | macOS | Action |
+|----------|----------|--------|
+| Ctrl+O | ⌘O | Open file from disk |
+| Ctrl+S | ⌘S | Save file |
+| Ctrl+Shift+S | ⌘⇧S | Download file |
+| Alt+N | ⌃⌥N | Open a new tab |
+| Alt+X | ⌃⌥X | Close the current tab |
+| Alt+B | ⌃⌥B | Toggle sidebar |
+| Alt+P | ⌃⌥P | Markdown/SVG preview |
+| Ctrl+/ | ⌘/ | Toggle comment |
+| Alt+Shift+F | ⌃⌥⇧F | Format code (JSON) |
+| Tab | Tab | Insert indentation |
 
 ---
 
