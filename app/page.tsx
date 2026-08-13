@@ -49,7 +49,7 @@ const FAQS = [
   },
   {
     q: "Can I open and save real files?",
-    a: "Yes. On Chrome, Edge and Opera, the File System Access API lets you open files from disk and save back with ⌘S. On other browsers, you can download with ⌘⇧S.",
+    a: "Yes. On Chrome, Edge and Opera, the File System Access API lets you open files from disk and save back with Ctrl+S (⌘S on Mac). On other browsers, you can download with Ctrl+Shift+S.",
   },
   {
     q: "How is EDTR+ different from Notepad++?",
@@ -61,7 +61,7 @@ const FAQS = [
   },
   {
     q: "Can it handle really large files?",
-    a: "Yes. The editor renders only the lines visible on screen, so opening, selecting and editing a 100,000-line file feels the same as a short note. For files bigger than your browser's storage quota, open them from disk and save back with ⌘S.",
+    a: "Yes. The editor renders only the lines visible on screen, so opening, selecting and editing a 100,000-line file feels the same as a short note. For files bigger than your browser's storage quota, open them from disk and save back with Ctrl+S (⌘S on Mac).",
   },
   {
     q: "Which browsers work?",
@@ -125,6 +125,9 @@ export default function LandingPage() {
   useEffect(() => {
     if (isMacPlatform()) setMod("⌃⌥")
   }, [])
+  const isMacUi = mod === "⌃⌥"
+  const cmd = isMacUi ? "⌘" : "Ctrl"
+  const cmdShift = isMacUi ? "⌘⇧" : "Ctrl⇧"
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -254,7 +257,7 @@ export default function LandingPage() {
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
             Everything in EDTR+ is a couple of keystrokes away, and none of them fight your system.{" "}
-            <Kbd>{mod}+N</Kbd> opens a tab, <Kbd>{mod}+X</Kbd> closes it, <Kbd>⌘S</Kbd> saves straight
+            <Kbd>{mod}+N</Kbd> opens a tab, <Kbd>{mod}+X</Kbd> closes it, <Kbd>{cmd}+S</Kbd> saves straight
             to disk. On macOS that modifier is <Kbd>⌃ Control</Kbd> + <Kbd>⌥ Option</Kbd>, a combination
             the system leaves alone. Nothing collides with browser menus or the characters Option types.
           </p>
@@ -266,14 +269,14 @@ export default function LandingPage() {
 
           <div className={`mt-10 grid grid-cols-1 sm:grid-cols-2 border-t ${hairline}`}>
             {[
-              ["Open file", ["⌘", "O"]],
-              ["Save file", ["⌘", "S"]],
+              ["Open file", [cmd, "O"]],
+              ["Save file", [cmd, "S"]],
               ["New tab", [mod, "N"]],
               ["Close tab", [mod, "X"]],
               ["Toggle sidebar", [mod, "B"]],
-              ["Download file", ["⌘⇧", "S"]],
-              ["Find & replace", [mod, "R"]],
-              ["Toggle comment", ["⌘", "/"]],
+              ["Download file", [cmdShift, "S"]],
+              ["Find & replace", [cmd, "F"]],
+              ["Toggle comment", [cmd, "/"]],
               ["Format (JSON)", [`${mod}⇧`, "F"]],
               ["Markdown preview", [mod, "P"]],
               ["Insert indentation", ["Tab"]],
@@ -395,9 +398,8 @@ export default function LandingPage() {
                 body: (
                   <>
                     Keep as many documents open as you like. <Kbd>{mod}+N</Kbd> for a new tab,{" "}
-                    <Kbd>{mod}+X</Kbd> to close one. <Kbd>{mod}+R</Kbd> opens find &amp; replace, with
-                    regex and match-case when you want them. Your browser&apos;s own <Kbd>⌘F</Kbd> stays
-                    untouched.
+                    <Kbd>{mod}+X</Kbd> to close one. <Kbd>{cmd}+F</Kbd> opens find &amp; replace right in
+                    the editor, with regex and match-case when you want them.
                   </>
                 ),
               },
@@ -407,7 +409,7 @@ export default function LandingPage() {
                   <>
                     The editor only renders the lines on your screen, so a 100,000-line log file
                     opens, selects and edits as fast as a ten-line note. Paste it, hit{" "}
-                    <Kbd>⌘A</Kbd>, keep typing. Nothing freezes.
+                    <Kbd>{cmd}+A</Kbd>, keep typing. Nothing freezes.
                   </>
                 ),
               },

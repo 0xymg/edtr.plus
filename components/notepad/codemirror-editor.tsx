@@ -23,7 +23,6 @@ import {
 import { search, openSearchPanel, closeSearchPanel, highlightSelectionMatches } from "@codemirror/search"
 import { languages as languageData } from "@codemirror/language-data"
 import { tags as t } from "@lezer/highlight"
-import { isMacPlatform } from "@/lib/shortcuts"
 
 // Imperative surface the rest of the app talks to. The document lives inside
 // CodeMirror while a tab is active; React state receives debounced copies,
@@ -150,13 +149,13 @@ const editorTheme = EditorView.theme({
     },
 })
 
-// Keybindings must not shadow browser or OS shortcuts. Two consequences:
-// - Search opens on the app modifier (⌃⌥R on macOS, Alt+R elsewhere), never
-//   on ⌘F/Ctrl+F — find-in-page belongs to the browser. R is chosen because
-//   Alt+F/E/V/B/T/H hit browser menus on Windows and Alt+R hits nothing.
-// - Mod-[ / Mod-] are dropped from the default keymap: ⌘[ / ⌘] are
-//   Back/Forward on macOS.
-const searchOpenKey = () => (isMacPlatform() ? "Ctrl-Alt-r" : "Alt-r")
+// Keybindings must not shadow browser or OS shortcuts, with one deliberate
+// exception: ⌘F/Ctrl+F opens the editor's find & replace while the editor is
+// focused — that habit is too strong to break, and every web editor does the
+// same. Browser find-in-page still works anywhere outside the editor.
+// Mod-[ / Mod-] are dropped from the default keymap: ⌘[ / ⌘] are
+// Back/Forward on macOS.
+const searchOpenKey = () => "Mod-f"
 const safeDefaultKeymap = defaultKeymap.filter(
     (b) => b.key !== "Mod-[" && b.key !== "Mod-]"
 )

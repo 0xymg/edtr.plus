@@ -16,7 +16,7 @@ import {
     Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { appModLabel } from "@/lib/shortcuts"
+import { appModLabel, cmdModLabel } from "@/lib/shortcuts"
 import { Tab, FolderItem } from "../notepad"
 import { FileIcon } from "./file-icon"
 
@@ -315,7 +315,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <FolderPlus className="h-4 w-4" />
                 </button>
                 <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden="true" />
-                <button onClick={onOpenFile} className={iconButton} title="Open file from disk (⌘O)" aria-label="Open file from disk">
+                <button onClick={onOpenFile} className={iconButton} title={`Open file from disk (${cmdModLabel()}+O)`} aria-label="Open file from disk">
                     <FileUp className="h-4 w-4" />
                 </button>
                 {supportsDirectoryPicker && (

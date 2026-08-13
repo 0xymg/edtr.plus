@@ -45,7 +45,7 @@ The app modifier is `Alt` on Windows/Linux and `⌃⌥` (Control+Option) on macO
 | `Alt+X` | `⌃⌥X` | Close tab |
 | `Alt+B` | `⌃⌥B` | Toggle sidebar |
 | `Alt+P` | `⌃⌥P` | Markdown/SVG preview |
-| `Alt+R` | `⌃⌥R` | Find & replace |
+| `Ctrl+F` | `⌘F` | Find & replace |
 | `Ctrl+/` | `⌘/` | Toggle comment |
 | `Alt+Shift+F` | `⌃⌥⇧F` | Format (JSON) |
 

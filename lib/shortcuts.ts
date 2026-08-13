@@ -19,3 +19,6 @@ export const hasAppModifier = (e: Pick<KeyboardEvent, "altKey" | "ctrlKey" | "me
 
 /** Human-readable label for the app command modifier. */
 export const appModLabel = () => (isMacPlatform() ? "⌃⌥" : "Alt")
+
+/** Human-readable label for the primary command key (⌘ on macOS, Ctrl elsewhere). */
+export const cmdModLabel = () => (isMacPlatform() ? "⌘" : "Ctrl")
