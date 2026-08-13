@@ -17,22 +17,6 @@ const PreviewPane = dynamic(
     { ssr: false, loading: () => <div className="flex-1 h-full border-l border-border" /> }
 )
 
-// The wrap-measurement mirror, split into memoized blocks. Rendering one div
-// per line meant reconciling 10k+ elements on every keystroke; with blocks,
-// unchanged spans bail out on a string compare and only the edited block
-// re-renders. Fragments keep the DOM flat so the parent can still index
-// line divs directly.
-const MIRROR_BLOCK_SIZE = 500
-const MirrorBlock = React.memo(function MirrorBlock({ text }: { text: string }) {
-    return (
-        <>
-            {text.split("\n").map((line, i) => (
-                <div key={i}>{line === "" ? " " : line}</div>
-            ))}
-        </>
-    )
-})
-
 interface EditorAreaProps {
     activeTab: Tab | undefined
     tabs: Tab[]
@@ -149,7 +133,13 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     // keystroke commit only touches the textarea, and the gutter catches up
     // in a low-priority render right after.
     const deferredContent = React.useDeferredValue(content)
-    const lines = React.useMemo(() => deferredContent.split("\n"), [deferredContent])
+    const lineCount = React.useMemo(() => {
+        let n = 1
+        for (let i = 0; i < deferredContent.length; i++) {
+            if (deferredContent.charCodeAt(i) === 10) n++
+        }
+        return n
+    }, [deferredContent])
     const LINE_PX = 24
 
     // Above this size the syntax overlay is skipped: highlighting the whole
@@ -162,80 +152,52 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         [highlightable, content, language, getHighlightedCode]
     )
 
-    // When wrapping is on, a single logical line can occupy several visual rows.
-    // Measure each line's rendered height from a hidden mirror so every visual
-    // row (including wrapped continuations) gets its own sequential number.
-    // Reading offsetHeight for every line on every keystroke forces an O(n)
-    // reflow, so heights are cached and only the lines the edit actually
-    // changed are re-measured (found by prefix/suffix diff).
-    const measureRef = React.useRef<HTMLDivElement>(null)
-    const [lineHeights, setLineHeights] = React.useState<number[]>([])
-    const heightsRef = React.useRef<number[]>([])
-    const prevLinesRef = React.useRef<string[] | null>(null)
-    const measureKeyRef = React.useRef("")
+    // When wrapping is on, a single logical line can occupy several visual
+    // rows. Instead of mirroring every line in hidden DOM and measuring each
+    // one (an O(n) reflow that froze the tab on large documents), the total
+    // visual row count is read from the textarea's own scrollHeight: the
+    // browser has already wrapped the text, so one property read gives the
+    // exact height for both the gutter and the auto-grow container.
+    const gridRef = React.useRef<HTMLDivElement>(null)
+    const [wrapHeight, setWrapHeight] = React.useState<number | null>(null)
     const [remeasure, setRemeasure] = React.useState(0)
-
-    const totalVisualRows = wordWrap && lineHeights.length
-        ? lineHeights.reduce((sum, h) => sum + Math.max(1, Math.round(h / LINE_PX)), 0)
-        : lines.length
+    const PAD_Y = 24 // p-3 top + bottom
 
     React.useLayoutEffect(() => {
-        if (!wordWrap) {
-            prevLinesRef.current = null
-            heightsRef.current = []
-            setLineHeights(prev => (prev.length ? [] : prev))
+        const ta = textareaRef.current
+        if (!wordWrap || !ta) {
+            setWrapHeight(null)
             return
         }
-        const el = measureRef.current
-        if (!el) return
-        const kids = el.children
-        if (kids.length !== lines.length) return
-        const key = `${activeTab?.id}|${fontSize}|${fontFamily}|${remeasure}`
-        const prev = prevLinesRef.current
-        const prevHeights = heightsRef.current
-        const n = lines.length
-        let heights: number[]
-        if (key !== measureKeyRef.current || !prev || prevHeights.length !== prev.length) {
-            heights = new Array(n)
-            for (let i = 0; i < n; i++) heights[i] = (kids[i] as HTMLElement).offsetHeight
-        } else {
-            const pn = prev.length
-            const minLen = Math.min(n, pn)
-            let s = 0
-            while (s < minLen && prev[s] === lines[s]) s++
-            let e = 0
-            while (e < minLen - s && prev[pn - 1 - e] === lines[n - 1 - e]) e++
-            heights = new Array(n)
-            for (let i = 0; i < s; i++) heights[i] = prevHeights[i]
-            for (let i = s; i < n - e; i++) heights[i] = (kids[i] as HTMLElement).offsetHeight
-            for (let i = n - e; i < n; i++) heights[i] = prevHeights[pn - (n - i)]
-        }
-        measureKeyRef.current = key
-        prevLinesRef.current = lines
-        heightsRef.current = heights
-        setLineHeights(prevH =>
-            prevH.length === heights.length && prevH.every((v, i) => v === heights[i]) ? prevH : heights
-        )
-    }, [wordWrap, lines, fontSize, fontFamily, activeTab?.id, remeasure])
+        // Collapse so scrollHeight reports content height, then restore. The
+        // text line layout is cached (width unchanged), so this is cheap.
+        const prev = ta.style.height
+        ta.style.height = "0px"
+        const h = ta.scrollHeight
+        ta.style.height = prev || ""
+        setWrapHeight(cur => (cur === h ? cur : h))
+    }, [wordWrap, content, fontSize, fontFamily, activeTab?.id, remeasure, textareaRef])
 
-    // A width change re-wraps every line, so only then re-measure everything.
-    // (Observing height too would put the full O(n) measure back on every edit.)
+    // A width change re-wraps every line; re-read the height when it happens.
     React.useEffect(() => {
         if (!wordWrap) return
-        const el = measureRef.current
+        const el = gridRef.current
         if (!el) return
         let lastWidth = el.clientWidth
         const ro = new ResizeObserver(entries => {
             const w = entries[entries.length - 1].contentRect.width
             if (Math.abs(w - lastWidth) > 0.5) {
                 lastWidth = w
-                measureKeyRef.current = ""
                 setRemeasure(v => v + 1)
             }
         })
         ro.observe(el)
         return () => ro.disconnect()
-    }, [wordWrap, activeTab?.id])
+    }, [wordWrap])
+
+    const totalVisualRows = wordWrap && wrapHeight !== null
+        ? Math.max(1, Math.round((wrapHeight - PAD_Y) / LINE_PX))
+        : lineCount
 
     // One text node instead of one div per row: at 10k+ lines the per-div
     // gutter alone was thousands of DOM nodes reconciled on every keystroke.
@@ -244,15 +206,6 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         for (let i = 1; i <= totalVisualRows; i++) s += i + "\n"
         return s
     }, [totalVisualRows])
-
-    const mirrorBlocks = React.useMemo(() => {
-        if (!wordWrap) return []
-        const blocks: string[] = []
-        for (let i = 0; i < lines.length; i += MIRROR_BLOCK_SIZE) {
-            blocks.push(lines.slice(i, i + MIRROR_BLOCK_SIZE).join("\n"))
-        }
-        return blocks
-    }, [lines, wordWrap])
 
     const Editor = (
         <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background">
@@ -268,8 +221,14 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
             {/* Editor: grid layering so pre and textarea share the same cell and grow together */}
             <div
+                ref={gridRef}
                 className={cn("min-h-full", wordWrap ? "flex-1 min-w-0" : "shrink-0 min-w-full")}
-                style={{ display: "grid" }}
+                style={{
+                    display: "grid",
+                    // In wrap mode the textarea can't auto-grow on its own, so
+                    // the measured content height sizes the grid cell for it.
+                    height: wordWrap && wrapHeight !== null ? wrapHeight : undefined,
+                }}
             >
                 {highlighted !== null ? (
                     <pre
@@ -284,8 +243,8 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                 ) : !wordWrap ? (
                     // Plain text without wrap: the pre defines the grid cell's
                     // width and height (a text node, so no HTML parsing). With
-                    // wrap on, the measurement mirror below already does that
-                    // job, and updating a second full-document text node per
+                    // wrap on, the measured wrapHeight sizes the grid instead,
+                    // and updating a second full-document text node per
                     // keystroke would force a whole-block relayout for nothing.
                     <pre
                         className="col-start-1 row-start-1 m-0 w-full p-3 leading-6 whitespace-pre invisible pointer-events-none"
@@ -310,18 +269,6 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                     placeholder="Type something"
                     spellCheck={false}
                 />
-                {wordWrap && (
-                    <div
-                        ref={measureRef}
-                        aria-hidden="true"
-                        className="col-start-1 row-start-1 m-0 w-full whitespace-pre-wrap break-words p-3 leading-6 invisible pointer-events-none"
-                        style={{ fontSize: `${fontSize}px`, fontFamily }}
-                    >
-                        {mirrorBlocks.map((block, i) => (
-                            <MirrorBlock key={i} text={block} />
-                        ))}
-                    </div>
-                )}
             </div>
         </div>
     )

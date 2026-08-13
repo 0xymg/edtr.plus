@@ -22,10 +22,11 @@ const author = localFont({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://edtr.plus"
 const siteName = "EDTR+"
-const siteTitle = "EDTR+ — Online Notepad++ alternative for Quick Notes"
-const siteDescription = "An online Notepad++ alternative for quick notes."
+const siteTitle = "EDTR+ | Free Online Notepad, a Notepad++ Alternative in Your Browser"
+const siteDescription =
+  "A free online notepad and Notepad++ alternative. Tabs, syntax highlighting for 20+ languages, find & replace, real file access. No download, no account, your text stays on your device."
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -44,6 +45,16 @@ export const metadata: Metadata = {
   },
   description: siteDescription,
   applicationName: siteName,
+  keywords: [
+    "online notepad",
+    "notepad++ alternative",
+    "online text editor",
+    "free code editor",
+    "browser text editor",
+    "notepad online",
+    "syntax highlighting",
+  ],
+  category: "productivity",
   generator: "YMG.DIGITAL",
   icons: {
     icon: [
@@ -65,26 +76,19 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  // og:image and twitter:image come from app/opengraph-image.tsx (generated
+  // at build time); listing an image here would override it.
   openGraph: {
     type: "website",
     url: "/",
     siteName,
     title: siteTitle,
     description: siteDescription,
-    images: [
-      {
-        url: "/placeholder.jpg",
-        width: 1200,
-        height: 630,
-        alt: siteName,
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
     description: siteDescription,
-    images: ["/placeholder.jpg"],
   },
   robots: {
     index: true,

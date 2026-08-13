@@ -24,10 +24,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: post.metaTitle || post.title,
         description: post.metaDescription,
         keywords: post.keywords,
+        alternates: {
+            canonical: `/blog/${post.slug}`,
+        },
         openGraph: {
             title: post.metaTitle || post.title,
             description: post.metaDescription,
             type: "article",
+            url: `/blog/${post.slug}`,
         },
     }
 }
@@ -51,8 +55,23 @@ export default async function BlogPostPage({ params }: Props) {
     const wordCount = post.content.split(/\s+/).length
     const readTime = Math.ceil(wordCount / 200)
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://edtr.plus"
+    const articleJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description: post.metaDescription,
+        url: `${siteUrl}/blog/${post.slug}`,
+        author: { "@type": "Organization", name: "EDTR+", url: siteUrl },
+        publisher: { "@type": "Organization", name: "EDTR+", url: siteUrl },
+    }
+
     return (
         <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+            />
             {/* Navigation */}
             <nav className="sticky top-0 z-50 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">

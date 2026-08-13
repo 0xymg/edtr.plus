@@ -30,6 +30,71 @@ const Notepad = dynamic(() => import("@/components/notepad").then(m => m.Notepad
   ),
 })
 
+const FAQS = [
+  {
+    q: "Is EDTR+ free to use?",
+    a: "Yes. No ads, no sign-up, no premium tier, no trial clock. It's open source under an MIT license.",
+  },
+  {
+    q: "If I close the tab, do I lose my work?",
+    a: "No. Every keystroke is written to your browser's local storage. Come back to the tab and it's still there.",
+  },
+  {
+    q: "Do I need an account?",
+    a: "No. There's nothing to sign up for. The editor at the top of this page is the whole product.",
+  },
+  {
+    q: "Where does my writing go?",
+    a: "Nowhere. It stays in your browser's local storage on this device. Nothing is uploaded, scanned, or used for training.",
+  },
+  {
+    q: "Can I open and save real files?",
+    a: "Yes. On Chrome, Edge and Opera, the File System Access API lets you open files from disk and save back with ⌘S. On other browsers, you can download with ⌘⇧S.",
+  },
+  {
+    q: "How is EDTR+ different from Notepad++?",
+    a: "Notepad++ is a desktop app for Windows. EDTR+ runs in the browser on any OS, with no install. Same idea: fast, tabs, syntax highlighting.",
+  },
+  {
+    q: "Which languages have syntax highlighting?",
+    a: "JavaScript, TypeScript, Python, Go, Rust, C, C++, C#, Java, Kotlin, Swift, Ruby, PHP, HTML, CSS, JSON, YAML, Markdown, SQL, Bash, and more.",
+  },
+  {
+    q: "Which browsers work?",
+    a: "Current versions of Chrome, Edge, Firefox, Safari and other Chromium-based browsers. For the best local-file experience, use one with File System Access API support (Chrome, Edge, Opera).",
+  },
+]
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://edtr.plus"
+
+// Structured data: WebApplication for the product, FAQPage mirroring the
+// visible FAQ section. Rendered as a static JSON-LD script in the SSG HTML.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      name: "EDTR+",
+      url: SITE_URL,
+      description:
+        "A free online notepad and Notepad++ alternative in your browser. Tabs, syntax highlighting for 20+ languages, find & replace, real file access. No download, no account.",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any",
+      browserRequirements: "Requires a modern web browser",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      license: "https://opensource.org/licenses/MIT",
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    },
+  ],
+}
+
 const ink = "text-[#1C1B18] dark:text-[#EDECE8]"
 const muted = "text-[#1C1B18]/60 dark:text-[#EDECE8]/60"
 const faint = "text-[#1C1B18]/45 dark:text-[#EDECE8]/45"
@@ -99,6 +164,10 @@ export default function LandingPage() {
 
   return (
     <div className={`bg-white dark:bg-[#161512] ${ink}`}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
       {/* Editor */}
       <section className="h-screen w-full shrink-0 overflow-hidden bg-background">
         <Notepad />
@@ -472,40 +541,7 @@ export default function LandingPage() {
           </h2>
 
           <div className="mt-8">
-            {[
-              {
-                q: "Is EDTR+ free to use?",
-                a: "Yes. No ads, no sign-up, no premium tier, no trial clock. It's open source under an MIT license.",
-              },
-              {
-                q: "If I close the tab, do I lose my work?",
-                a: "No. Every keystroke is written to your browser's local storage. Come back to the tab and it's still there.",
-              },
-              {
-                q: "Do I need an account?",
-                a: "No. There's nothing to sign up for. The editor at the top of this page is the whole product.",
-              },
-              {
-                q: "Where does my writing go?",
-                a: "Nowhere. It stays in your browser's local storage on this device. Nothing is uploaded, scanned, or used for training.",
-              },
-              {
-                q: "Can I open and save real files?",
-                a: "Yes. On Chrome, Edge and Opera, the File System Access API lets you open files from disk and save back with ⌘S. On other browsers, you can download with ⌘⇧S.",
-              },
-              {
-                q: "How is EDTR+ different from Notepad++?",
-                a: "Notepad++ is a desktop app for Windows. EDTR+ runs in the browser on any OS, with no install. Same idea: fast, tabs, syntax highlighting.",
-              },
-              {
-                q: "Which languages have syntax highlighting?",
-                a: "JavaScript, TypeScript, Python, Go, Rust, C, C++, C#, Java, Kotlin, Swift, Ruby, PHP, HTML, CSS, JSON, YAML, Markdown, SQL, Bash, and more.",
-              },
-              {
-                q: "Which browsers work?",
-                a: "Current versions of Chrome, Edge, Firefox, Safari and other Chromium-based browsers. For the best local-file experience, use one with File System Access API support (Chrome, Edge, Opera).",
-              },
-            ].map((faq, i) => (
+            {FAQS.map((faq, i) => (
               <details key={i} className={`group border-t ${hairline} last:border-b`} open={i === 0}>
                 <summary className={`flex cursor-pointer list-none items-center justify-between gap-4 py-5 ${display} text-lg tracking-[-0.02em] [&::-webkit-details-marker]:hidden`}>
                   {faq.q}
