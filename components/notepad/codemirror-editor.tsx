@@ -6,6 +6,11 @@ import {
     EditorView,
     keymap,
     lineNumbers,
+    drawSelection,
+    dropCursor,
+    rectangularSelection,
+    highlightActiveLine,
+    highlightActiveLineGutter,
     placeholder as cmPlaceholder,
 } from "@codemirror/view"
 import {
@@ -32,6 +37,8 @@ export interface EditorHandle {
     focus: () => void
     getValue: () => string
     setValue: (value: string) => void
+    /** Select a document range and scroll it into view (command palette jumps). */
+    reveal: (from: number, to: number) => void
 }
 
 interface CodeMirrorEditorProps {
@@ -96,6 +103,12 @@ const editorTheme = EditorView.theme({
     },
     "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection": {
         backgroundColor: "color-mix(in oklab, var(--primary) 25%, transparent) !important",
+    },
+    ".cm-activeLine": {
+        backgroundColor: "color-mix(in oklab, var(--muted) 45%, transparent)",
+    },
+    "&:not(.cm-focused) .cm-activeLine": {
+        backgroundColor: "transparent",
     },
     ".cm-gutters": {
         backgroundColor: "var(--card)",
@@ -205,6 +218,14 @@ export const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
             doc: lastValueRef.current,
             extensions: [
                 lineNumbers(),
+                highlightActiveLine(),
+                highlightActiveLineGutter(),
+                // CM paints its own selection layer: the native one is
+                // invisible while the view is unfocused, which made palette
+                // jumps land silently.
+                drawSelection(),
+                dropCursor(),
+                rectangularSelection(),
                 history(),
                 indentUnit.of("  "),
                 syntaxHighlighting(highlightStyle, { fallback: true }),
@@ -239,6 +260,17 @@ export const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
                 view.dispatch({
                     changes: { from: 0, to: view.state.doc.length, insert: v },
                 })
+            },
+            reveal: (from: number, to: number) => {
+                const max = view.state.doc.length
+                const anchor = Math.min(from, max)
+                const head = Math.min(to, max)
+                view.dispatch({
+                    selection: { anchor, head },
+                    effects: EditorView.scrollIntoView(anchor, { y: "center" }),
+                    scrollIntoView: true,
+                })
+                view.focus()
             },
         }
 

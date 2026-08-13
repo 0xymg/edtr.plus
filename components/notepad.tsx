@@ -4,7 +4,7 @@ import React from "react"
 import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
-import { hasAppModifier, appModLabel } from "@/lib/shortcuts"
+import { hasAppModifier, appModLabel, cmdModLabel } from "@/lib/shortcuts"
 import type { EditorHandle } from "./notepad/codemirror-editor"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
 import {
@@ -17,10 +17,19 @@ import {
 } from "@/lib/file-system"
 
 // Import subcomponents
+import dynamic from "next/dynamic"
 import { Sidebar } from "./notepad/sidebar"
 import { TabBar } from "./notepad/tab-bar"
 import { EditorArea } from "./notepad/editor-area"
 import { StatusBar } from "./notepad/status-bar"
+import type { ContentMatch } from "./notepad/command-palette"
+
+// The palette pulls in cmdk + the dialog primitives; it only mounts once the
+// user actually opens it.
+const CommandPalette = dynamic(
+  () => import("./notepad/command-palette").then(m => m.CommandPalette),
+  { ssr: false }
+)
 import { HexColorPicker } from "react-colorful"
 import {
   Popover,
@@ -324,6 +333,23 @@ export function Notepad() {
     const live = editorRef.current?.getValue()
     return live !== undefined ? live : tab.content
   }, [])
+
+  const activeTabIdRef = useRef<string | null>(null)
+  activeTabIdRef.current = activeTabId
+
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  // A jump into another tab has to wait for that tab's editor to mount before
+  // it can select the range, so the target is parked here until it exists.
+  const pendingRevealRef = useRef<{ tabId: string; from: number; to: number } | null>(null)
+
+  // Content for the palette: the active tab lives in CodeMirror, the rest in state
+  const getPaletteContent = useCallback((tab: Tab) => {
+    if (tab.id === activeTabIdRef.current) {
+      const live = editorRef.current?.getValue()
+      if (live !== undefined) return live
+    }
+    return tab.content
+  }, [])
   const languageMenuRef = useRef<HTMLDivElement>(null)
   const languageButtonRef = useRef<HTMLButtonElement>(null)
   const editingNameRef = useRef("")
@@ -339,6 +365,22 @@ export function Notepad() {
     updateActiveTabId(id)
     setOpenTabIds(prev => prev.includes(id) ? prev : [...prev, id])
   }, [updateActiveTabId])
+
+  // Palette: jump to a search hit, switching tabs first when needed
+  const revealMatch = useCallback((match: ContentMatch) => {
+    if (match.tabId === activeTabIdRef.current) {
+      editorRef.current?.reveal(match.from, match.to)
+      return
+    }
+    pendingRevealRef.current = { tabId: match.tabId, from: match.from, to: match.to }
+    selectTab(match.tabId)
+  }, [selectTab])
+
+  // Palette: reveal a folder by expanding it and showing the sidebar
+  const revealFolder = useCallback((folderId: string) => {
+    setFolders(prev => prev.map(f => (f.id === folderId ? { ...f, isExpanded: true } : f)))
+    updateSidebarOpen(true)
+  }, [updateSidebarOpen])
 
   // Actions
   const createNewTab = useCallback(() => {
@@ -1120,6 +1162,13 @@ export function Notepad() {
       if (isCmd && e.shiftKey && !e.altKey && e.code === "KeyS") { e.preventDefault(); downloadFile(); return }
       if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyS") { e.preventDefault(); saveFile(); return }
       if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyO") { e.preventDefault(); openFileFromDisk(); return }
+      // Command palette — ⌘K/Ctrl+K, the universal convention (VS Code,
+      // GitHub, Linear). Overrides the browser's "focus search box".
+      if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyK") {
+        e.preventDefault()
+        setPaletteOpen(prev => !prev)
+        return
+      }
       // Tab management (avoid Alt+T/W which can trigger menu access on Windows)
       if (isAppMod && !e.shiftKey && e.code === "KeyN") { e.preventDefault(); createNewTab(); return }
       if (isAppMod && !e.shiftKey && e.code === "KeyX") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e); return }
@@ -1154,6 +1203,21 @@ export function Notepad() {
     const timer = setTimeout(() => saveFile(), 5000)
     return () => clearTimeout(timer)
   }, [tabs, saveFile])
+
+  // Apply a palette jump that had to wait for a tab switch: the editor
+  // remounts per tab, and a lazily loaded file needs its content first.
+  useEffect(() => {
+    const pending = pendingRevealRef.current
+    if (!pending || pending.tabId !== activeTabId) return
+    if (activeTab?.source === "filesystem" && activeTab.contentLoaded === false) return
+    const id = setTimeout(() => {
+      if (editorRef.current) {
+        editorRef.current.reveal(pending.from, pending.to)
+        pendingRevealRef.current = null
+      }
+    }, 0)
+    return () => clearTimeout(id)
+  }, [activeTabId, activeTab?.contentLoaded, activeTab?.source, tabs])
 
   // Lazy-load filesystem file content when tab becomes active
   useEffect(() => {
@@ -1635,6 +1699,32 @@ export function Notepad() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {paletteOpen && (
+        <CommandPalette
+          open={paletteOpen}
+          onOpenChange={setPaletteOpen}
+          tabs={tabs}
+          folders={folders}
+          activeTabId={activeTabId}
+          getContent={getPaletteContent}
+          onSelectFile={selectTab}
+          onSelectFolder={revealFolder}
+          onSelectMatch={revealMatch}
+          onNewFile={createNewTab}
+          onNewFolder={createNewFolder}
+          onOpenFile={openFileFromDisk}
+          onSave={saveFile}
+          onDownload={downloadFile}
+          onPrint={handlePrint}
+          onToggleTheme={toggleTheme}
+          onToggleWrap={toggleWordWrap}
+          theme={theme}
+          wordWrap={wordWrap}
+          modLabel={appModLabel()}
+          cmdLabel={cmdModLabel()}
+        />
+      )}
 
       <StatusBar
         sidebarOpen={sidebarOpen}

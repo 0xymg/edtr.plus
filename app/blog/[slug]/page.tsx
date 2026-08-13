@@ -87,7 +87,7 @@ export default async function BlogPostPage({ params }: Props) {
                             Blog
                         </Link>
                         <a
-                            href="https://github.com/0xymg/edtrcc"
+                            href="https://github.com/0xymg/edtr.plus"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-neutral-900 dark:hover:text-neutral-100"
@@ -176,7 +176,7 @@ export default async function BlogPostPage({ params }: Props) {
                             Blog
                         </Link>
                         <a
-                            href="https://github.com/0xymg/edtrcc"
+                            href="https://github.com/0xymg/edtr.plus"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"

@@ -4,7 +4,7 @@
 
 Website: https://edtr.cc
 Editor: https://edtr.cc/notepad
-GitHub: https://github.com/0xymg/edtrcc
+GitHub: https://github.com/0xymg/edtr.plus
 
 ---
 
@@ -141,7 +141,7 @@ Files opened from the file system are not stored in LocalStorage. They use the F
 ## Open Source
 
 EDTR is free and open source software licensed under MIT. The source code is available at:
-https://github.com/0xymg/edtrcc
+https://github.com/0xymg/edtr.plus
 
 Contributions, bug reports, and feature requests are welcome.
 

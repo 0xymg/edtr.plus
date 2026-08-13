@@ -6,7 +6,7 @@
 |---|---|
 | **Website** | [edtr.cc](https://edtr.cc) |
 | **Editor** | [edtr.cc/notepad](https://edtr.cc/notepad) |
-| **GitHub** | [github.com/0xymg/edtrcc](https://github.com/0xymg/edtrcc) |
+| **GitHub** | [github.com/0xymg/edtr.plus](https://github.com/0xymg/edtr.plus) |
 | **License** | MIT |
 | **Full docs** | [edtr.cc/llms-full.txt](https://edtr.cc/llms-full.txt) |
 

@@ -191,7 +191,7 @@ export default function LandingPage() {
             <a href="#how" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">How it works</a>
             <a href="#comparison" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Comparison</a>
             <a href="#faq" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">FAQ</a>
-            <a href="https://github.com/0xymg/edtrcc" target="_blank" rel="noopener noreferrer" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Source</a>
+            <a href="https://github.com/0xymg/edtr.plus" target="_blank" rel="noopener noreferrer" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Source</a>
           </div>
           <button
             onClick={scrollToEditor}
@@ -616,7 +616,7 @@ export default function LandingPage() {
                 <Link href="/blog" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Blog</Link>
                 <a href="#features" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Features</a>
                 <a href="#faq" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">FAQ</a>
-                <a href="https://github.com/0xymg/edtrcc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">
+                <a href="https://github.com/0xymg/edtr.plus" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">
                   <Github className="h-3.5 w-3.5" /> Source
                 </a>
                 <a href="/llms.txt" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">llms.txt</a>

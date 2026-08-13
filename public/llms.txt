@@ -6,7 +6,7 @@
 
 - Website: https://edtr.cc
 - Editor: https://edtr.cc/notepad
-- GitHub: https://github.com/0xymg/edtrcc
+- GitHub: https://github.com/0xymg/edtr.plus
 - Full docs: https://edtr.cc/llms-full.txt
 
 ## What is EDTR?
