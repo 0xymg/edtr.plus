@@ -341,6 +341,11 @@ export function Notepad() {
   const activeTabIdRef = useRef<string | null>(null)
   activeTabIdRef.current = activeTabId
 
+  // Set once the workspace has been restored from storage. The persistence
+  // effect below must not run before it, or the default empty workspace would
+  // overwrite the saved one on the very first render.
+  const [hydrated, setHydrated] = useState(false)
+
   const [paletteOpen, setPaletteOpen] = useState(false)
   // A jump into another tab has to wait for that tab's editor to mount before
   // it can select the range, so the target is parked here until it exists.
@@ -401,29 +406,56 @@ export function Notepad() {
     updateActiveTabId(id)
   }, [updateActiveTabId])
 
-  const saveToLocalStorage = useCallback(() => {
-    setSaveStatus("saving")
+  /**
+   * Writes the workspace to localStorage. Structural changes (deleting a file
+   * or folder) call this directly with the post-change lists: the content
+   * autosave below only runs while something is modified, so a deletion would
+   * otherwise never reach storage and the file would come back on reload.
+   *
+   * `liveTabId` names the tab whose text should be taken from the editor
+   * instead of state. It is omitted for deletions, where the editor may still
+   * hold the outgoing document while React switches tabs.
+   */
+  const persistWorkspace = useCallback((
+    tabsSnapshot: Tab[],
+    foldersSnapshot: FolderItem[],
+    openSnapshot: string[],
+    liveTabId?: string | null
+  ) => {
     try {
-      // Only persist memory tabs to localStorage (filesystem tabs can't be restored without handles)
-      const liveContent = editorRef.current?.getValue()
-      const memoryTabs = tabs
+      // Only memory tabs are persisted; filesystem tabs can't be restored
+      // without their handles.
+      const liveContent = liveTabId ? editorRef.current?.getValue() : undefined
+      const memoryTabs = tabsSnapshot
         .filter(t => !t.source || t.source === "memory")
-        .map(t => (t.id === activeTabId && liveContent !== undefined ? { ...t, content: liveContent } : t))
-      const memoryFolders = folders.filter(f => !f.source || f.source === "memory")
+        .map(t => (t.id === liveTabId && liveContent !== undefined ? { ...t, content: liveContent } : t))
+      const memoryFolders = foldersSnapshot.filter(f => !f.source || f.source === "memory")
       localStorage.setItem("notepad-tabs", JSON.stringify(memoryTabs))
       localStorage.setItem("notepad-folders", JSON.stringify(memoryFolders))
-      localStorage.setItem("notepad-open-tabs", JSON.stringify(openTabIds))
-      setTabs(prev => prev.map(tab =>
-        tab.id === activeTabId
-          ? { ...tab, isModified: false }
-          : tab
-      ))
-      setSaveStatus("saved")
-      setTimeout(() => setSaveStatus(null), 2000)
+      localStorage.setItem("notepad-open-tabs", JSON.stringify(openSnapshot.filter(id =>
+        tabsSnapshot.some(t => t.id === id)
+      )))
+      return true
     } catch (e) {
       console.error("Failed to save to localStorage", e)
+      return false
     }
-  }, [tabs, folders, openTabIds, activeTabId])
+  }, [])
+
+  const saveToLocalStorage = useCallback(() => {
+    setSaveStatus("saving")
+    if (!persistWorkspace(tabs, folders, openTabIds, activeTabId)) {
+      setSaveStatus(null)
+      return
+    }
+    setTabs(prev => prev.map(tab =>
+      tab.id === activeTabId
+        ? { ...tab, isModified: false }
+        : tab
+    ))
+    setSaveStatus("saved")
+    setTimeout(() => setSaveStatus(null), 2000)
+  }, [tabs, folders, openTabIds, activeTabId, persistWorkspace])
 
 
 
@@ -521,13 +553,33 @@ export function Notepad() {
     ))
   }, [])
 
+  const removeFolder = useCallback((folderId: string) => {
+    // Nested folders come with it; their files stay, detached to the root.
+    const doomed = new Set<string>([folderId])
+    let grew = true
+    while (grew) {
+      grew = false
+      for (const f of folders) {
+        if (f.parentFolderId && doomed.has(f.parentFolderId) && !doomed.has(f.id)) {
+          doomed.add(f.id)
+          grew = true
+        }
+      }
+    }
+    const nextTabs = tabs.map(tab =>
+      tab.folderId && doomed.has(tab.folderId) ? { ...tab, folderId: null } : tab
+    )
+    const nextFolders = folders.filter(f => !doomed.has(f.id))
+    setTabs(nextTabs)
+    setFolders(nextFolders)
+    doomed.forEach(id => dirHandleMapRef.current.delete(id))
+    persistWorkspace(nextTabs, nextFolders, openTabIds)
+  }, [tabs, folders, openTabIds, persistWorkspace])
+
   const deleteFolder = useCallback((folderId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    setTabs(prev => prev.map(tab =>
-      tab.folderId === folderId ? { ...tab, folderId: null } : tab
-    ))
-    setFolders(prev => prev.filter(f => f.id !== folderId))
-  }, [])
+    removeFolder(folderId)
+  }, [removeFolder])
 
   const startRenamingFolder = useCallback((folder: FolderItem) => {
     editingFolderNameRef.current = folder.name
@@ -857,19 +909,28 @@ export function Notepad() {
   }, [tabs, activeTabId, getLiveContent, applyFormatted, reportJsonError])
 
   const performDelete = useCallback((tabId: string) => {
-    setTabs(prev => prev.filter(tab => tab.id !== tabId))
-    setOpenTabIds(prev => {
-      const newOpenIds = prev.filter(id => id !== tabId)
-      if (activeTabId === tabId) {
-        if (newOpenIds.length > 0) {
-          const closedIndex = prev.indexOf(tabId)
-          updateActiveTabId(newOpenIds[Math.min(closedIndex, newOpenIds.length - 1)])
-        } else updateActiveTabId(null)
+    const nextTabs = tabs.filter(tab => tab.id !== tabId)
+    const nextOpenIds = openTabIds.filter(id => id !== tabId)
+
+    setTabs(nextTabs)
+    setOpenTabIds(nextOpenIds)
+
+    if (activeTabId === tabId) {
+      if (nextOpenIds.length > 0) {
+        const closedIndex = openTabIds.indexOf(tabId)
+        updateActiveTabId(nextOpenIds[Math.min(closedIndex, nextOpenIds.length - 1)])
+      } else {
+        updateActiveTabId(null)
       }
-      return newOpenIds
-    })
+    }
+
+    // The handle would otherwise keep the deleted file's disk permission alive
+    fileHandleMapRef.current.delete(tabId)
+    // Write the deletion out now rather than waiting for a content autosave
+    // that only fires while something is modified.
+    persistWorkspace(nextTabs, folders, nextOpenIds)
     closeContextMenu()
-  }, [activeTabId, closeContextMenu])
+  }, [tabs, openTabIds, folders, activeTabId, updateActiveTabId, persistWorkspace, closeContextMenu])
 
   const deleteFile = useCallback((tabId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
@@ -895,12 +956,9 @@ export function Notepad() {
   }, [folders, startRenamingFolder, closeContextMenu])
 
   const deleteFolderFromContext = useCallback((folderId: string) => {
-    setTabs(prev => prev.map(tab =>
-      tab.folderId === folderId ? { ...tab, folderId: null } : tab
-    ))
-    setFolders(prev => prev.filter(f => f.id !== folderId))
+    removeFolder(folderId)
     closeContextMenu()
-  }, [closeContextMenu])
+  }, [removeFolder, closeContextMenu])
 
   // File System Access API actions
   const openFileFromDisk = useCallback(async () => {
@@ -1123,6 +1181,7 @@ export function Notepad() {
     if (savedStatusBarColor) setStatusBarColor(savedStatusBarColor)
     const savedStatusBarTextColor = localStorage.getItem("notepad-statusbar-text-color")
     if (savedStatusBarTextColor) setStatusBarTextColor(savedStatusBarTextColor)
+    setHydrated(true)
     setTimeout(() => editorRef.current?.focus(), 0)
   }, [])
 
@@ -1242,6 +1301,25 @@ export function Notepad() {
     window.addEventListener("click", handleClick)
     return () => window.removeEventListener("click", handleClick)
   }, [closeContextMenu])
+
+  // Anything that changes the *shape* of the workspace — creating, deleting,
+  // renaming, moving, opening or closing — is written out immediately. The
+  // content autosave below only runs while a tab is modified, so structural
+  // changes on clean files would otherwise never reach storage and would be
+  // undone by the next reload.
+  const structureKey = useMemo(() => JSON.stringify({
+    t: tabs.map(t => [t.id, t.name, t.language, t.folderId ?? null, t.source ?? "memory"]),
+    f: folders.map(f => [f.id, f.name, f.parentFolderId ?? null, f.isExpanded, f.source ?? "memory"]),
+    o: openTabIds,
+  }), [tabs, folders, openTabIds])
+
+  useEffect(() => {
+    if (!hydrated) return
+    persistWorkspace(tabs, folders, openTabIds, activeTabId)
+    // Only the structural shape should trigger a write; content is the
+    // autosave's job and would otherwise persist on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, structureKey])
 
   useEffect(() => {
     if (!tabs.some(tab => tab.isModified)) return
