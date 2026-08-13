@@ -156,13 +156,40 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
         </div>
     )
 
+    // A JSON parse error can be jumped to from the viewer, but in JSON mode the
+    // viewer replaces the editor — so bring the editor back first, then reveal
+    // once it has mounted.
+    const revealOffset = (offset: number) => {
+        if (editorRef.current) {
+            editorRef.current.reveal(offset, offset)
+            return
+        }
+        setShowPreview?.(false)
+        let tries = 0
+        const attempt = () => {
+            if (editorRef.current) {
+                editorRef.current.reveal(offset, offset)
+            } else if (tries++ < 10) {
+                setTimeout(attempt, 30)
+            }
+        }
+        setTimeout(attempt, 0)
+    }
+
     const Preview = (
         <PreviewPane
             language={language}
             content={content}
-            onRevealOffset={(offset) => editorRef.current?.reveal(offset, offset)}
+            onRevealOffset={revealOffset}
         />
     )
+
+    // JSON is a read view: the viewer takes the whole area rather than
+    // splitting it with the raw text. Markdown and SVG keep the split, where
+    // writing next to the preview is the point.
+    if (showPreview && language === "json") {
+        return <div className="flex h-full flex-1 flex-col min-h-0">{Preview}</div>
+    }
 
     if (showPreview && PREVIEWABLE.has(language)) {
         return (
