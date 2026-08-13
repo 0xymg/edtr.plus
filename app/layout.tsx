@@ -1,6 +1,7 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
 import { Inter, Geist_Mono, Hanken_Grotesk } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import { Toaster } from '@/components/ui/sonner'
@@ -9,6 +10,17 @@ import './globals.css'
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken", weight: ["400", "500", "600", "700"] });
+// Author (Fontshare) — display face for titles and the logo, self-hosted
+const author = localFont({
+  src: [
+    { path: "./fonts/Author-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/Author-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/Author-Semibold.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/Author-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-author",
+  display: "swap",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 const siteName = "EDTR+"
@@ -94,7 +106,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${hanken.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${hanken.variable} ${author.variable} font-sans antialiased`}>
         {children}
         <Toaster richColors />
         <Analytics />

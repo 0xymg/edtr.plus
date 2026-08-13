@@ -1242,7 +1242,7 @@ export function Notepad() {
         </button>
 
         {/* Centered Brand */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-semibold text-[13px] text-muted-foreground select-none pointer-events-none">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-[family-name:var(--font-author)] font-bold tracking-tight text-[13px] text-muted-foreground select-none pointer-events-none">
           EDTR+
         </div>
 

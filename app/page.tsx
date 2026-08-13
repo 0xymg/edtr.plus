@@ -34,7 +34,7 @@ const ink = "text-[#1C1B18] dark:text-[#EDECE8]"
 const muted = "text-[#1C1B18]/60 dark:text-[#EDECE8]/60"
 const faint = "text-[#1C1B18]/45 dark:text-[#EDECE8]/45"
 const hairline = "border-[rgba(55,53,47,0.1)] dark:border-white/10"
-const display = "font-[family-name:var(--font-hanken)] font-bold tracking-[-0.03em]"
+const display = "font-[family-name:var(--font-author)] font-bold tracking-[-0.03em]"
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
@@ -180,8 +180,8 @@ export default function LandingPage() {
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
             Everything in EDTR+ is a couple of keystrokes away, and none of them fight your system.{" "}
             <Kbd>{mod}+N</Kbd> opens a tab, <Kbd>{mod}+X</Kbd> closes it, <Kbd>⌘S</Kbd> saves straight
-            to disk. On macOS that modifier is <Kbd>⌃ Control</Kbd> + <Kbd>⌥ Option</Kbd> — a combination
-            the system leaves alone, so nothing collides with browser menus or the characters Option types.
+            to disk. On macOS that modifier is <Kbd>⌃ Control</Kbd> + <Kbd>⌥ Option</Kbd>, a combination
+            the system leaves alone. Nothing collides with browser menus or the characters Option types.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
             This is the real reason editing here is faster than opening a desktop app. Not because the
@@ -235,7 +235,7 @@ export default function LandingPage() {
             wait for the file list.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ skips all of it. You&apos;re already in the editor — it&apos;s the first thing on this
+            EDTR+ skips all of it. You&apos;re already in the editor. It&apos;s the first thing on this
             page. Type, save or download, close the tab. The whole thing takes as long as the typing does.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${ink}`}>
@@ -328,7 +328,7 @@ export default function LandingPage() {
                 body: (
                   <>
                     On Chrome and Edge, open files straight from your file system and save back with{" "}
-                    <Kbd>⌘S</Kbd> — the File System Access API, no upload step, no conversion queue.
+                    <Kbd>⌘S</Kbd> via the File System Access API. No upload step, no conversion queue.
                     Everywhere else, download works with one shortcut.
                   </>
                 ),
@@ -448,7 +448,7 @@ export default function LandingPage() {
             Looking for Notepad++ on a Mac?
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            Notepad++ has been the fast, no-nonsense text editor for over twenty years — on Windows.
+            Notepad++ has been the fast, no-nonsense text editor for over twenty years, on Windows.
             There&apos;s no official Mac or Linux build, which leaves an awkward gap, because TextEdit
             can&apos;t highlight code and a full IDE is overkill for a config file.
           </p>
@@ -483,7 +483,7 @@ export default function LandingPage() {
               },
               {
                 q: "Do I need an account?",
-                a: "No. There's nothing to sign up for — the editor at the top of this page is the whole product.",
+                a: "No. There's nothing to sign up for. The editor at the top of this page is the whole product.",
               },
               {
                 q: "Where does my writing go?",
@@ -540,36 +540,48 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className={`border-t ${hairline} px-6 py-12`}>
-        <div className="mx-auto max-w-5xl">
-          <div className={`grid grid-cols-2 gap-8 sm:grid-cols-3 text-sm ${muted}`}>
+        <div className="mx-auto flex max-w-5xl flex-col gap-10 sm:flex-row sm:justify-between">
+          <div className="max-w-xs">
+            <span className={`${display} leading-none`}>
+              <span className={`text-lg ${ink}`}>EDTR</span>
+              <span className={`text-sm font-semibold tracking-wider ${muted}`}>+</span>
+            </span>
+            <p className={`mt-2 text-sm ${muted}`}>
+              The free online notepad. Notepad++, rebuilt for the browser.
+            </p>
+          </div>
+          <div className="flex flex-col gap-10 sm:flex-row sm:gap-20">
             <div>
-              <h4 className={`${display} text-sm mb-3 ${ink}`}>EDTR<span className={faint}>+</span></h4>
-              <ul className="space-y-2">
-                <li><a href="https://edtr.plus/" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">edtr.plus</a></li>
-                <li><Link href="/blog" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Blog</Link></li>
-              </ul>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide ${muted}`}>EDTR+</h3>
+              <div className={`mt-3 flex flex-col gap-2 text-sm ${muted}`}>
+                <button onClick={scrollToEditor} className="text-left transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Editor</button>
+                <Link href="/blog" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Blog</Link>
+                <a href="#features" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Features</a>
+                <a href="#faq" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">FAQ</a>
+                <a href="https://github.com/0xymg/edtrcc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">
+                  <Github className="h-3.5 w-3.5" /> Source
+                </a>
+                <a href="/llms.txt" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">llms.txt</a>
+              </div>
             </div>
             <div>
-              <h4 className={`${display} text-sm mb-3 ${ink}`}>Project</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="https://github.com/0xymg/edtrcc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">
-                    <Github className="h-3.5 w-3.5" /> Source
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <h4 className={`${display} text-sm mb-3 ${ink}`}>Legal</h4>
-              <ul className="space-y-2">
-                <li><a href="/privacy" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Privacy</a></li>
-                <li><a href="/terms" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Terms</a></li>
-              </ul>
+              <h3 className={`text-sm ${ink}`}>
+                More from <span className={`${display} text-sm`}>Project EDTR</span>
+              </h3>
+              <div className={`mt-3 flex flex-col gap-2 text-sm ${muted}`}>
+                <a href="https://edtr.md" target="_blank" rel="noopener" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">EDTR.md · Markdown editor</a>
+                <a href="https://wordpad.info" target="_blank" rel="noopener" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">EDTRpad · Word alternative</a>
+              </div>
             </div>
           </div>
-          <div className={`mt-10 flex flex-col justify-between gap-2 border-t ${hairline} pt-6 text-[13px] sm:flex-row ${faint}`}>
-            <span>© {new Date().getFullYear()} EDTR+</span>
-            <span>Not affiliated with Notepad++ · Independent open-source project</span>
+        </div>
+        <div className={`mx-auto mt-10 max-w-5xl border-t ${hairline} pt-6 text-sm ${muted}`}>
+          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+            <span>© {new Date().getFullYear()} EDTR+. Not affiliated with Notepad++. Independent open source project.</span>
+            <span className="whitespace-nowrap">
+              Part of <span className={`${display} text-sm ${ink}`}>Project EDTR</span>, brought to you by{" "}
+              <a href="https://ymg.digital" target="_blank" rel="noopener" className={`font-medium ${ink} transition-opacity hover:opacity-70`}>ymg.digital</a>
+            </span>
           </div>
         </div>
       </footer>
