@@ -27,7 +27,7 @@ export default function BlogPage() {
       <nav className="sticky top-0 z-50 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="text-[15px] font-semibold tracking-tight">EDTR+</span>
+            <span className="text-[15px] font-semibold tracking-tight">EDTR<span className="text-[#F5A524]">+</span></span>
           </Link>
           <div className="flex items-center gap-3">
             <Link

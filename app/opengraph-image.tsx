@@ -30,7 +30,7 @@ export default async function OpengraphImage() {
           <span style={{ fontSize: 56, fontWeight: 700, color: "#EDECE8", letterSpacing: "-0.02em" }}>
             EDTR
           </span>
-          <span style={{ fontSize: 40, fontWeight: 700, color: "rgba(237,236,232,0.5)" }}>+</span>
+          <span style={{ fontSize: 40, fontWeight: 700, color: "#F5A524" }}>+</span>
         </div>
         <div
           style={{
