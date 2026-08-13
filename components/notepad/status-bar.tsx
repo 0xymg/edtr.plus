@@ -178,6 +178,14 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                     <WrapText className="h-3.5 w-3.5" />
                     <span className="hidden md:inline">Wrap</span>
                 </button>
+                <button
+                    onClick={toggleTheme}
+                    className={cn(`flex items-center rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`)}
+                    title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                    aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                    {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                </button>
                 <span className="hidden sm:inline">UTF-8</span>
                 <div className="relative">
                     <button

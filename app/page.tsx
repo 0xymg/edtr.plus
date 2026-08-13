@@ -272,7 +272,7 @@ export default function LandingPage() {
               ["Close tab", [mod, "X"]],
               ["Toggle sidebar", [mod, "B"]],
               ["Download file", ["⌘⇧", "S"]],
-              ["Find & replace", ["⌘", "F"]],
+              ["Find & replace", [mod, "R"]],
               ["Toggle comment", ["⌘", "/"]],
               ["Format (JSON)", [`${mod}⇧`, "F"]],
               ["Markdown preview", [mod, "P"]],
@@ -395,8 +395,9 @@ export default function LandingPage() {
                 body: (
                   <>
                     Keep as many documents open as you like. <Kbd>{mod}+N</Kbd> for a new tab,{" "}
-                    <Kbd>{mod}+X</Kbd> to close one. <Kbd>⌘F</Kbd> opens find &amp; replace, with
-                    regex and match-case when you want them.
+                    <Kbd>{mod}+X</Kbd> to close one. <Kbd>{mod}+R</Kbd> opens find &amp; replace, with
+                    regex and match-case when you want them. Your browser&apos;s own <Kbd>⌘F</Kbd> stays
+                    untouched.
                   </>
                 ),
               },
