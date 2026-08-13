@@ -17,13 +17,21 @@ import "highlight.js/styles/github.css"
 const Mermaid = dynamic(() => import("../mermaid").then(m => m.Mermaid), { ssr: false })
 const AbcNotation = dynamic(() => import("../abc-notation").then(m => m.AbcNotation), { ssr: false })
 const VegaChart = dynamic(() => import("../vega-chart").then(m => m.VegaChart), { ssr: false })
+const JsonViewer = dynamic(() => import("./json-viewer").then(m => m.JsonViewer), { ssr: false })
 
 interface PreviewPaneProps {
     language: string
     content: string
+    onRevealOffset?: (offset: number) => void
 }
 
-export const PreviewPane: React.FC<PreviewPaneProps> = ({ language, content }) => {
+export const PreviewPane: React.FC<PreviewPaneProps> = ({ language, content, onRevealOffset }) => {
+    // The JSON viewer brings its own chrome (header, copy button, error state),
+    // so it replaces the padded article wrapper rather than sitting inside it.
+    if (language === "json") {
+        return <JsonViewer content={content} onRevealOffset={onRevealOffset} />
+    }
+
     return (
         <div className="flex-1 overflow-auto h-full border-l border-border bg-card/10">
             <div className="p-8 max-w-4xl mx-auto h-full flex flex-col">

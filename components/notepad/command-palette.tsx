@@ -14,6 +14,8 @@ import {
     WrapText,
     Search,
     Printer,
+    Wand2,
+    Minimize2,
 } from "lucide-react"
 import {
     CommandDialog,
@@ -62,6 +64,9 @@ interface CommandPaletteProps {
     onSave: () => void
     onDownload: () => void
     onPrint: () => void
+    onFormat: () => void
+    onMinifyJson: () => void
+    isJson: boolean
     onToggleTheme: () => void
     onToggleWrap: () => void
     theme: "light" | "dark"
@@ -144,6 +149,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     onSave,
     onDownload,
     onPrint,
+    onFormat,
+    onMinifyJson,
+    isJson,
     onToggleTheme,
     onToggleWrap,
     theme,
@@ -275,6 +283,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                     { id: "save", label: "Save", icon: <Save />, shortcut: `${cmdLabel}+S`, fn: onSave },
                                     { id: "download", label: "Download file", icon: <Download />, shortcut: `${cmdLabel}⇧+S`, fn: onDownload },
                                     { id: "print", label: "Print", icon: <Printer />, fn: onPrint },
+                                    { id: "format", label: isJson ? "Format JSON" : "Format document", icon: <Wand2 />, shortcut: `${modLabel}⇧+F`, fn: onFormat },
+                                    ...(isJson
+                                        ? [{ id: "minify", label: "Minify JSON", icon: <Minimize2 />, fn: onMinifyJson }]
+                                        : []),
                                     {
                                         id: "wrap",
                                         label: wordWrap ? "Turn word wrap off" : "Turn word wrap on",

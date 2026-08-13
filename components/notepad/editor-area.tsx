@@ -21,6 +21,9 @@ const PreviewPane = dynamic(
 // select-all and paste O(viewport) instead of O(document), which is what
 // makes 100k+ line files feel instant. Loaded lazily so the first paint
 // stays free of it.
+/** Languages that get a side-by-side preview pane. */
+export const PREVIEWABLE = new Set(["markdown", "svg", "json"])
+
 const CodeMirrorEditor = dynamic(
     () => import("./codemirror-editor").then(m => m.CodeMirrorEditor),
     { ssr: false, loading: () => <div className="h-full w-full" /> }
@@ -155,12 +158,13 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
     const Preview = (
         <PreviewPane
-            language={activeTab?.language || ""}
-            content={activeTab?.content || ""}
+            language={language}
+            content={content}
+            onRevealOffset={(offset) => editorRef.current?.reveal(offset, offset)}
         />
     )
 
-    if (showPreview && (activeTab?.language === "markdown" || activeTab?.language === "svg")) {
+    if (showPreview && PREVIEWABLE.has(language)) {
         return (
             <Group orientation="horizontal" className="h-full">
                 <Panel defaultSize={50} minSize={20}>

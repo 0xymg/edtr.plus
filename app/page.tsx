@@ -20,7 +20,7 @@ const Notepad = dynamic(() => import("@/components/notepad").then(m => m.Notepad
           <span className="h-3 w-3 rounded-full bg-[#27c93f]" />
         </div>
         <div className="absolute left-1/2 -translate-x-1/2 select-none text-[13px] font-semibold text-muted-foreground">
-          EDTR<span className="ml-[0.09em] text-[1.2em] text-[#F5A524]">+</span>
+          EDTR<span className="ml-[0.08em] text-[1.1em] text-[#F5A524]">+</span>
         </div>
       </div>
       <div className="h-9 shrink-0 border-b border-border bg-card/30" />
@@ -109,7 +109,7 @@ const display = "font-[family-name:var(--font-author)] font-bold tracking-[-0.03
 const hoverInk = "hover:text-[#1C1B18] dark:hover:text-[#EDECE8]"
 // The "+" in the wordmark is the one spot of colour in the whole palette,
 // set slightly larger than the letters with a hair of space before it
-const plus = "ml-[0.09em] text-[1.2em] text-[#F5A524]"
+const plus = "ml-[0.08em] text-[1.1em] text-[#F5A524]"
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
@@ -122,7 +122,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
 /** The product name always renders as the wordmark: amber, slightly larger "+". */
 function Wordmark() {
   return (
-    <span className="whitespace-nowrap">
+    <span className={`whitespace-nowrap ${display}`}>
       EDTR<span className={plus}>+</span>
     </span>
   )

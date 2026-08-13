@@ -21,7 +21,7 @@ import {
 import dynamic from "next/dynamic"
 import { Sidebar } from "./notepad/sidebar"
 import { TabBar } from "./notepad/tab-bar"
-import { EditorArea } from "./notepad/editor-area"
+import { EditorArea, PREVIEWABLE } from "./notepad/editor-area"
 import { StatusBar } from "./notepad/status-bar"
 import type { ContentMatch } from "./notepad/command-palette"
 
@@ -791,6 +791,46 @@ export function Notepad() {
     }
   }, [tabs, activeTabId, getLiveContent])
 
+  // Rewrites the active document, keeping the change in the editor's undo history
+  const applyFormatted = useCallback((formatted: string) => {
+    editorRef.current?.setValue(formatted)
+    setTabs(prev => prev.map(tab =>
+      tab.id === activeTabIdRef.current ? { ...tab, content: formatted, isModified: true } : tab
+    ))
+  }, [])
+
+  /**
+   * JSON parse errors carry a character offset in their message; surfacing the
+   * line and jumping the caret there beats a bare "Invalid JSON".
+   */
+  const reportJsonError = useCallback((source: string, error: unknown) => {
+    const message = error instanceof Error ? error.message : "Invalid JSON"
+    const match = /position (\d+)/.exec(message)
+    if (match) {
+      const offset = Math.min(Number(match[1]), source.length)
+      let line = 1
+      for (let i = 0; i < offset; i++) if (source.charCodeAt(i) === 10) line++
+      setFormatError(`Invalid JSON on line ${line}`)
+      editorRef.current?.reveal(offset, offset)
+    } else {
+      setFormatError("Invalid JSON")
+    }
+    setTimeout(() => setFormatError(null), 5000)
+  }, [])
+
+  const minifyJson = useCallback(() => {
+    const activeTab = tabs.find(t => t.id === activeTabId)
+    if (!activeTab || activeTab.language !== "json") return
+    const source = getLiveContent(activeTab)
+    if (!source.trim()) return
+    setFormatError(null)
+    try {
+      applyFormatted(JSON.stringify(JSON.parse(source)))
+    } catch (e) {
+      reportJsonError(source, e)
+    }
+  }, [tabs, activeTabId, getLiveContent, applyFormatted, reportJsonError])
+
   const formatCode = useCallback(() => {
     const activeTab = tabs.find(t => t.id === activeTabId)
     if (!activeTab || activeTab.language === "plaintext") return
@@ -802,25 +842,20 @@ export function Notepad() {
       let formatted = source
       if (activeTab.language === "json") {
         try { formatted = JSON.stringify(JSON.parse(source), null, 2) }
-        catch {
-          setFormatError("Invalid JSON")
+        catch (e) {
+          reportJsonError(source, e)
           setIsFormatting(false)
-          setTimeout(() => setFormatError(null), 3000)
           return
         }
       } else {
         formatted = formatted.split('\n').map(l => l.trimEnd()).join('\n').replace(/\n{3,}/g, '\n\n').trim()
       }
-      // Write through the editor so the change lands in its undo history
-      editorRef.current?.setValue(formatted)
-      setTabs(prev => prev.map(tab =>
-        tab.id === activeTabId ? { ...tab, content: formatted, isModified: true } : tab
-      ))
+      applyFormatted(formatted)
     } catch (error) {
       setFormatError("Failed to format code")
       setTimeout(() => setFormatError(null), 3000)
     } finally { setIsFormatting(false) }
-  }, [tabs, activeTabId, getLiveContent])
+  }, [tabs, activeTabId, getLiveContent, applyFormatted, reportJsonError])
 
   const performDelete = useCallback((tabId: string) => {
     setTabs(prev => prev.filter(tab => tab.id !== tabId))
@@ -1177,7 +1212,7 @@ export function Notepad() {
       if (isAppMod && !e.shiftKey && e.code === "KeyB") { e.preventDefault(); toggleSidebar(); return }
       // Markdown/SVG preview (avoid ⌘⇧P which can trigger browser profile menu)
       if (isAppMod && !e.shiftKey && e.code === "KeyP") {
-        if (activeTab?.language === "markdown" || activeTab?.language === "svg") {
+        if (activeTab && PREVIEWABLE.has(activeTab.language)) {
           e.preventDefault()
           togglePreview()
         }
@@ -1229,7 +1264,7 @@ export function Notepad() {
 
   // Automatically show preview for markdown and svg files
   useEffect(() => {
-    if (activeTab?.language === "markdown" || activeTab?.language === "svg") {
+    if (activeTab && PREVIEWABLE.has(activeTab.language)) {
       setShowPreview(true)
     } else {
       setShowPreview(false)
@@ -1293,7 +1328,7 @@ export function Notepad() {
 
         {/* Centered Brand */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-[family-name:var(--font-author)] font-bold tracking-tight text-[13px] text-muted-foreground select-none pointer-events-none">
-          EDTR<span className="ml-[0.09em] text-[1.2em] text-[#F5A524]">+</span>
+          EDTR<span className="ml-[0.08em] text-[1.1em] text-[#F5A524]">+</span>
         </div>
 
         <div className="flex items-center h-full ml-auto">
@@ -1525,7 +1560,7 @@ export function Notepad() {
           </IconTip>
 
           {/* Preview Toggle Button */}
-          {(activeTab?.language === "markdown" || activeTab?.language === "svg") && (
+          {activeTab && PREVIEWABLE.has(activeTab.language) && (
             <IconTip label={showPreview ? "Hide preview" : "Show preview"} shortcut={`${appModLabel()}+P`}>
             <button
               onClick={(e) => { e.stopPropagation(); togglePreview() }}
@@ -1739,6 +1774,9 @@ export function Notepad() {
           onSave={saveFile}
           onDownload={downloadFile}
           onPrint={handlePrint}
+          onFormat={formatCode}
+          onMinifyJson={minifyJson}
+          isJson={activeTab?.language === "json"}
           onToggleTheme={toggleTheme}
           onToggleWrap={toggleWordWrap}
           theme={theme}
