@@ -51,4 +51,4 @@ The app modifier is `Alt` on Windows/Linux and `⌃⌥` (Control+Option) on macO
 
 ## Tech Stack
 
-Next.js 16, React 19, TypeScript, Tailwind CSS v4, highlight.js, Shadcn/UI, Radix UI, File System Access API, LocalStorage, Service Worker (PWA)
+Next.js 16, React 19, TypeScript, Tailwind CSS v4, CodeMirror 6 (virtualized editor core), Shadcn/UI, Radix UI, File System Access API, LocalStorage, Service Worker (PWA)

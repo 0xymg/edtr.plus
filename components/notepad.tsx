@@ -461,6 +461,14 @@ export function Notepad() {
     setEditingFolderName(newFolder.name)
   }, [])
 
+  // Collapse all when anything is expanded; expand all otherwise
+  const toggleAllFolders = useCallback(() => {
+    setFolders(prev => {
+      const anyExpanded = prev.some(f => f.isExpanded)
+      return prev.map(f => ({ ...f, isExpanded: !anyExpanded }))
+    })
+  }, [])
+
   const toggleFolder = useCallback((folderId: string) => {
     setFolders(prev => prev.map(folder =>
       folder.id === folderId ? { ...folder, isExpanded: !folder.isExpanded } : folder
@@ -620,7 +628,7 @@ export function Notepad() {
     const startWidth = sidebarWidth
     let currentWidth = startWidth
     const onMouseMove = (ev: MouseEvent) => {
-      currentWidth = Math.min(384, Math.max(128, startWidth + (ev.clientX - startX)))
+      currentWidth = Math.min(384, Math.max(160, startWidth + (ev.clientX - startX)))
       setSidebarWidth(currentWidth)
     }
     const onMouseUp = () => {
@@ -678,10 +686,17 @@ export function Notepad() {
     triggerDownload(blob, getFilename(activeTab))
   }, [tabs, activeTabId, triggerDownload, getLiveContent])
 
-  const downloadFileById = useCallback((tabId: string) => {
+  const downloadFileById = useCallback(async (tabId: string) => {
     const tab = tabs.find(t => t.id === tabId)
     if (!tab) return
-    const text = tabId === activeTabId ? getLiveContent(tab) : tab.content
+    let text = tabId === activeTabId ? getLiveContent(tab) : tab.content
+    // Filesystem files load lazily; read from disk so we don't download an empty file
+    if (tab.source === "filesystem" && tab.contentLoaded === false) {
+      const handle = fileHandleMapRef.current.get(tab.id)
+      if (handle) {
+        try { text = await readFileFromHandle(handle) } catch (e) { console.error("Failed to read file:", e) }
+      }
+    }
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" })
     triggerDownload(blob, getFilename(tab))
     closeContextMenu()
@@ -690,16 +705,29 @@ export function Notepad() {
   const downloadFolderAsZip = useCallback(async (folderId: string) => {
     const folder = folders.find(f => f.id === folderId)
     if (!folder) return
-    const folderTabs = tabs.filter(t => t.folderId === folderId)
     const { default: JSZip } = await import("jszip")
     const zip = new JSZip()
-    folderTabs.forEach(tab => {
-      zip.file(getFilename(tab), tab.content)
-    })
+    // Walk the folder tree so nested subfolders land in the zip with their paths
+    const entries: { tab: Tab; path: string }[] = []
+    const collect = (fid: string, path: string) => {
+      tabs.filter(t => t.folderId === fid).forEach(tab => entries.push({ tab, path }))
+      folders.filter(f => f.parentFolderId === fid).forEach(sub => collect(sub.id, `${path}${sub.name}/`))
+    }
+    collect(folderId, "")
+    for (const { tab, path } of entries) {
+      let text = tab.id === activeTabId ? getLiveContent(tab) : tab.content
+      if (tab.source === "filesystem" && tab.contentLoaded === false) {
+        const handle = fileHandleMapRef.current.get(tab.id)
+        if (handle) {
+          try { text = await readFileFromHandle(handle) } catch (e) { console.error("Failed to read file:", e) }
+        }
+      }
+      zip.file(path + getFilename(tab), text)
+    }
     const blob = await zip.generateAsync({ type: "blob" })
     triggerDownload(blob, `${folder.name}.zip`)
     closeContextMenu()
-  }, [folders, tabs, triggerDownload, closeContextMenu])
+  }, [folders, tabs, activeTabId, getLiveContent, triggerDownload, closeContextMenu])
 
   const handlePrint = useCallback(() => {
     const activeTab = tabs.find(t => t.id === activeTabId)
@@ -1447,7 +1475,7 @@ export function Notepad() {
           <>
             <div
               style={{ width: sidebarWidth }}
-              className="min-w-32 max-w-96 shrink-0"
+              className="min-w-40 max-w-96 shrink-0"
             >
               <Sidebar
                 sidebarOpen={sidebarOpen}
@@ -1492,6 +1520,9 @@ export function Notepad() {
                 onOpenFile={openFileFromDisk}
                 onOpenFolder={openFolderFromDisk}
                 supportsDirectoryPicker={supportsFileSystemAccess()}
+                onDownloadFile={downloadFileById}
+                onDownloadFolder={downloadFolderAsZip}
+                toggleAllFolders={toggleAllFolders}
               />
             </div>
             <div

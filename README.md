@@ -11,8 +11,9 @@ EDTR+ is a free, browser-based Notepad++ alternative built for speed and privacy
 - **Instant start**: The landing shell paints immediately; the editor bundle streams in right after. Heavy libraries (Markdown preview, diagrams, syntax highlighting) load on demand, never in the first paint.
 - **Privacy first**: All data is stored in **LocalStorage**. Your notes never cross the wire — nothing is scanned, uploaded, or used for training.
 - **Real file access**: Open and save files on disk via the File System Access API (Chrome, Edge, Opera). Download works everywhere else.
-- **Multi-tab workspace**: Unlimited tabs, folders, drag & drop, find & replace with regex.
-- **Syntax highlighting**: 20+ languages including Markdown, TypeScript, Python, Go, Rust, and JSON.
+- **Multi-tab workspace**: Unlimited tabs, folders, drag & drop, find & replace with regex (`⌘F`).
+- **Big-file ready**: The editor core is CodeMirror 6 with virtualized rendering — only visible lines hit the DOM, so 100,000-line files open, select, and edit instantly.
+- **Syntax highlighting**: 20+ languages, loaded on demand per language.
 - **Markdown & SVG preview**: Open a `.md` or `.svg` file and a live preview appears alongside the editor — with Mermaid, ABC notation, and Vega-Lite support.
 - **PWA native**: Offline-first design. Install it on your machine and use it anywhere.
 
@@ -37,6 +38,7 @@ Shortcuts are chosen to never collide with system or browser shortcuts. The app 
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Editor core**: [CodeMirror 6](https://codemirror.net/) (virtualized, lazy-loaded)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Components**: [Shadcn/UI](https://ui.shadcn.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)

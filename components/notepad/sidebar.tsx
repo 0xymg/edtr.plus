@@ -1,7 +1,20 @@
 "use client"
 
 import React from "react"
-import { Plus, X, Folder, FolderOpen, ChevronDown, ChevronRight, FileUp, HardDrive, Trash2 } from "lucide-react"
+import {
+    X,
+    Folder,
+    FolderOpen,
+    FolderPlus,
+    FilePlus,
+    FileUp,
+    ChevronDown,
+    ChevronRight,
+    ChevronsDownUp,
+    ChevronsUpDown,
+    Download,
+    Trash2,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { appModLabel } from "@/lib/shortcuts"
 import { Tab, FolderItem } from "../notepad"
@@ -50,6 +63,9 @@ interface SidebarProps {
     onOpenFile: () => void
     onOpenFolder: () => void
     supportsDirectoryPicker: boolean
+    onDownloadFile: (id: string) => void
+    onDownloadFolder: (id: string) => void
+    toggleAllFolders: () => void
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -94,7 +110,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     dragOverTab,
     onOpenFile,
     onOpenFolder,
-    supportsDirectoryPicker
+    supportsDirectoryPicker,
+    onDownloadFile,
+    onDownloadFolder,
+    toggleAllFolders,
 }) => {
     const extensionMap: Record<string, string> = {
         plaintext: ".txt", javascript: ".js", jsx: ".jsx", typescript: ".ts", tsx: ".tsx",
@@ -103,6 +122,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         cpp: ".cpp", csharp: ".cs", go: ".go", rust: ".rs", php: ".php",
         ruby: ".rb", swift: ".swift", kotlin: ".kt", yaml: ".yaml",
     }
+
+    const anyFolderExpanded = folders.some(f => f.isExpanded)
+    const isEmpty = folders.length === 0 && tabs.length === 0
+
+    const iconButton = "rounded p-1 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground shrink-0"
+    const rowAction = "rounded p-0.5 shrink-0 text-muted-foreground transition-all"
 
     const renderFileItem = (tab: Tab) => (
         <div
@@ -117,7 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onDoubleClick={(e) => { e.stopPropagation(); startRenaming(tab) }}
             onContextMenu={(e) => handleContextMenu(e, tab.id)}
             className={cn(
-                "group/file w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-colors text-left cursor-pointer relative",
+                "group/file w-full flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition-colors text-left cursor-pointer relative min-w-0",
                 tab.id === activeTabId
                     ? "bg-secondary text-foreground"
                     : "text-foreground hover:bg-accent",
@@ -138,23 +163,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onDoubleClick={(e) => e.stopPropagation()}
                 />
             ) : (
-                <span className="truncate flex-1">
+                <span className="truncate flex-1 min-w-0">
                     {tab.name}
                     <span className="hidden group-hover/file:inline text-[11px] font-medium text-muted-foreground/60">
                         {extensionMap[tab.language] || ".txt"}
                     </span>
                 </span>
             )}
-            {tab.isModified && !activeTabId?.includes(tab.id) && (
-                <span className="h-2 w-2 shrink-0 rounded-full bg-foreground" />
+            {tab.isModified && (
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-foreground group-hover/file:hidden" />
             )}
-            <button
-                onClick={(e) => { e.stopPropagation(); deleteFile(tab.id, e) }}
-                className="opacity-0 group-hover/file:opacity-100 rounded p-0.5 hover:bg-destructive/10 shrink-0 text-muted-foreground hover:text-destructive transition-all"
-                aria-label="Delete file"
-            >
-                <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            <span className="hidden group-hover/file:flex items-center shrink-0">
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDownloadFile(tab.id) }}
+                    className={cn(rowAction, "hover:bg-accent hover:text-foreground")}
+                    title="Download"
+                    aria-label="Download file"
+                >
+                    <Download className="h-3.5 w-3.5" />
+                </button>
+                <button
+                    onClick={(e) => { e.stopPropagation(); deleteFile(tab.id, e) }}
+                    className={cn(rowAction, "hover:bg-destructive/10 hover:text-destructive")}
+                    title="Delete"
+                    aria-label="Delete file"
+                >
+                    <Trash2 className="h-3.5 w-3.5" />
+                </button>
+            </span>
         </div>
     )
 
@@ -175,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
 
     const renderFolder = (folder: FolderItem, depth = 0): React.ReactNode => (
-        <div key={folder.id} className="space-y-1">
+        <div key={folder.id} className="space-y-1 min-w-0">
             <div
                 draggable
                 onDragStart={(e) => { e.stopPropagation(); handleFolderDragStart(folder.id) }}
@@ -187,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onDragLeave={handleDragLeaveFolder}
                 onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleDropOnFolder(folder.id) }}
                 className={cn(
-                    "flex items-center justify-between gap-1 px-2 py-1.5 rounded text-sm transition-colors cursor-pointer group",
+                    "group/folder flex items-center gap-1 px-2 py-1.5 rounded text-sm transition-colors cursor-pointer min-w-0",
                     activeFolderId === folder.id
                         ? "bg-secondary/50 text-foreground"
                         : "text-foreground hover:bg-accent",
@@ -196,35 +232,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     dragOverFolder === folder.id && !draggedFolder && "bg-muted ring-2 ring-border"
                 )}
             >
-                <div className="flex items-center gap-1 flex-1 min-w-0">
-                    {folder.isExpanded ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
-                    {folder.isExpanded ? <FolderOpen className="h-4 w-4 shrink-0" /> : <Folder className="h-4 w-4 shrink-0" />}
-                    {editingFolderId === folder.id ? (
-                        <input
-                            autoFocus
-                            value={editingFolderName}
-                            onChange={(e) => setEditingFolderName(e.target.value)}
-                            onBlur={() => { setTimeout(() => finishRenamingFolder(folder.id), 150) }}
-                            onKeyDown={(e) => handleRenameFolderKeyDown(e, folder.id)}
-                            className="flex-1 bg-background px-1 text-foreground outline-none rounded"
-                            onClick={(e) => e.stopPropagation()}
-                            onDoubleClick={(e) => e.stopPropagation()}
-                        />
-                    ) : (
-                        <span className="truncate flex-1">{folder.name}</span>
-                    )}
-                </div>
-                <button
-                    onClick={(e) => deleteFolder(folder.id, e)}
-                    className="opacity-0 group-hover:opacity-100 rounded p-0.5 hover:bg-destructive/10 shrink-0"
-                    aria-label="Delete folder"
-                >
-                    <X className="h-3 w-3" />
-                </button>
+                {folder.isExpanded ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                {folder.isExpanded ? <FolderOpen className="h-4 w-4 shrink-0" /> : <Folder className="h-4 w-4 shrink-0" />}
+                {editingFolderId === folder.id ? (
+                    <input
+                        autoFocus
+                        value={editingFolderName}
+                        onChange={(e) => setEditingFolderName(e.target.value)}
+                        onBlur={() => { setTimeout(() => finishRenamingFolder(folder.id), 150) }}
+                        onKeyDown={(e) => handleRenameFolderKeyDown(e, folder.id)}
+                        className="flex-1 bg-background px-1 text-foreground outline-none rounded min-w-0"
+                        onClick={(e) => e.stopPropagation()}
+                        onDoubleClick={(e) => e.stopPropagation()}
+                    />
+                ) : (
+                    <span className="truncate flex-1 min-w-0">{folder.name}</span>
+                )}
+                <span className="hidden group-hover/folder:flex items-center shrink-0">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDownloadFolder(folder.id) }}
+                        className={cn(rowAction, "hover:bg-accent hover:text-foreground")}
+                        title="Download as .zip"
+                        aria-label="Download folder as zip"
+                    >
+                        <Download className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                        onClick={(e) => deleteFolder(folder.id, e)}
+                        className={cn(rowAction, "hover:bg-destructive/10 hover:text-destructive")}
+                        title="Delete"
+                        aria-label="Delete folder"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                </span>
             </div>
 
             {folder.isExpanded && (
-                <div className="ml-4 space-y-1">
+                <div className="ml-3 space-y-1 min-w-0 border-l border-border/60 pl-1">
                     {/* Nested subfolders */}
                     {getSubfolders(folder.id).map(sub => renderFolder(sub, depth + 1))}
                     {/* Files in this folder */}
@@ -235,72 +280,89 @@ export const Sidebar: React.FC<SidebarProps> = ({
     )
 
     return (
-        <div className="flex h-full flex-col bg-card">
-                    <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                        <h2 className="text-sm font-semibold text-foreground">Files</h2>
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={onOpenFile}
-                                className="rounded p-1 transition-colors hover:bg-accent"
-                                title="Open file from disk"
-                                aria-label="Open file from disk"
-                            >
-                                <FileUp className="h-4 w-4" />
-                            </button>
-                            {supportsDirectoryPicker && (
-                                <button
-                                    onClick={onOpenFolder}
-                                    className="rounded p-1 transition-colors hover:bg-accent"
-                                    title="Open folder from disk"
-                                    aria-label="Open folder from disk"
-                                >
-                                    <HardDrive className="h-4 w-4" />
-                                </button>
-                            )}
-                            <button
-                                onClick={createNewFolder}
-                                className="rounded p-1 transition-colors hover:bg-accent"
-                                title="New folder"
-                                aria-label="New folder"
-                            >
-                                <Folder className="h-4 w-4" />
-                            </button>
+        <div className="flex h-full min-w-0 flex-col bg-card">
+            {/* Title row */}
+            <div className="flex items-center justify-between gap-1 border-b border-border px-3 py-1.5">
+                <h2 className="truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">Files</h2>
+                <div className="flex items-center shrink-0">
+                    {folders.length > 0 && (
+                        <button
+                            onClick={toggleAllFolders}
+                            className={iconButton}
+                            title={anyFolderExpanded ? "Collapse all" : "Expand all"}
+                            aria-label={anyFolderExpanded ? "Collapse all folders" : "Expand all folders"}
+                        >
+                            {anyFolderExpanded ? <ChevronsDownUp className="h-4 w-4" /> : <ChevronsUpDown className="h-4 w-4" />}
+                        </button>
+                    )}
+                    <button
+                        onClick={() => setSidebarOpen(false)}
+                        className={iconButton}
+                        title={`Hide sidebar (${appModLabel()}+B)`}
+                        aria-label="Hide sidebar"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Action toolbar — its own row so it survives narrow widths */}
+            <div className="flex items-center gap-0.5 border-b border-border px-2 py-1">
+                <button onClick={createNewTab} className={iconButton} title={`New file (${appModLabel()}+N)`} aria-label="New file">
+                    <FilePlus className="h-4 w-4" />
+                </button>
+                <button onClick={createNewFolder} className={iconButton} title="New folder" aria-label="New folder">
+                    <FolderPlus className="h-4 w-4" />
+                </button>
+                <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden="true" />
+                <button onClick={onOpenFile} className={iconButton} title="Open file from disk (⌘O)" aria-label="Open file from disk">
+                    <FileUp className="h-4 w-4" />
+                </button>
+                {supportsDirectoryPicker && (
+                    <button onClick={onOpenFolder} className={iconButton} title="Open folder from disk" aria-label="Open folder from disk">
+                        <FolderOpen className="h-4 w-4" />
+                    </button>
+                )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto overscroll-contain">
+                {isEmpty ? (
+                    <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
+                        <Folder className="h-8 w-8 text-muted-foreground/40" />
+                        <p className="text-xs text-muted-foreground">No files yet</p>
+                        <div className="flex flex-col gap-1.5">
                             <button
                                 onClick={createNewTab}
-                                className="rounded p-1 transition-colors hover:bg-accent"
-                                title={`New file (${appModLabel()}+N)`}
-                                aria-label="New file"
+                                className="rounded border border-border px-3 py-1 text-xs text-foreground transition-colors hover:bg-accent"
                             >
-                                <Plus className="h-4 w-4" />
+                                New file
                             </button>
                             <button
-                                onClick={() => setSidebarOpen(false)}
-                                className="rounded p-1 transition-colors hover:bg-accent"
-                                title={`Hide sidebar (${appModLabel()}+B)`}
-                                aria-label="Hide sidebar"
+                                onClick={onOpenFile}
+                                className="rounded border border-border px-3 py-1 text-xs text-foreground transition-colors hover:bg-accent"
                             >
-                                <X className="h-4 w-4" />
+                                Open from disk
                             </button>
                         </div>
                     </div>
+                ) : (
+                    <div className="p-2">
+                        <div className="space-y-1">
+                            {/* Root-level folders (recursive render) */}
+                            {getSubfolders(null).map(folder => renderFolder(folder))}
 
-                    <div className="flex-1 overflow-y-auto overscroll-contain">
-                        <div className="p-2">
-                            <div className="space-y-1">
-                                {/* Root-level folders (recursive render) */}
-                                {getSubfolders(null).map(folder => renderFolder(folder))}
-
-                                {/* Root level files (no folder) */}
-                                <div
-                                    onDragOver={handleDragOver}
-                                    onDrop={handleDropOutsideFolder}
-                                    className="min-h-[40px]"
-                                >
-                                    {getFilesInFolder(null).map(renderFileItem)}
-                                </div>
+                            {/* Root level files (no folder) */}
+                            <div
+                                onDragOver={handleDragOver}
+                                onDrop={handleDropOutsideFolder}
+                                className="min-h-[40px]"
+                            >
+                                {getFilesInFolder(null).map(renderFileItem)}
                             </div>
                         </div>
                     </div>
+                )}
+            </div>
         </div>
     )
 }

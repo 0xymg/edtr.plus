@@ -60,6 +60,10 @@ const FAQS = [
     a: "JavaScript, TypeScript, Python, Go, Rust, C, C++, C#, Java, Kotlin, Swift, Ruby, PHP, HTML, CSS, JSON, YAML, Markdown, SQL, Bash, and more.",
   },
   {
+    q: "Can it handle really large files?",
+    a: "Yes. The editor renders only the lines visible on screen, so opening, selecting and editing a 100,000-line file feels the same as a short note. For files bigger than your browser's storage quota, open them from disk and save back with ⌘S.",
+  },
+  {
     q: "Which browsers work?",
     a: "Current versions of Chrome, Edge, Firefox, Safari and other Chromium-based browsers. For the best local-file experience, use one with File System Access API support (Chrome, Edge, Opera).",
   },
@@ -236,6 +240,8 @@ export default function LandingPage() {
           <span aria-hidden="true">·</span>
           <span>Opens and saves real files</span>
           <span aria-hidden="true">·</span>
+          <span>Handles 100,000-line files</span>
+          <span aria-hidden="true">·</span>
           <span>Autosave on every keystroke</span>
         </div>
       </section>
@@ -346,6 +352,7 @@ export default function LandingPage() {
                   ["Where your file lives", "Your device", "Your device", "A server"],
                   ["Ready to type in", "~1 second", "After install", "After sign-in"],
                   ["Tabs, syntax, find & replace", "Yes", "Yes", "Varies"],
+                  ["100,000-line files", "Instant", "Yes", "Often struggles"],
                   ["Price", "Free", "Free", "Mixed"],
                 ].map(([label, edtr, npp, cloud]) => (
                   <tr key={label} className={`border-b ${hairline} last:border-0`}>
@@ -388,8 +395,18 @@ export default function LandingPage() {
                 body: (
                   <>
                     Keep as many documents open as you like. <Kbd>{mod}+N</Kbd> for a new tab,{" "}
-                    <Kbd>{mod}+X</Kbd> to close one. Find &amp; replace works across the document,
-                    with regex when you want it.
+                    <Kbd>{mod}+X</Kbd> to close one. <Kbd>⌘F</Kbd> opens find &amp; replace, with
+                    regex and match-case when you want them.
+                  </>
+                ),
+              },
+              {
+                title: "Doesn't choke on big files",
+                body: (
+                  <>
+                    The editor only renders the lines on your screen, so a 100,000-line log file
+                    opens, selects and edits as fast as a ten-line note. Paste it, hit{" "}
+                    <Kbd>⌘A</Kbd>, keep typing. Nothing freezes.
                   </>
                 ),
               },
@@ -495,6 +512,7 @@ export default function LandingPage() {
               "A quick note before the thought escapes",
               "A config file someone pasted in chat",
               "Cleaning up a JSON blob",
+              "A giant log file other tabs choke on",
               "A code snippet that needs highlighting",
               "A Markdown file with a live preview",
               "Editing a file on a computer that isn't yours",
