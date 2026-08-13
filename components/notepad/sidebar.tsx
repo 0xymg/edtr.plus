@@ -14,11 +14,13 @@ import {
     ChevronsUpDown,
     Download,
     Trash2,
+    Search,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { appModLabel, cmdModLabel } from "@/lib/shortcuts"
 import { Tab, FolderItem } from "../notepad"
 import { FileIcon } from "./file-icon"
+import { IconTip } from "@/components/ui/tooltip"
 
 interface SidebarProps {
     sidebarOpen: boolean
@@ -66,6 +68,8 @@ interface SidebarProps {
     onDownloadFile: (id: string) => void
     onDownloadFolder: (id: string) => void
     toggleAllFolders: () => void
+    onOpenSearch: () => void
+    cmdLabel: string
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -114,6 +118,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onDownloadFile,
     onDownloadFolder,
     toggleAllFolders,
+    onOpenSearch,
+    cmdLabel,
 }) => {
     const extensionMap: Record<string, string> = {
         plaintext: ".txt", javascript: ".js", jsx: ".jsx", typescript: ".ts", tsx: ".tsx",
@@ -174,22 +180,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-foreground group-hover/file:hidden" />
             )}
             <span className="hidden group-hover/file:flex items-center shrink-0">
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDownloadFile(tab.id) }}
-                    className={cn(rowAction, "hover:bg-accent hover:text-foreground")}
-                    title="Download"
-                    aria-label="Download file"
-                >
-                    <Download className="h-3.5 w-3.5" />
-                </button>
-                <button
-                    onClick={(e) => { e.stopPropagation(); deleteFile(tab.id, e) }}
-                    className={cn(rowAction, "hover:bg-destructive/10 hover:text-destructive")}
-                    title="Delete"
-                    aria-label="Delete file"
-                >
-                    <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                <IconTip label="Download file">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDownloadFile(tab.id) }}
+                        className={cn(rowAction, "hover:bg-accent hover:text-foreground")}
+                        aria-label="Download file"
+                    >
+                        <Download className="h-3.5 w-3.5" />
+                    </button>
+                </IconTip>
+                <IconTip label="Delete file">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); deleteFile(tab.id, e) }}
+                        className={cn(rowAction, "hover:bg-destructive/10 hover:text-destructive")}
+                        aria-label="Delete file"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                </IconTip>
             </span>
         </div>
     )
@@ -249,22 +257,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span className="truncate flex-1 min-w-0">{folder.name}</span>
                 )}
                 <span className="hidden group-hover/folder:flex items-center shrink-0">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); onDownloadFolder(folder.id) }}
-                        className={cn(rowAction, "hover:bg-accent hover:text-foreground")}
-                        title="Download as .zip"
-                        aria-label="Download folder as zip"
-                    >
-                        <Download className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                        onClick={(e) => deleteFolder(folder.id, e)}
-                        className={cn(rowAction, "hover:bg-destructive/10 hover:text-destructive")}
-                        title="Delete"
-                        aria-label="Delete folder"
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <IconTip label="Download folder as .zip">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onDownloadFolder(folder.id) }}
+                            className={cn(rowAction, "hover:bg-accent hover:text-foreground")}
+                            aria-label="Download folder as zip"
+                        >
+                            <Download className="h-3.5 w-3.5" />
+                        </button>
+                    </IconTip>
+                    <IconTip label="Delete folder">
+                        <button
+                            onClick={(e) => deleteFolder(folder.id, e)}
+                            className={cn(rowAction, "hover:bg-destructive/10 hover:text-destructive")}
+                            aria-label="Delete folder"
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                    </IconTip>
                 </span>
             </div>
 
@@ -285,43 +295,62 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center justify-between gap-1 border-b border-border px-3 py-1.5">
                 <h2 className="truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">Files</h2>
                 <div className="flex items-center shrink-0">
-                    {folders.length > 0 && (
+                    <IconTip label="Search files and text" shortcut={`${cmdLabel}+K`}>
                         <button
-                            onClick={toggleAllFolders}
+                            onClick={onOpenSearch}
                             className={iconButton}
-                            title={anyFolderExpanded ? "Collapse all" : "Expand all"}
-                            aria-label={anyFolderExpanded ? "Collapse all folders" : "Expand all folders"}
+                            aria-label="Search files and text"
                         >
-                            {anyFolderExpanded ? <ChevronsDownUp className="h-4 w-4" /> : <ChevronsUpDown className="h-4 w-4" />}
+                            <Search className="h-4 w-4" />
                         </button>
+                    </IconTip>
+                    {folders.length > 0 && (
+                        <IconTip label={anyFolderExpanded ? "Collapse all folders" : "Expand all folders"}>
+                            <button
+                                onClick={toggleAllFolders}
+                                className={iconButton}
+                                aria-label={anyFolderExpanded ? "Collapse all folders" : "Expand all folders"}
+                            >
+                                {anyFolderExpanded ? <ChevronsDownUp className="h-4 w-4" /> : <ChevronsUpDown className="h-4 w-4" />}
+                            </button>
+                        </IconTip>
                     )}
-                    <button
-                        onClick={() => setSidebarOpen(false)}
-                        className={iconButton}
-                        title={`Hide sidebar (${appModLabel()}+B)`}
-                        aria-label="Hide sidebar"
-                    >
-                        <X className="h-4 w-4" />
-                    </button>
+                    <IconTip label="Hide sidebar" shortcut={`${appModLabel()}+B`}>
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className={iconButton}
+                            aria-label="Hide sidebar"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </IconTip>
                 </div>
             </div>
 
             {/* Action toolbar — its own row so it survives narrow widths */}
             <div className="flex items-center gap-0.5 border-b border-border px-2 py-1">
-                <button onClick={createNewTab} className={iconButton} title={`New file (${appModLabel()}+N)`} aria-label="New file">
-                    <FilePlus className="h-4 w-4" />
-                </button>
-                <button onClick={createNewFolder} className={iconButton} title="New folder" aria-label="New folder">
-                    <FolderPlus className="h-4 w-4" />
-                </button>
-                <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden="true" />
-                <button onClick={onOpenFile} className={iconButton} title={`Open file from disk (${cmdModLabel()}+O)`} aria-label="Open file from disk">
-                    <FileUp className="h-4 w-4" />
-                </button>
-                {supportsDirectoryPicker && (
-                    <button onClick={onOpenFolder} className={iconButton} title="Open folder from disk" aria-label="Open folder from disk">
-                        <FolderOpen className="h-4 w-4" />
+                <IconTip label="New file" shortcut={`${appModLabel()}+N`}>
+                    <button onClick={createNewTab} className={iconButton} aria-label="New file">
+                        <FilePlus className="h-4 w-4" />
                     </button>
+                </IconTip>
+                <IconTip label="New folder">
+                    <button onClick={createNewFolder} className={iconButton} aria-label="New folder">
+                        <FolderPlus className="h-4 w-4" />
+                    </button>
+                </IconTip>
+                <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden="true" />
+                <IconTip label="Open file from disk" shortcut={`${cmdModLabel()}+O`}>
+                    <button onClick={onOpenFile} className={iconButton} aria-label="Open file from disk">
+                        <FileUp className="h-4 w-4" />
+                    </button>
+                </IconTip>
+                {supportsDirectoryPicker && (
+                    <IconTip label="Open folder from disk">
+                        <button onClick={onOpenFolder} className={iconButton} aria-label="Open folder from disk">
+                            <FolderOpen className="h-4 w-4" />
+                        </button>
+                    </IconTip>
                 )}
             </div>
 

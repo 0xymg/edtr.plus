@@ -4,6 +4,8 @@ import { HexColorPicker } from "react-colorful"
 import { cn } from "@/lib/utils"
 import { Tab } from "../notepad"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { IconTip } from "@/components/ui/tooltip"
+import { appModLabel } from "@/lib/shortcuts"
 
 const PRESETS = [
     { name: "VS Code Blue", bg: "#007acc", text: "#ffffff" },
@@ -152,42 +154,50 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                         Error
                     </span>
                 )}
-                <button
-                    onClick={formatCode}
-                    disabled={isFormatting || activeTab?.language === "plaintext"}
-                    className={cn(
-                        `flex items-center gap-1 rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`,
-                        (isFormatting || activeTab?.language === "plaintext") && "cursor-not-allowed opacity-50"
-                    )}
-                    title="Format code (Prettier)"
-                    aria-label="Format code"
+                <IconTip
+                    label={activeTab?.language === "plaintext" ? "Format (pick a language first)" : "Format document"}
+                    shortcut={`${appModLabel()}⇧+F`}
+                    side="top"
                 >
-                    <Wand2 className={cn("h-3.5 w-3.5", isFormatting && "animate-spin")} />
-                    <span className="hidden md:inline">{isFormatting ? "Formatting..." : "Format"}</span>
-                </button>
-                <button
-                    onClick={toggleWordWrap}
-                    className={cn(
-                        `flex items-center gap-1 rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`,
-                        wordWrap && "text-foreground"
-                    )}
-                    title={wordWrap ? "Word wrap: on" : "Word wrap: off"}
-                    aria-label="Toggle word wrap"
-                    aria-pressed={wordWrap}
-                >
-                    <WrapText className="h-3.5 w-3.5" />
-                    <span className="hidden md:inline">Wrap</span>
-                </button>
-                <button
-                    onClick={toggleTheme}
-                    className={cn(`flex items-center rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`)}
-                    title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                    aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                    {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-                </button>
+                    <button
+                        onClick={formatCode}
+                        disabled={isFormatting || activeTab?.language === "plaintext"}
+                        className={cn(
+                            `flex items-center gap-1 rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`,
+                            (isFormatting || activeTab?.language === "plaintext") && "cursor-not-allowed opacity-50"
+                        )}
+                        aria-label="Format code"
+                    >
+                        <Wand2 className={cn("h-3.5 w-3.5", isFormatting && "animate-spin")} />
+                        <span className="hidden md:inline">{isFormatting ? "Formatting..." : "Format"}</span>
+                    </button>
+                </IconTip>
+                <IconTip label={wordWrap ? "Word wrap: on" : "Word wrap: off"} side="top">
+                    <button
+                        onClick={toggleWordWrap}
+                        className={cn(
+                            `flex items-center gap-1 rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`,
+                            wordWrap && "text-foreground"
+                        )}
+                        aria-label="Toggle word wrap"
+                        aria-pressed={wordWrap}
+                    >
+                        <WrapText className="h-3.5 w-3.5" />
+                        <span className="hidden md:inline">Wrap</span>
+                    </button>
+                </IconTip>
+                <IconTip label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} side="top">
+                    <button
+                        onClick={toggleTheme}
+                        className={cn(`flex items-center rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`)}
+                        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                    >
+                        {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                    </button>
+                </IconTip>
                 <span className="hidden sm:inline">UTF-8</span>
                 <div className="relative">
+                    <IconTip label="Select language" side="top">
                     <button
                         ref={languageButtonRef}
                         onClick={(e) => {
@@ -195,10 +205,12 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                             setLanguageMenuOpen(!languageMenuOpen)
                         }}
                         className={cn("flex items-center gap-1 rounded px-1 py-0.5 transition-colors", hoverClass)}
+                        aria-label="Select language"
                     >
                         <span className="max-w-[60px] truncate">{languages.find(l => l.id === activeTab?.language)?.name || "Text"}</span>
                         <ChevronDown className="h-3 w-3" />
                     </button>
+                    </IconTip>
                     {languageMenuOpen && (
                         <div
                             ref={languageMenuRef}

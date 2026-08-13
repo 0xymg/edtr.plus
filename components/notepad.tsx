@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
 import { hasAppModifier, appModLabel, cmdModLabel } from "@/lib/shortcuts"
+import { TooltipProvider, IconTip } from "@/components/ui/tooltip"
 import type { EditorHandle } from "./notepad/codemirror-editor"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
 import {
@@ -1236,6 +1237,7 @@ export function Notepad() {
   }, [activeTabId, activeTab?.language])
 
   return (
+    <TooltipProvider>
     <div
       className="flex h-full flex-col bg-background overscroll-contain"
       onWheel={(e) => e.stopPropagation()}
@@ -1249,40 +1251,45 @@ export function Notepad() {
       <div className="flex h-10 items-center border-b border-border bg-card/50 shrink-0 relative">
         {/* Traffic Lights */}
         <div className="flex items-center gap-2 px-4 border-r border-border h-full shrink-0">
-          <button
-            onClick={(e) => { e.stopPropagation(); scrollBelowEditor() }}
-            className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#e0443e] bg-[#ff5f56] transition-transform hover:scale-110 active:scale-95"
-            title="Scroll below editor"
-            aria-label="Scroll below editor"
-          >
-            <X className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
-            className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#dea123] bg-[#ffbd2e] transition-transform hover:scale-110 active:scale-95"
-            title={`${sidebarOpen ? "Hide" : "Show"} sidebar`}
-            aria-label={`${sidebarOpen ? "Hide" : "Show"} sidebar`}
-          >
-            <Menu className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); createNewTab() }}
-            className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#1aab29] bg-[#27c93f] transition-transform hover:scale-110 active:scale-95"
-            title="New tab"
-            aria-label="New tab"
-          >
-            <Plus className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
-          </button>
+          <IconTip label="Scroll below editor">
+            <button
+              onClick={(e) => { e.stopPropagation(); scrollBelowEditor() }}
+              className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#e0443e] bg-[#ff5f56] transition-transform hover:scale-110 active:scale-95"
+              aria-label="Scroll below editor"
+            >
+              <X className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
+            </button>
+          </IconTip>
+          <IconTip label={`${sidebarOpen ? "Hide" : "Show"} sidebar`} shortcut={`${appModLabel()}+B`}>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
+              className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#dea123] bg-[#ffbd2e] transition-transform hover:scale-110 active:scale-95"
+              aria-label={`${sidebarOpen ? "Hide" : "Show"} sidebar`}
+            >
+              <Menu className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
+            </button>
+          </IconTip>
+          <IconTip label="New tab" shortcut={`${appModLabel()}+N`}>
+            <button
+              onClick={(e) => { e.stopPropagation(); createNewTab() }}
+              className="group flex h-3 w-3 items-center justify-center rounded-full border border-[#1aab29] bg-[#27c93f] transition-transform hover:scale-110 active:scale-95"
+              aria-label="New tab"
+            >
+              <Plus className="h-2 w-2 text-black/55 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={3} />
+            </button>
+          </IconTip>
         </div>
 
         {/* Sidebar Toggle Button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
-          className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (${appModLabel()}+B)`}
-        >
-          <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
-        </button>
+        <IconTip label={`${sidebarOpen ? "Hide" : "Show"} sidebar`} shortcut={`${appModLabel()}+B`}>
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
+            className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+            aria-label={`${sidebarOpen ? "Hide" : "Show"} sidebar`}
+          >
+            <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
+          </button>
+        </IconTip>
 
         {/* Centered Brand */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-[family-name:var(--font-author)] font-bold tracking-tight text-[13px] text-muted-foreground select-none pointer-events-none">
@@ -1293,12 +1300,16 @@ export function Notepad() {
           {/* Settings Button */}
           <Popover>
             <PopoverTrigger asChild>
-              <button
-                className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-                title="Settings"
-              >
-                <Settings className="h-4 w-4 transition-transform group-active:rotate-90" />
-              </button>
+              <span>
+                <IconTip label="Settings">
+                  <button
+                    className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+                    aria-label="Settings"
+                  >
+                    <Settings className="h-4 w-4 transition-transform group-active:rotate-90" />
+                  </button>
+                </IconTip>
+              </span>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-0 overflow-hidden">
               <div className="p-4 border-b border-border bg-muted/30">
@@ -1489,38 +1500,47 @@ export function Notepad() {
           </Popover>
 
           {/* Save Button */}
-          <button
-            onClick={(e) => { e.stopPropagation(); saveFile() }}
-            className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-            title={activeTab?.source === "filesystem" ? "Save to disk (Ctrl+S / Cmd+S)" : "Save (Ctrl+S / Cmd+S)"}
+          <IconTip
+            label={activeTab?.source === "filesystem" ? "Save to disk" : "Save"}
+            shortcut={`${cmdModLabel()}+S`}
           >
-            <Save className="h-4 w-4 transition-transform group-active:scale-90" />
-          </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); saveFile() }}
+              className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+              aria-label="Save"
+            >
+              <Save className="h-4 w-4 transition-transform group-active:scale-90" />
+            </button>
+          </IconTip>
 
           {/* Download Button */}
-          <button
-            onClick={(e) => { e.stopPropagation(); downloadFile() }}
-            className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-            title="Download file (Ctrl+Shift+S / Cmd+Shift+S)"
-          >
-            <Download className="h-4 w-4 transition-transform group-active:scale-90" />
-          </button>
+          <IconTip label="Download file" shortcut={`${cmdModLabel()}⇧+S`}>
+            <button
+              onClick={(e) => { e.stopPropagation(); downloadFile() }}
+              className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
+              aria-label="Download file"
+            >
+              <Download className="h-4 w-4 transition-transform group-active:scale-90" />
+            </button>
+          </IconTip>
 
           {/* Preview Toggle Button */}
           {(activeTab?.language === "markdown" || activeTab?.language === "svg") && (
+            <IconTip label={showPreview ? "Hide preview" : "Show preview"} shortcut={`${appModLabel()}+P`}>
             <button
               onClick={(e) => { e.stopPropagation(); togglePreview() }}
               className={cn(
                 "flex items-center px-4 border-l border-border h-full transition-colors outline-none group",
                 showPreview ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
-              title="Toggle Markdown Preview"
+              aria-label="Toggle preview"
             >
               <div className="relative">
                 <FileText className="h-4 w-4 transition-transform group-active:scale-90" />
                 {showPreview && <div className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-primary" />}
               </div>
             </button>
+            </IconTip>
           )}
         </div>
       </div>
@@ -1587,6 +1607,8 @@ export function Notepad() {
                 onDownloadFile={downloadFileById}
                 onDownloadFolder={downloadFolderAsZip}
                 toggleAllFolders={toggleAllFolders}
+                onOpenSearch={() => setPaletteOpen(true)}
+                cmdLabel={cmdModLabel()}
               />
             </div>
             <div
@@ -1769,5 +1791,6 @@ export function Notepad() {
         }}
       />
     </div>
+    </TooltipProvider>
   )
 }

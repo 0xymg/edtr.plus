@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { appModLabel } from "@/lib/shortcuts"
 import { Tab } from "../notepad"
 import { FileIcon } from "./file-icon"
+import { IconTip } from "@/components/ui/tooltip"
 
 interface TabBarProps {
     tabs: Tab[]
@@ -41,24 +42,26 @@ export const TabBar: React.FC<TabBarProps> = ({
                         {tab.isModified && (
                             <span className="h-2 w-2 shrink-0 rounded-full bg-foreground" />
                         )}
-                        <button
-                            onClick={(e) => closeTab(tab.id, e)}
-                            className="ml-1 rounded p-0.5 opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100"
-                            title={`Close ${tab.name} (${appModLabel()}+X)`}
-                            aria-label={`Close ${tab.name}`}
-                        >
-                            <X className="h-3.5 w-3.5" />
-                        </button>
+                        <IconTip label={`Close ${tab.name}`} shortcut={`${appModLabel()}+X`}>
+                            <button
+                                onClick={(e) => closeTab(tab.id, e)}
+                                className="ml-1 rounded p-0.5 opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100"
+                                aria-label={`Close ${tab.name}`}
+                            >
+                                <X className="h-3.5 w-3.5" />
+                            </button>
+                        </IconTip>
                     </div>
                 ))}
-                <button
-                    onClick={createNewTab}
-                    className="flex shrink-0 items-center px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    title={`New file (${appModLabel()}+N)`}
-                    aria-label="New tab"
-                >
-                    <Plus className="h-4 w-4" />
-                </button>
+                <IconTip label="New tab" shortcut={`${appModLabel()}+N`}>
+                    <button
+                        onClick={createNewTab}
+                        className="flex shrink-0 items-center px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        aria-label="New tab"
+                    >
+                        <Plus className="h-4 w-4" />
+                    </button>
+                </IconTip>
             </div>
         </div>
     )
