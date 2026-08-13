@@ -653,8 +653,22 @@ export function Notepad() {
   }, [escapeHtml, highlighterReady])
 
   const getWordCount = useCallback((content: string) => {
-    if (!content.trim()) return 0
-    return content.trim().split(/\s+/).length
+    // Counting loop instead of trim().split(/\s+/): the split allocated an
+    // array with one entry per word, which at 10k+ lines meant a huge
+    // throwaway allocation on every keystroke.
+    let count = 0
+    let inWord = false
+    for (let i = 0; i < content.length; i++) {
+      const c = content.charCodeAt(i)
+      const isSpace = c === 32 || (c >= 9 && c <= 13)
+      if (!isSpace && !inWord) {
+        count++
+        inWord = true
+      } else if (isSpace) {
+        inWord = false
+      }
+    }
+    return count
   }, [])
 
   const triggerDownload = useCallback((blob: Blob, filename: string) => {

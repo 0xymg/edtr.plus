@@ -90,6 +90,19 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     setStatusBarTextColor
 }) => {
     const [pickerTarget, setPickerTarget] = useState<"bg" | "text">("bg")
+
+    // Memoized fast counts: split("\n") allocated a per-line array on every
+    // keystroke, which is felt at 10k+ lines. Deferred so the counting loops
+    // run in a low-priority render instead of inside the keystroke commit.
+    const contentForCounts = React.useDeferredValue(activeTab?.content || "")
+    const lineCount = React.useMemo(() => {
+        let n = 1
+        for (let i = 0; i < contentForCounts.length; i++) {
+            if (contentForCounts.charCodeAt(i) === 10) n++
+        }
+        return n
+    }, [contentForCounts])
+    const wordCount = React.useMemo(() => getWordCount(contentForCounts), [contentForCounts, getWordCount])
     const activePickerColor = pickerTarget === "bg" ? statusBarColor : statusBarTextColor
     const setActivePickerColor = pickerTarget === "bg" ? setStatusBarColor : setStatusBarTextColor
 
@@ -114,13 +127,13 @@ export const StatusBar: React.FC<StatusBarProps> = ({
 
                 <div className="flex items-center gap-2 sm:gap-4">
                     <span>
-                        L: {(activeTab?.content || "").split("\n").length}
+                        L: {lineCount}
                     </span>
                     <span className="hidden xs:inline sm:inline">
-                        W: {getWordCount(activeTab?.content || "")}
+                        W: {wordCount}
                     </span>
                     <span className="hidden md:inline">
-                        Len: {(activeTab?.content || "").length}
+                        Len: {contentForCounts.length}
                     </span>
                 </div>
             </div>
