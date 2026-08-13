@@ -1199,6 +1199,7 @@ export function Notepad() {
     if (savedStatusBarColor) setStatusBarColor(savedStatusBarColor)
     const savedStatusBarTextColor = localStorage.getItem("notepad-statusbar-text-color")
     if (savedStatusBarTextColor) setStatusBarTextColor(savedStatusBarTextColor)
+    console.log("[probe] restore effect done -> hydrated")
     setHydrated(true)
     setTimeout(() => editorRef.current?.focus(), 0)
   }, [])
@@ -1344,6 +1345,7 @@ export function Notepad() {
   // The hash is never written back automatically: doing so on every tab
   // switch would bury the user's real history under editor navigation.
   useEffect(() => {
+    console.log("[probe] hash effect fired, hydrated =", hydrated)
     if (!hydrated) return
     const raw = window.location.hash.slice(1)
     console.log("[probe] hash effect", { raw, hydrated, tabIds: tabs.map(t => t.id), activeTabId })
