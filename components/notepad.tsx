@@ -1293,7 +1293,7 @@ export function Notepad() {
 
         {/* Centered Brand */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-[family-name:var(--font-author)] font-bold tracking-tight text-[13px] text-muted-foreground select-none pointer-events-none">
-          EDTR<span className="text-[#F5A524]">+</span>
+          EDTR<span className="ml-[0.09em] text-[1.2em] text-[#F5A524]">+</span>
         </div>
 
         <div className="flex items-center h-full ml-auto">

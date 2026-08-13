@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { toast } from "sonner"
@@ -20,7 +20,7 @@ const Notepad = dynamic(() => import("@/components/notepad").then(m => m.Notepad
           <span className="h-3 w-3 rounded-full bg-[#27c93f]" />
         </div>
         <div className="absolute left-1/2 -translate-x-1/2 select-none text-[13px] font-semibold text-muted-foreground">
-          EDTR<span className="text-[#F5A524]">+</span>
+          EDTR<span className="ml-[0.09em] text-[1.2em] text-[#F5A524]">+</span>
         </div>
       </div>
       <div className="h-9 shrink-0 border-b border-border bg-card/30" />
@@ -107,8 +107,9 @@ const faint = "text-[#1C1B18]/45 dark:text-[#EDECE8]/45"
 const hairline = "border-[rgba(55,53,47,0.1)] dark:border-white/10"
 const display = "font-[family-name:var(--font-author)] font-bold tracking-[-0.03em]"
 const hoverInk = "hover:text-[#1C1B18] dark:hover:text-[#EDECE8]"
-// The "+" in the wordmark is the one spot of colour in the whole palette
-const plus = "text-[#F5A524]"
+// The "+" in the wordmark is the one spot of colour in the whole palette,
+// set slightly larger than the letters with a hair of space before it
+const plus = "ml-[0.09em] text-[1.2em] text-[#F5A524]"
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
@@ -116,6 +117,29 @@ function Kbd({ children }: { children: React.ReactNode }) {
       {children}
     </kbd>
   )
+}
+
+/** The product name always renders as the wordmark: amber, slightly larger "+". */
+function Wordmark() {
+  return (
+    <span className="whitespace-nowrap">
+      EDTR<span className={plus}>+</span>
+    </span>
+  )
+}
+
+/**
+ * Renders copy that is stored as a plain string (FAQ entries also feed the
+ * JSON-LD schema, which must stay plain text) with the wordmark styled.
+ */
+function withWordmark(text: string) {
+  const parts = text.split("EDTR+")
+  return parts.map((part, i) => (
+    <React.Fragment key={i}>
+      {i > 0 && <Wordmark />}
+      {part}
+    </React.Fragment>
+  ))
 }
 
 function scrollToEditor() {
@@ -268,7 +292,7 @@ export default function LandingPage() {
             Sometimes you just need to open a file, change a few lines, or write something down.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ gives you the familiar tools of a desktop text editor directly in your browser,
+            <Wordmark /> gives you the familiar tools of a desktop text editor directly in your browser,
             without turning a simple task into another app, account, or subscription.
           </p>
 
@@ -292,7 +316,7 @@ export default function LandingPage() {
             ].map((item) => (
               <div key={item.title} className="bg-white dark:bg-[#161512] p-6">
                 <h3 className={`${display} text-lg tracking-[-0.02em]`}>{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed">{item.lead}</p>
+                <p className="mt-2 text-sm leading-relaxed">{withWordmark(item.lead)}</p>
                 <p className={`mt-1.5 text-sm leading-relaxed ${muted}`}>{item.body}</p>
               </div>
             ))}
@@ -367,7 +391,9 @@ export default function LandingPage() {
             ].map((f) => (
               <div key={f.title}>
                 <h3 className={`${display} text-xl tracking-[-0.02em]`}>{f.title}</h3>
-                <p className={`mt-2 text-[16px] leading-relaxed ${muted}`}>{f.body}</p>
+                <p className={`mt-2 text-[16px] leading-relaxed ${muted}`}>
+                  {typeof f.body === "string" ? withWordmark(f.body) : f.body}
+                </p>
               </div>
             ))}
           </div>
@@ -381,7 +407,7 @@ export default function LandingPage() {
             Your text stays yours.
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ is designed to work locally in your browser. We don&apos;t need an account to
+            <Wordmark /> is designed to work locally in your browser. We don&apos;t need an account to
             identify you, and we don&apos;t need your documents on a server to edit them.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
@@ -404,7 +430,7 @@ export default function LandingPage() {
             Notepad++ is great, but it is built for Windows.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ brings the parts many people use every day to any modern browser: tabs, syntax
+            <Wordmark /> brings the parts many people use every day to any modern browser: tabs, syntax
             highlighting, find &amp; replace, file editing, keyboard shortcuts, and a fast place to
             work with text.
           </p>
@@ -425,14 +451,14 @@ export default function LandingPage() {
       <section id="comparison" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-4xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            EDTR+ vs. the alternatives
+            <Wordmark /> vs. the alternatives
           </h2>
           <div className="mt-10 overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className={`border-b ${hairline}`}>
                   <th className="w-[36%] px-4 py-3" />
-                  <th className={`bg-[#F7F7F5] dark:bg-white/5 px-4 py-3 text-left font-semibold ${ink}`}>EDTR+</th>
+                  <th className={`bg-[#F7F7F5] dark:bg-white/5 px-4 py-3 text-left font-semibold ${ink}`}><Wordmark /></th>
                   <th className={`px-4 py-3 text-left font-medium ${muted}`}>Notepad++</th>
                   <th className={`px-4 py-3 text-left font-medium ${muted}`}>Cloud editors</th>
                 </tr>
@@ -462,7 +488,7 @@ export default function LandingPage() {
             </table>
           </div>
           <p className={`mt-5 text-[13px] ${faint}`}>
-            EDTR+ is an independent open-source project and is not affiliated with Notepad++.
+            <Wordmark /> is an independent open-source project and is not affiliated with Notepad++.
           </p>
         </div>
       </section>
@@ -493,7 +519,7 @@ export default function LandingPage() {
             ))}
           </ul>
           <p className={`mt-8 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ is there when a full editor would be too much and a basic textarea would be too
+            <Wordmark /> is there when a full editor would be too much and a basic textarea would be too
             little.
           </p>
         </div>
@@ -554,7 +580,7 @@ export default function LandingPage() {
             Free means free.
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ has no paid plan. No premium tier. No trial. No ads. No account. The project is
+            <Wordmark /> has no paid plan. No premium tier. No trial. No ads. No account. The project is
             open source and free to use.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
@@ -583,12 +609,12 @@ export default function LandingPage() {
             {FAQS.map((faq, i) => (
               <details key={i} className={`group border-t ${hairline} last:border-b`} open={i === 0}>
                 <summary className={`flex cursor-pointer list-none items-center justify-between gap-4 py-5 ${display} text-lg tracking-[-0.02em] [&::-webkit-details-marker]:hidden`}>
-                  {faq.q}
+                  {withWordmark(faq.q)}
                   <span className={`flex h-6 w-6 shrink-0 items-center justify-center font-mono text-base ${faint} transition-transform group-open:rotate-45`}>
                     +
                   </span>
                 </summary>
-                <p className={`max-w-[64ch] pb-6 pr-8 text-[15px] leading-relaxed ${muted}`}>{faq.a}</p>
+                <p className={`max-w-[64ch] pb-6 pr-8 text-[15px] leading-relaxed ${muted}`}>{withWordmark(faq.a)}</p>
               </details>
             ))}
           </div>
@@ -609,7 +635,7 @@ export default function LandingPage() {
             onClick={scrollToEditor}
             className="mt-9 bg-[#1C1B18] dark:bg-[#EDECE8] px-8 py-3.5 text-base font-semibold text-white dark:text-[#1C1B18] hover:bg-[#1C1B18]/80 dark:hover:bg-white transition-colors"
           >
-            Open EDTR+ ↑
+            Open <Wordmark /> ↑
           </button>
           <p className={`mt-6 text-sm ${faint}`}>
             Free forever · Open source · No ads
@@ -623,7 +649,7 @@ export default function LandingPage() {
           <div className="max-w-xs">
             <span className={`${display} leading-none`}>
               <span className={`text-lg ${ink}`}>EDTR</span>
-              <span className={`text-sm font-semibold tracking-wider ${plus}`}>+</span>
+              <span className={`text-lg font-semibold ${plus}`}>+</span>
             </span>
             <p className={`mt-2 text-sm ${muted}`}>
               The free online notepad. Notepad++, rebuilt for the browser.
@@ -631,7 +657,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col gap-10 sm:flex-row sm:gap-20">
             <div>
-              <h3 className={`text-xs font-semibold uppercase tracking-wide ${muted}`}>EDTR+</h3>
+              <h3 className={`text-xs font-semibold uppercase tracking-wide ${muted}`}><Wordmark /></h3>
               <div className={`mt-3 flex flex-col gap-2 text-sm ${muted}`}>
                 <button onClick={scrollToEditor} className={`text-left ${hoverInk} transition-colors`}>Editor</button>
                 <Link href="/blog" className={`${hoverInk} transition-colors`}>Blog</Link>
@@ -656,7 +682,7 @@ export default function LandingPage() {
         </div>
         <div className={`mx-auto mt-10 max-w-5xl border-t ${hairline} pt-6 text-sm ${muted}`}>
           <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-            <span>© {new Date().getFullYear()} EDTR+. Not affiliated with Notepad++. Independent open source project.</span>
+            <span>© {new Date().getFullYear()} <Wordmark />. Not affiliated with Notepad++. Independent open source project.</span>
             <span className="whitespace-nowrap">
               Part of <span className={`${display} text-sm ${ink}`}>Project EDTR</span>, brought to you by{" "}
               <a href="https://ymg.digital" target="_blank" rel="noopener" className={`font-medium ${ink} transition-opacity hover:opacity-70`}>ymg.digital</a>
