@@ -150,9 +150,13 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                     </span>
                 )}
                 {formatError && (
-                    <span className="hidden sm:inline max-w-24 truncate text-destructive" title={formatError}>
-                        Error
-                    </span>
+                    // The message now names the offending line, so show it
+                    // rather than a bare "Error" the user has to hover.
+                    <IconTip label={formatError} side="top">
+                        <span className="hidden max-w-48 truncate text-destructive sm:inline">
+                            {formatError}
+                        </span>
+                    </IconTip>
                 )}
                 <IconTip
                     label={activeTab?.language === "plaintext" ? "Format (pick a language first)" : "Format document"}

@@ -3,6 +3,7 @@
 import React from "react"
 import { ChevronDown, ChevronRight, Copy, Check, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { locateJsonError } from "@/lib/json-error"
 
 interface JsonViewerProps {
     content: string
@@ -123,26 +124,6 @@ const Row: React.FC<{
     )
 }
 
-/**
- * Turns the "Unexpected token … at position N" message browsers give us into
- * a line/column pair, so an invalid document can be pointed at instead of
- * just rejected.
- */
-function parseErrorLocation(content: string, message: string) {
-    const match = /position (\d+)/.exec(message)
-    if (!match) return null
-    const offset = Math.min(Number(match[1]), content.length)
-    let line = 1
-    let lastBreak = -1
-    for (let i = 0; i < offset; i++) {
-        if (content.charCodeAt(i) === 10) {
-            line++
-            lastBreak = i
-        }
-    }
-    return { offset, line, column: offset - lastBreak }
-}
-
 export const JsonViewer: React.FC<JsonViewerProps> = ({ content, onRevealOffset }) => {
     const [copied, setCopied] = React.useState(false)
 
@@ -153,7 +134,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ content, onRevealOffset 
             return { ok: true as const, value: JSON.parse(trimmed) as Json, empty: false }
         } catch (e) {
             const message = e instanceof Error ? e.message : "Invalid JSON"
-            return { ok: false as const, message, location: parseErrorLocation(content, message) }
+            return { ok: false as const, message, location: locateJsonError(content, e) }
         }
     }, [content])
 

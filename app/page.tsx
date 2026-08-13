@@ -378,6 +378,16 @@ export default function LandingPage() {
                 body: "Work with logs, datasets, configuration files, and other large text files without turning your browser into a slideshow. Only the lines on screen are rendered, so a 100,000-line file behaves like a short note.",
               },
               {
+                title: "JSON viewer & formatter",
+                body: (
+                  <>
+                    Set a file to JSON and a collapsible tree opens next to it, so you can read an
+                    API response without counting brackets. Format it, minify it, and when it
+                    won&apos;t parse, jump straight to the line that broke it.
+                  </>
+                ),
+              },
+              {
                 title: "Markdown & SVG preview",
                 body: (
                   <>

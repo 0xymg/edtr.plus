@@ -15,6 +15,7 @@ EDTR+ is a free, browser-based Notepad++ alternative built for speed and privacy
 - **Multi-tab workspace**: Unlimited tabs, folders, drag & drop, find & replace with regex (`⌘F`).
 - **Big-file ready**: The editor core is CodeMirror 6 with virtualized rendering — only visible lines hit the DOM, so 100,000-line files open, select, and edit instantly.
 - **Syntax highlighting**: 20+ languages, loaded on demand per language.
+- **JSON viewer & formatter**: A collapsible JSON tree beside the editor, plus format, minify, and parse errors that point at the exact line.
 - **Markdown & SVG preview**: Open a `.md` or `.svg` file and a live preview appears alongside the editor — with Mermaid, ABC notation, and Vega-Lite support.
 - **PWA native**: Offline-first design. Install it on your machine and use it anywhere.
 

@@ -24,7 +24,7 @@ EDTR is a free, open source, browser-based text editor and notepad inspired by N
 - **No login required** — no accounts, no sign-up
 - **Private** — no server-side storage, no tracking
 - **Dark/light theme** with customizable status bar colors
-- **Code formatting** for JSON
+- **JSON viewer** — collapsible tree preview beside the editor, with format, minify, and error locations
 - **Word/character count** in real-time
 - **File export** as .txt or .zip
 

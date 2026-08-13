@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
 import { hasAppModifier, appModLabel, cmdModLabel } from "@/lib/shortcuts"
+import { locateJsonError } from "@/lib/json-error"
 import { TooltipProvider, IconTip } from "@/components/ui/tooltip"
 import type { EditorHandle } from "./notepad/codemirror-editor"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
@@ -806,14 +807,10 @@ export function Notepad() {
    * line and jumping the caret there beats a bare "Invalid JSON".
    */
   const reportJsonError = useCallback((source: string, error: unknown) => {
-    const message = error instanceof Error ? error.message : "Invalid JSON"
-    const match = /position (\d+)/.exec(message)
-    if (match) {
-      const offset = Math.min(Number(match[1]), source.length)
-      let line = 1
-      for (let i = 0; i < offset; i++) if (source.charCodeAt(i) === 10) line++
-      setFormatError(`Invalid JSON on line ${line}`)
-      editorRef.current?.reveal(offset, offset)
+    const location = locateJsonError(source, error)
+    if (location) {
+      setFormatError(`Invalid JSON on line ${location.line}`)
+      editorRef.current?.reveal(location.offset, location.offset)
     } else {
       setFormatError("Invalid JSON")
     }
