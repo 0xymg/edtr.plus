@@ -35,7 +35,7 @@ EDTR+ gives you the familiar tools of a desktop text editor directly in your bro
 - **Multiple tabs** — keep several notes and files open at once, with folders, drag & drop, and per-file download.
 - **Syntax highlighting** — 20+ programming and markup languages, each grammar loaded on demand.
 - **Find & replace** — `⌘F` opens it right in the editor, with regex and match-case.
-- **Command palette** — `⌘K` searches file names, folder names, and the text inside *every* open document at once, then jumps straight to the matching line.
+- **Command palette** — `⌘K` searches file names, folder names, and the text inside *every* open document at once, then jumps straight to the matching line. It also runs the editor's commands and switches the file's language: type `json`, hit Enter, and the open file is JSON.
 - **Large files** — the editor renders only the lines on screen, so a 100,000-line log opens, selects, and edits like a short note.
 - **JSON viewer & formatter** — a collapsible JSON tree with expand/collapse all, plus format, minify, and parse errors that point at the exact line.
 - **Markdown & SVG preview** — live preview beside your source, including Mermaid diagrams, ABC notation, and Vega-Lite charts.

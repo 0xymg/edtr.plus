@@ -16,6 +16,8 @@ import {
     Printer,
     Wand2,
     Minimize2,
+    Code2,
+    Check,
 } from "lucide-react"
 import {
     CommandDialog,
@@ -67,6 +69,9 @@ interface CommandPaletteProps {
     onFormat: () => void
     onMinifyJson: () => void
     isJson: boolean
+    languages: { id: string; name: string }[]
+    activeLanguage: string
+    onChangeLanguage: (id: string) => void
     onToggleTheme: () => void
     onToggleWrap: () => void
     theme: "light" | "dark"
@@ -152,6 +157,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     onFormat,
     onMinifyJson,
     isJson,
+    languages,
+    activeLanguage,
+    onChangeLanguage,
     onToggleTheme,
     onToggleWrap,
     theme,
@@ -212,6 +220,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     const folderHits = q
                         ? folders.filter((f) => f.name.toLowerCase().includes(q))
                         : []
+                    // "json" should reach the language switcher, and so should
+                    // asking for it by name ("language", "syntax", "lang").
+                    const asksForLanguages = /^(lang|langu|langua|languag|language|syntax|mode)/.test(q)
+                    const languageHits = !q
+                        ? []
+                        : (asksForLanguages
+                            ? languages
+                            : languages.filter((l) => l.name.toLowerCase().includes(q) || l.id.includes(q))
+                        ).slice(0, 6)
 
                     return (
                         <>
@@ -270,6 +287,26 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                                     <span className="text-muted-foreground">{m.after}</span>
                                                 </span>
                                             </span>
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            )}
+
+                            {languageHits.length > 0 && (
+                                <CommandGroup heading="Set language">
+                                    {languageHits.map((lang) => (
+                                        <CommandItem
+                                            key={lang.id}
+                                            value={`lang-${lang.id}`}
+                                            onSelect={() => run(() => onChangeLanguage(lang.id))}
+                                        >
+                                            <Code2 className="text-muted-foreground" />
+                                            <span>Set language to {lang.name}</span>
+                                            {lang.id === activeLanguage && (
+                                                <CommandShortcut>
+                                                    <Check className="h-3 w-3" />
+                                                </CommandShortcut>
+                                            )}
                                         </CommandItem>
                                     ))}
                                 </CommandGroup>

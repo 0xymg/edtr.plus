@@ -6,7 +6,7 @@ import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
 import { hasAppModifier, appModLabel, cmdModLabel } from "@/lib/shortcuts"
 import { locateJsonError } from "@/lib/json-error"
-import { TooltipProvider, IconTip } from "@/components/ui/tooltip"
+import { TooltipProvider, IconTip, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import type { EditorHandle } from "./notepad/codemirror-editor"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
 import {
@@ -1343,18 +1343,22 @@ export function Notepad() {
         <div className="flex items-center h-full ml-auto">
           {/* Settings Button */}
           <Popover>
-            <PopoverTrigger asChild>
-              <span>
-                <IconTip label="Settings">
+            {/* Both triggers compose onto the button itself: an extra wrapper
+                element would break the h-full chain and leave this control
+                shorter than its neighbours. */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
                   <button
                     className="flex items-center px-4 border-l border-border h-full transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
                     aria-label="Settings"
                   >
                     <Settings className="h-4 w-4 transition-transform group-active:rotate-90" />
                   </button>
-                </IconTip>
-              </span>
-            </PopoverTrigger>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Settings</TooltipContent>
+            </Tooltip>
             <PopoverContent align="end" className="w-80 p-0 overflow-hidden">
               <div className="p-4 border-b border-border bg-muted/30">
                 <div className="flex items-center justify-between">
@@ -1786,6 +1790,9 @@ export function Notepad() {
           onFormat={formatCode}
           onMinifyJson={minifyJson}
           isJson={activeTab?.language === "json"}
+          languages={LANGUAGES}
+          activeLanguage={activeTab?.language || "plaintext"}
+          onChangeLanguage={changeLanguage}
           onToggleTheme={toggleTheme}
           onToggleWrap={toggleWordWrap}
           theme={theme}

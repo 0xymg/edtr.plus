@@ -367,7 +367,9 @@ export default function LandingPage() {
                 body: (
                   <>
                     <Kbd>{cmd}+K</Kbd> searches your files, your folders, and the text inside every
-                    open document at once, then jumps straight to the matching line.
+                    open document at once, then jumps straight to the matching line. It runs the
+                    editor&apos;s commands from the same box, and switches the file&apos;s language:
+                    type <em>json</em>, press Enter, done.
                   </>
                 ),
               },
