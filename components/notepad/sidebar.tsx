@@ -3,6 +3,7 @@
 import React from "react"
 import { Plus, X, Folder, FolderOpen, ChevronDown, ChevronRight, FileUp, HardDrive, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { appModLabel } from "@/lib/shortcuts"
 import { Tab, FolderItem } from "../notepad"
 import { FileIcon } from "./file-icon"
 
@@ -267,7 +268,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 onClick={createNewTab}
                                 className="rounded p-1 transition-colors hover:bg-accent"
-                                title="New file (Alt+N)"
+                                title={`New file (${appModLabel()}+N)`}
                                 aria-label="New file"
                             >
                                 <Plus className="h-4 w-4" />
@@ -275,7 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 onClick={() => setSidebarOpen(false)}
                                 className="rounded p-1 transition-colors hover:bg-accent"
-                                title="Hide sidebar (Alt+B)"
+                                title={`Hide sidebar (${appModLabel()}+B)`}
                                 aria-label="Hide sidebar"
                             >
                                 <X className="h-4 w-4" />

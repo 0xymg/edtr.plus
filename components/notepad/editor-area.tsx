@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { Plus, FileText, GripVertical } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Kbd } from "@/components/ui/kbd"
+import { appModLabel } from "@/lib/shortcuts"
 import { Tab } from "../notepad"
 import { Group, Panel, Separator } from "react-resizable-panels"
 import "highlight.js/styles/github.css"
@@ -105,7 +106,7 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                         <div className="flex flex-col gap-2 text-xs text-muted-foreground">
                             <div className="flex items-center justify-center gap-2">
                                 <span>New File:</span>
-                                <Kbd>Alt</Kbd>
+                                <Kbd>{appModLabel()}</Kbd>
                                 <Kbd>N</Kbd>
                             </div>
                             <div className="flex items-center justify-center gap-2">
@@ -114,9 +115,9 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
                                 <Kbd>S</Kbd>
                             </div>
                             <div className="flex items-center justify-center gap-2 text-[10px] opacity-70">
-                                <span>Close Tab: <Kbd>Alt</Kbd><Kbd>X</Kbd></span>
+                                <span>Close Tab: <Kbd>{appModLabel()}</Kbd><Kbd>X</Kbd></span>
                                 <span className="mx-1">•</span>
-                                <span>Sidebar: <Kbd>Alt</Kbd><Kbd>B</Kbd></span>
+                                <span>Sidebar: <Kbd>{appModLabel()}</Kbd><Kbd>B</Kbd></span>
                             </div>
                         </div>
                     </div>

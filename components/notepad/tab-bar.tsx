@@ -1,6 +1,7 @@
 import React from "react"
 import { Plus, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { appModLabel } from "@/lib/shortcuts"
 import { Tab } from "../notepad"
 import { FileIcon } from "./file-icon"
 
@@ -43,7 +44,7 @@ export const TabBar: React.FC<TabBarProps> = ({
                         <button
                             onClick={(e) => closeTab(tab.id, e)}
                             className="ml-1 rounded p-0.5 opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100"
-                            title={`Close ${tab.name} (Alt+X)`}
+                            title={`Close ${tab.name} (${appModLabel()}+X)`}
                             aria-label={`Close ${tab.name}`}
                         >
                             <X className="h-3.5 w-3.5" />
@@ -53,7 +54,7 @@ export const TabBar: React.FC<TabBarProps> = ({
                 <button
                     onClick={createNewTab}
                     className="flex shrink-0 items-center px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    title="New file (Alt+N)"
+                    title={`New file (${appModLabel()}+N)`}
                     aria-label="New tab"
                 >
                     <Plus className="h-4 w-4" />

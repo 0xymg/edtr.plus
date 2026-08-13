@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { toast } from "sonner"
 import { Github, X } from "lucide-react"
+import { isMacPlatform } from "@/lib/shortcuts"
 
 // Ship the landing shell instantly; the editor bundle streams in right after.
 // The skeleton mirrors the editor chrome so nothing visibly jumps.
@@ -48,6 +49,14 @@ function scrollToEditor() {
 }
 
 export default function LandingPage() {
+  // App command modifier shown in shortcut hints: Alt on Windows/Linux,
+  // ⌃⌥ (Control+Option) on macOS. Set after mount so the prerendered HTML
+  // (which says "Alt") hydrates cleanly.
+  const [mod, setMod] = useState("Alt")
+  useEffect(() => {
+    if (isMacPlatform()) setMod("⌃⌥")
+  }, [])
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       toast.custom(
@@ -169,9 +178,10 @@ export default function LandingPage() {
             No menus to hunt through. Just shortcuts.
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            Everything in EDTR+ is a couple of keystrokes away, and none of them fight your browser.{" "}
-            <Kbd>Alt+N</Kbd> opens a tab, <Kbd>Alt+X</Kbd> closes it, <Kbd>⌘S</Kbd> saves straight to
-            disk. On macOS, <Kbd>Alt</Kbd> is <Kbd>⌥ Option</Kbd>.
+            Everything in EDTR+ is a couple of keystrokes away, and none of them fight your system.{" "}
+            <Kbd>{mod}+N</Kbd> opens a tab, <Kbd>{mod}+X</Kbd> closes it, <Kbd>⌘S</Kbd> saves straight
+            to disk. On macOS that modifier is <Kbd>⌃ Control</Kbd> + <Kbd>⌥ Option</Kbd> — a combination
+            the system leaves alone, so nothing collides with browser menus or the characters Option types.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
             This is the real reason editing here is faster than opening a desktop app. Not because the
@@ -183,13 +193,13 @@ export default function LandingPage() {
             {[
               ["Open file", ["⌘", "O"]],
               ["Save file", ["⌘", "S"]],
-              ["New tab", ["Alt", "N"]],
-              ["Close tab", ["Alt", "X"]],
-              ["Toggle sidebar", ["Alt", "B"]],
+              ["New tab", [mod, "N"]],
+              ["Close tab", [mod, "X"]],
+              ["Toggle sidebar", [mod, "B"]],
               ["Download file", ["⌘⇧", "S"]],
               ["Toggle comment", ["⌘", "/"]],
-              ["Format (JSON)", ["Alt⇧", "F"]],
-              ["Markdown preview", ["Alt", "P"]],
+              ["Format (JSON)", [`${mod}⇧`, "F"]],
+              ["Markdown preview", [mod, "P"]],
               ["Insert indentation", ["Tab"]],
             ].map(([label, keys], i) => (
               <div
@@ -208,7 +218,7 @@ export default function LandingPage() {
             ))}
           </div>
           <button onClick={scrollToEditor} className={`mt-8 text-[15px] font-medium underline underline-offset-4 ${ink} hover:opacity-70 transition-opacity`}>
-            Try it, press Alt+N in the editor →
+            Try it, press {mod}+N in the editor →
           </button>
         </div>
       </section>
@@ -307,8 +317,8 @@ export default function LandingPage() {
                 title: "A real multi-tab workspace",
                 body: (
                   <>
-                    Keep as many documents open as you like. <Kbd>Alt+N</Kbd> for a new tab,{" "}
-                    <Kbd>Alt+X</Kbd> to close one. Find &amp; replace works across the document,
+                    Keep as many documents open as you like. <Kbd>{mod}+N</Kbd> for a new tab,{" "}
+                    <Kbd>{mod}+X</Kbd> to close one. Find &amp; replace works across the document,
                     with regex when you want it.
                   </>
                 ),

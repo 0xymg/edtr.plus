@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
 import type hljsType from "@/lib/highlighter"
+import { hasAppModifier, appModLabel } from "@/lib/shortcuts"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
 import {
   supportsFileSystemAccess,
@@ -1082,29 +1083,31 @@ export function Notepad() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isCmd = e.ctrlKey || e.metaKey
-      const isAlt = e.altKey && !e.ctrlKey && !e.metaKey
-      // Match on e.code (physical key): on macOS, Option+letter produces
-      // special characters in e.key (Option+N = "˜"), which silently broke
-      // every Alt shortcut on Mac.
+      // App command modifier: ⌃⌥ on macOS (bare Option types characters and
+      // ⌘⌥ hits browser menu shortcuts), plain Alt elsewhere (Ctrl+Alt is
+      // AltGr on many Windows layouts). See lib/shortcuts.ts.
+      const isAppMod = hasAppModifier(e)
+      // Match on e.code (physical key): with Option held, e.key carries the
+      // produced character ("˜"), not the letter.
       // Save / Download / Open — universal pattern, preventDefault is reliable
       if (isCmd && e.shiftKey && !e.altKey && e.code === "KeyS") { e.preventDefault(); downloadFile(); return }
       if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyS") { e.preventDefault(); saveFile(); return }
       if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyO") { e.preventDefault(); openFileFromDisk(); return }
-      // Tab management — Alt+N / Alt+X (avoid Alt+T/W which can trigger menu access on Windows)
-      if (isAlt && !e.shiftKey && e.code === "KeyN") { e.preventDefault(); createNewTab(); return }
-      if (isAlt && !e.shiftKey && e.code === "KeyX") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e); return }
-      // Sidebar — Alt+B (avoid ⌘B which opens Firefox bookmarks sidebar)
-      if (isAlt && !e.shiftKey && e.code === "KeyB") { e.preventDefault(); toggleSidebar(); return }
-      // Markdown/SVG preview — Alt+P (avoid ⌘⇧P which can trigger browser profile menu)
-      if (isAlt && !e.shiftKey && e.code === "KeyP") {
+      // Tab management (avoid Alt+T/W which can trigger menu access on Windows)
+      if (isAppMod && !e.shiftKey && e.code === "KeyN") { e.preventDefault(); createNewTab(); return }
+      if (isAppMod && !e.shiftKey && e.code === "KeyX") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e); return }
+      // Sidebar (avoid ⌘B which opens Firefox bookmarks sidebar)
+      if (isAppMod && !e.shiftKey && e.code === "KeyB") { e.preventDefault(); toggleSidebar(); return }
+      // Markdown/SVG preview (avoid ⌘⇧P which can trigger browser profile menu)
+      if (isAppMod && !e.shiftKey && e.code === "KeyP") {
         if (activeTab?.language === "markdown" || activeTab?.language === "svg") {
           e.preventDefault()
           togglePreview()
         }
         return
       }
-      // Format code — Alt+Shift+F (VS Code standard)
-      if (isAlt && e.shiftKey && e.code === "KeyF") { e.preventDefault(); formatCode() }
+      // Format code — app modifier + Shift + F (mirrors VS Code's ⇧⌥F)
+      if (isAppMod && e.shiftKey && e.code === "KeyF") { e.preventDefault(); formatCode() }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
@@ -1233,7 +1236,7 @@ export function Notepad() {
         <button
           onClick={(e) => { e.stopPropagation(); toggleSidebar() }}
           className="flex items-center px-4 border-r border-border h-full shrink-0 transition-colors hover:bg-accent text-muted-foreground hover:text-foreground outline-none group"
-          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (Alt+B)`}
+          title={`${sidebarOpen ? "Hide" : "Show"} sidebar (${appModLabel()}+B)`}
         >
           <Menu className="h-4 w-4 transition-transform group-active:scale-90" />
         </button>
