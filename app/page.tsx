@@ -32,44 +32,45 @@ const Notepad = dynamic(() => import("@/components/notepad").then(m => m.Notepad
 
 const FAQS = [
   {
-    q: "Is EDTR+ free to use?",
-    a: "Yes. No ads, no sign-up, no premium tier, no trial clock. It's open source under an MIT license.",
+    q: "Is EDTR+ free?",
+    a: "Yes. Completely free. There is no paid version, subscription, or premium tier.",
   },
   {
-    q: "If I close the tab, do I lose my work?",
-    a: "No. Every keystroke is written to your browser's local storage. Come back to the tab and it's still there.",
+    q: "Does EDTR+ show ads?",
+    a: "No.",
   },
   {
     q: "Do I need an account?",
-    a: "No. There's nothing to sign up for. The editor at the top of this page is the whole product.",
+    a: "No. Just open the editor and start using it.",
   },
   {
-    q: "Where does my writing go?",
-    a: "Nowhere. It stays in your browser's local storage on this device. Nothing is uploaded, scanned, or used for training.",
+    q: "Is EDTR+ open source?",
+    a: "Yes. The source code is publicly available on GitHub under an MIT license.",
   },
   {
-    q: "Can I open and save real files?",
-    a: "Yes. On Chrome, Edge and Opera, the File System Access API lets you open files from disk and save back with Ctrl+S (⌘S on Mac). On other browsers, you can download with Ctrl+Shift+S.",
+    q: "Does EDTR+ upload my files?",
+    a: "No. EDTR+ is designed to process your text and files locally in your browser. Your notes stay in your browser's local storage on this device.",
   },
   {
-    q: "How is EDTR+ different from Notepad++?",
-    a: "Notepad++ is a desktop app for Windows. EDTR+ runs in the browser on any OS, with no install. Same idea: fast, tabs, syntax highlighting.",
+    q: "Can EDTR+ replace Notepad++?",
+    a: "For many everyday text-editing tasks, yes. EDTR+ supports tabs, syntax highlighting, find & replace, file access, keyboard shortcuts, and other features commonly used in lightweight desktop editors. Notepad++ remains a much larger Windows application with a broader plugin ecosystem and more advanced desktop functionality.",
   },
   {
-    q: "Which languages have syntax highlighting?",
-    a: "JavaScript, TypeScript, Python, Go, Rust, C, C++, C#, Java, Kotlin, Swift, Ruby, PHP, HTML, CSS, JSON, YAML, Markdown, SQL, Bash, and more.",
+    q: "Does it work on macOS?",
+    a: "Yes. EDTR+ runs in modern browsers on macOS, Windows, Linux, ChromeOS, and other platforms.",
+  },
+  {
+    q: "Can I edit files directly from my computer?",
+    a: "On supported browsers, yes. You can open a local file, edit it, and save your changes back to disk. Chrome, Edge and Opera support this through the File System Access API.",
   },
   {
     q: "Can it handle really large files?",
-    a: "Yes. The editor renders only the lines visible on screen, so opening, selecting and editing a 100,000-line file feels the same as a short note. For files bigger than your browser's storage quota, open them from disk and save back with Ctrl+S (⌘S on Mac).",
-  },
-  {
-    q: "Which browsers work?",
-    a: "Current versions of Chrome, Edge, Firefox, Safari and other Chromium-based browsers. For the best local-file experience, use one with File System Access API support (Chrome, Edge, Opera).",
+    a: "Yes. The editor renders only the lines visible on screen, so opening, selecting and editing a 100,000-line file feels the same as a short note.",
   },
 ]
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://edtr.plus"
+const GITHUB_URL = "https://github.com/0xymg/edtr.plus"
 
 // Structured data: WebApplication for the product, FAQPage mirroring the
 // visible FAQ section. Rendered as a static JSON-LD script in the SSG HTML.
@@ -81,12 +82,13 @@ const JSON_LD = {
       name: "EDTR+",
       url: SITE_URL,
       description:
-        "A free online notepad and Notepad++ alternative in your browser. Tabs, syntax highlighting for 20+ languages, find & replace, real file access. No download, no account.",
+        "A fast, open-source Notepad++ alternative that runs in your browser. Tabs, syntax highlighting, find & replace, real file access. No download, no account, no ads.",
       applicationCategory: "DeveloperApplication",
       operatingSystem: "Any",
       browserRequirements: "Requires a modern web browser",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       license: "https://opensource.org/licenses/MIT",
+      isAccessibleForFree: true,
     },
     {
       "@type": "FAQPage",
@@ -104,6 +106,7 @@ const muted = "text-[#1C1B18]/60 dark:text-[#EDECE8]/60"
 const faint = "text-[#1C1B18]/45 dark:text-[#EDECE8]/45"
 const hairline = "border-[rgba(55,53,47,0.1)] dark:border-white/10"
 const display = "font-[family-name:var(--font-author)] font-bold tracking-[-0.03em]"
+const hoverInk = "hover:text-[#1C1B18] dark:hover:text-[#EDECE8]"
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
@@ -187,11 +190,12 @@ export default function LandingPage() {
             EDTR<span className={faint}>+</span>
           </Link>
           <div className={`hidden md:flex items-center gap-7 text-sm ${muted}`}>
-            <a href="#features" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Features</a>
-            <a href="#how" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">How it works</a>
-            <a href="#comparison" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Comparison</a>
-            <a href="#faq" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">FAQ</a>
-            <a href="https://github.com/0xymg/edtr.plus" target="_blank" rel="noopener noreferrer" className="hover:text-[#1C1B18] dark:hover:text-[#EDECE8] transition-colors">Source</a>
+            <a href="#features" className={`${hoverInk} transition-colors`}>Features</a>
+            <a href="#privacy" className={`${hoverInk} transition-colors`}>Privacy</a>
+            <a href="#comparison" className={`${hoverInk} transition-colors`}>Comparison</a>
+            <a href="#shortcuts" className={`${hoverInk} transition-colors`}>Shortcuts</a>
+            <a href="#faq" className={`${hoverInk} transition-colors`}>FAQ</a>
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className={`${hoverInk} transition-colors`}>Source</a>
           </div>
           <button
             onClick={scrollToEditor}
@@ -208,16 +212,19 @@ export default function LandingPage() {
           <h1 className={`${display} text-[clamp(2.75rem,7vw,4.5rem)] leading-[1.02] tracking-[-0.04em]`}>
             The notepad that&apos;s already open.
           </h1>
-          <p className={`mx-auto mt-7 max-w-[52ch] text-lg leading-relaxed ${muted}`}>
-            A free Notepad++ alternative in your browser. Tabs, syntax highlighting for 20+ languages,
-            find &amp; replace, real file access. No download, no license, no account.
+          <p className={`mx-auto mt-7 max-w-[46ch] text-lg leading-relaxed ${muted}`}>
+            A fast, open-source Notepad++ alternative that runs in your browser.
+          </p>
+          <p className={`mx-auto mt-3 max-w-[52ch] leading-relaxed ${muted}`}>
+            Tabs, syntax highlighting, find &amp; replace, real file access, and more. No download.
+            No account. No ads.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={scrollToEditor}
               className="bg-[#1C1B18] dark:bg-[#EDECE8] px-8 py-3.5 text-base font-semibold text-white dark:text-[#1C1B18] hover:bg-[#1C1B18]/80 dark:hover:bg-white transition-colors"
             >
-              Start typing →
+              Open editor →
             </button>
             <a
               href="#features"
@@ -227,7 +234,7 @@ export default function LandingPage() {
             </a>
           </div>
           <p className={`mt-6 text-sm ${faint}`}>
-            Free forever · Nothing to install · Nothing to sign up for
+            Free forever · Open source · Runs locally in your browser
           </p>
         </div>
       </section>
@@ -249,36 +256,272 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Keyboard-first */}
-      <section id="shortcuts" className="scroll-mt-16 px-6 py-24">
+      {/* Why */}
+      <section className="scroll-mt-16 px-6 py-24">
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            No menus to hunt through. Just shortcuts.
+            A proper text editor, without the installation.
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            Everything in EDTR+ is a couple of keystrokes away, and none of them fight your system.{" "}
-            <Kbd>{mod}+N</Kbd> opens a tab, <Kbd>{mod}+X</Kbd> closes it, <Kbd>{cmd}+S</Kbd> saves straight
-            to disk. On macOS that modifier is <Kbd>⌃ Control</Kbd> + <Kbd>⌥ Option</Kbd>, a combination
-            the system leaves alone. Nothing collides with browser menus or the characters Option types.
+            Sometimes you just need to open a file, change a few lines, or write something down.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            This is the real reason editing here is faster than opening a desktop app. Not because the
-            page loads quicker, though it does. Because the distance between wanting a new scratch file
-            and having one is two keys.
+            EDTR+ gives you the familiar tools of a desktop text editor directly in your browser,
+            without turning a simple task into another app, account, or subscription.
+          </p>
+
+          <div className={`mt-12 grid grid-cols-1 gap-px sm:grid-cols-3 border ${hairline} bg-[rgba(55,53,47,0.1)] dark:bg-white/10`}>
+            {[
+              {
+                title: "Instant",
+                lead: "Open EDTR+ and start typing.",
+                body: "No launch screen, setup, or sign-in.",
+              },
+              {
+                title: "Local",
+                lead: "Your text stays in your browser.",
+                body: "Files you open are processed on your device, not uploaded to our servers.",
+              },
+              {
+                title: "Capable",
+                lead: "More than a basic online notepad.",
+                body: "Tabs, syntax highlighting, find & replace, large file support, previews, and direct file access are built in.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="bg-white dark:bg-[#161512] p-6">
+                <h3 className={`${display} text-lg tracking-[-0.02em]`}>{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed">{item.lead}</p>
+                <p className={`mt-1.5 text-sm leading-relaxed ${muted}`}>{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
+        <div className="mx-auto max-w-3xl">
+          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
+            Everything you need from a lightweight editor.
+          </h2>
+
+          <div className="mt-12 space-y-10">
+            {[
+              {
+                title: "Multiple tabs",
+                body: (
+                  <>
+                    Keep several notes and files open at once without juggling windows.{" "}
+                    <Kbd>{mod}+N</Kbd> opens a tab, <Kbd>{mod}+X</Kbd> closes one.
+                  </>
+                ),
+              },
+              {
+                title: "Syntax highlighting",
+                body: "Readable highlighting for 20+ programming and markup languages, loaded on demand as you pick one.",
+              },
+              {
+                title: "Find & replace",
+                body: (
+                  <>
+                    Search quickly, replace text, match case, or use regular expressions.{" "}
+                    <Kbd>{cmd}+F</Kbd> opens it right in the editor.
+                  </>
+                ),
+              },
+              {
+                title: "Command palette",
+                body: (
+                  <>
+                    <Kbd>{cmd}+K</Kbd> searches your files, your folders, and the text inside every
+                    open document at once, then jumps straight to the matching line.
+                  </>
+                ),
+              },
+              {
+                title: "Open real files",
+                body: (
+                  <>
+                    Open files from your computer and save changes back to disk when your browser
+                    supports it. <Kbd>{cmd}+O</Kbd> to open, <Kbd>{cmd}+S</Kbd> to save.
+                  </>
+                ),
+              },
+              {
+                title: "Large files",
+                body: "Work with logs, datasets, configuration files, and other large text files without turning your browser into a slideshow. Only the lines on screen are rendered, so a 100,000-line file behaves like a short note.",
+              },
+              {
+                title: "Markdown & SVG preview",
+                body: (
+                  <>
+                    Preview Markdown documents and SVG files directly beside your source. Open a{" "}
+                    <code className="font-mono text-[13px]">.md</code> or{" "}
+                    <code className="font-mono text-[13px]">.svg</code> file and the preview appears
+                    on its own.
+                  </>
+                ),
+              },
+            ].map((f) => (
+              <div key={f.title}>
+                <h3 className={`${display} text-xl tracking-[-0.02em]`}>{f.title}</h3>
+                <p className={`mt-2 text-[16px] leading-relaxed ${muted}`}>{f.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Privacy */}
+      <section id="privacy" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
+        <div className="mx-auto max-w-3xl">
+          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
+            Your text stays yours.
+          </h2>
+          <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
+            EDTR+ is designed to work locally in your browser. We don&apos;t need an account to
+            identify you, and we don&apos;t need your documents on a server to edit them.
+          </p>
+          <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
+            Your notes remain on your device, and files are opened directly from your computer when
+            supported by your browser.
+          </p>
+          <p className={`mt-6 text-[17px] font-medium leading-relaxed ${ink}`}>
+            No account. No cloud workspace. No tracking your documents.
+          </p>
+        </div>
+      </section>
+
+      {/* Notepad++ gap */}
+      <section className={`border-t ${hairline} px-6 py-24`}>
+        <div className="mx-auto max-w-3xl">
+          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
+            Notepad++ without Windows.
+          </h2>
+          <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
+            Notepad++ is great, but it is built for Windows.
+          </p>
+          <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
+            EDTR+ brings the parts many people use every day to any modern browser: tabs, syntax
+            highlighting, find &amp; replace, file editing, keyboard shortcuts, and a fast place to
+            work with text.
+          </p>
+          <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
+            Use it on macOS, Linux, Windows, ChromeOS, or anywhere else you have a browser. No
+            virtual machine. No Wine. No installation.
+          </p>
+          <button
+            onClick={scrollToEditor}
+            className="mt-9 bg-[#1C1B18] dark:bg-[#EDECE8] px-8 py-3.5 text-base font-semibold text-white dark:text-[#1C1B18] hover:bg-[#1C1B18]/80 dark:hover:bg-white transition-colors"
+          >
+            Open the editor →
+          </button>
+        </div>
+      </section>
+
+      {/* Comparison */}
+      <section id="comparison" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
+        <div className="mx-auto max-w-4xl">
+          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
+            EDTR+ vs. the alternatives
+          </h2>
+          <div className="mt-10 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className={`border-b ${hairline}`}>
+                  <th className="w-[36%] px-4 py-3" />
+                  <th className={`bg-[#F7F7F5] dark:bg-white/5 px-4 py-3 text-left font-semibold ${ink}`}>EDTR+</th>
+                  <th className={`px-4 py-3 text-left font-medium ${muted}`}>Notepad++</th>
+                  <th className={`px-4 py-3 text-left font-medium ${muted}`}>Cloud editors</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Installation", "None", "Required", "None"],
+                  ["Account", "None", "None", "Often required"],
+                  ["Runs on macOS", "Yes", "No", "Yes"],
+                  ["Runs on Linux", "Yes", "No", "Yes"],
+                  ["Syntax highlighting", "Yes", "Yes", "Varies"],
+                  ["Multiple tabs", "Yes", "Yes", "Varies"],
+                  ["Real file access", "Yes", "Yes", "Often limited"],
+                  ["Files uploaded to a server", "No", "No", "Usually"],
+                  ["Ads", "No", "No", "Varies"],
+                  ["Price", "Free", "Free", "Varies"],
+                  ["Open source", "Yes", "Yes", "Varies"],
+                ].map(([label, edtr, npp, cloud]) => (
+                  <tr key={label} className={`border-b ${hairline} last:border-0`}>
+                    <td className={`px-4 py-3 font-medium ${ink}`}>{label}</td>
+                    <td className={`bg-[#F7F7F5] dark:bg-white/5 px-4 py-3 font-medium ${ink}`}>{edtr}</td>
+                    <td className={`px-4 py-3 ${muted}`}>{npp}</td>
+                    <td className={`px-4 py-3 ${muted}`}>{cloud}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className={`mt-5 text-[13px] ${faint}`}>
+            EDTR+ is an independent open-source project and is not affiliated with Notepad++.
+          </p>
+        </div>
+      </section>
+
+      {/* Use cases */}
+      <section className={`border-t ${hairline} px-6 py-24`}>
+        <div className="mx-auto max-w-3xl">
+          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
+            Open it when you need to…
+          </h2>
+          <ul className="mt-8 flex flex-wrap gap-2.5">
+            {[
+              "Edit a JSON file",
+              "Inspect a log",
+              "Fix a config",
+              "Write Markdown",
+              "Clean up some text",
+              "Check a code snippet",
+              "Take a quick note",
+              "Open a file without launching a full IDE",
+            ].map((use) => (
+              <li
+                key={use}
+                className={`border ${hairline} bg-[#F7F7F5] dark:bg-white/5 px-4 py-2 text-sm ${muted}`}
+              >
+                {use}
+              </li>
+            ))}
+          </ul>
+          <p className={`mt-8 text-[17px] leading-relaxed ${muted}`}>
+            EDTR+ is there when a full editor would be too much and a basic textarea would be too
+            little.
+          </p>
+        </div>
+      </section>
+
+      {/* Shortcuts */}
+      <section id="shortcuts" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
+        <div className="mx-auto max-w-3xl">
+          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
+            Keyboard friendly.
+          </h2>
+          <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
+            Keep your hands on the keyboard. Tab and panel commands sit on <Kbd>{mod}</Kbd> so they
+            never collide with your browser&apos;s own shortcuts
+            {isMacUi ? ", or with the characters Option types" : ""}.
           </p>
 
           <div className={`mt-10 grid grid-cols-1 sm:grid-cols-2 border-t ${hairline}`}>
             {[
+              ["Command palette", [cmd, "K"]],
+              ["Find & replace", [cmd, "F"]],
+              ["Save", [cmd, "S"]],
               ["Open file", [cmd, "O"]],
-              ["Save file", [cmd, "S"]],
+              ["Download file", [cmdShift, "S"]],
               ["New tab", [mod, "N"]],
               ["Close tab", [mod, "X"]],
               ["Toggle sidebar", [mod, "B"]],
-              ["Download file", [cmdShift, "S"]],
-              ["Find & replace", [cmd, "F"]],
+              ["Markdown preview", [mod, "P"]],
               ["Toggle comment", [cmd, "/"]],
               ["Format (JSON)", [`${mod}⇧`, "F"]],
-              ["Markdown preview", [mod, "P"]],
               ["Insert indentation", ["Tab"]],
             ].map(([label, keys], i) => (
               <div
@@ -296,262 +539,34 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <button onClick={scrollToEditor} className={`mt-8 text-[15px] font-medium underline underline-offset-4 ${ink} hover:opacity-70 transition-opacity`}>
-            Try it, press {mod}+N in the editor →
-          </button>
+          <p className={`mt-6 text-sm ${faint}`}>
+            And the usual editing shortcuts you already know.
+          </p>
         </div>
       </section>
 
-      {/* Speed / why */}
+      {/* Free means free */}
       <section className={`border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            You wanted to jot one thing down. That shouldn&apos;t cost you a launch screen.
+            Free means free.
           </h2>
           <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            You know the sequence. Open the editor and wait for it to load, dismiss the update prompt,
-            close yesterday&apos;s workspace. Or paste into a cloud doc, sign into the right account,
-            wait for the file list.
+            EDTR+ has no paid plan. No premium tier. No trial. No ads. No account. The project is
+            open source and free to use.
           </p>
           <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ skips all of it. You&apos;re already in the editor. It&apos;s the first thing on this
-            page. Type, save or download, close the tab. The whole thing takes as long as the typing does.
+            If you want to see how it works, report an issue, or contribute, the source code is
+            available on GitHub.
           </p>
-          <p className={`mt-4 text-[17px] leading-relaxed ${ink}`}>
-            It&apos;s the part of a code editor most people actually use: tabs, highlighting, find &amp;
-            replace, save. With none of the part they don&apos;t.
-          </p>
-          <button
-            onClick={scrollToEditor}
-            className="mt-9 bg-[#1C1B18] dark:bg-[#EDECE8] px-8 py-3.5 text-base font-semibold text-white dark:text-[#1C1B18] hover:bg-[#1C1B18]/80 dark:hover:bg-white transition-colors"
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`mt-9 inline-flex items-center gap-2 border border-[rgba(55,53,47,0.2)] dark:border-white/20 px-8 py-3.5 text-base font-medium ${ink} hover:border-[rgba(55,53,47,0.45)] dark:hover:border-white/45 transition-colors`}
           >
-            Open the editor →
-          </button>
-        </div>
-      </section>
-
-      {/* Comparison */}
-      <section id="comparison" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
-        <div className="mx-auto max-w-4xl">
-          <p className={`text-sm font-medium ${faint}`}>Where it fits</p>
-          <h2 className={`${display} mt-2 text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            Where EDTR+ sits.
-          </h2>
-          <div className="mt-10 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className={`border-b ${hairline}`}>
-                  <th className="w-[36%] px-4 py-3" />
-                  <th className={`bg-[#F7F7F5] dark:bg-white/5 px-4 py-3 text-left font-semibold ${ink}`}>EDTR+</th>
-                  <th className={`px-4 py-3 text-left font-medium ${muted}`}>Notepad++</th>
-                  <th className={`px-4 py-3 text-left font-medium ${muted}`}>Cloud editors</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["Install needed", "No", "Yes", "No"],
-                  ["Account needed", "No", "No", "Usually yes"],
-                  ["Runs on Mac / Linux / phone", "Yes", "Windows only", "Yes"],
-                  ["Where your file lives", "Your device", "Your device", "A server"],
-                  ["Ready to type in", "~1 second", "After install", "After sign-in"],
-                  ["Tabs, syntax, find & replace", "Yes", "Yes", "Varies"],
-                  ["100,000-line files", "Instant", "Yes", "Often struggles"],
-                  ["Price", "Free", "Free", "Mixed"],
-                ].map(([label, edtr, npp, cloud]) => (
-                  <tr key={label} className={`border-b ${hairline} last:border-0`}>
-                    <td className={`px-4 py-3.5 font-medium ${ink}`}>{label}</td>
-                    <td className={`bg-[#F7F7F5] dark:bg-white/5 px-4 py-3.5 font-medium ${ink}`}>{edtr}</td>
-                    <td className={`px-4 py-3.5 ${muted}`}>{npp}</td>
-                    <td className={`px-4 py-3.5 ${muted}`}>{cloud}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className={`mt-5 text-[13px] ${faint}`}>
-            EDTR+ is an independent open-source project and is not affiliated with Notepad++.
-          </p>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
-        <div className="mx-auto max-w-3xl">
-          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            Everything you&apos;d expect. Nothing you have to learn.
-          </h2>
-
-          <div className="mt-12 space-y-10">
-            {[
-              {
-                title: "Syntax highlighting for 20+ languages",
-                body: (
-                  <>
-                    JavaScript, TypeScript, Python, Go, Rust, C, C++, Java, HTML, CSS, JSON, SQL, Bash
-                    and more. Pick the language from the status bar, or open a file and let the
-                    extension decide.
-                  </>
-                ),
-              },
-              {
-                title: "A real multi-tab workspace",
-                body: (
-                  <>
-                    Keep as many documents open as you like. <Kbd>{mod}+N</Kbd> for a new tab,{" "}
-                    <Kbd>{mod}+X</Kbd> to close one. <Kbd>{cmd}+F</Kbd> opens find &amp; replace right in
-                    the editor, with regex and match-case when you want them.
-                  </>
-                ),
-              },
-              {
-                title: "Doesn't choke on big files",
-                body: (
-                  <>
-                    The editor only renders the lines on your screen, so a 100,000-line log file
-                    opens, selects and edits as fast as a ten-line note. Paste it, hit{" "}
-                    <Kbd>{cmd}+A</Kbd>, keep typing. Nothing freezes.
-                  </>
-                ),
-              },
-              {
-                title: "Opens what you already have",
-                body: (
-                  <>
-                    On Chrome and Edge, open files straight from your file system and save back with{" "}
-                    <Kbd>⌘S</Kbd> via the File System Access API. No upload step, no conversion queue.
-                    Everywhere else, download works with one shortcut.
-                  </>
-                ),
-              },
-              {
-                title: "Markdown & SVG preview, built in",
-                body: (
-                  <>
-                    Open a <code className="font-mono text-[13px]">.md</code> or{" "}
-                    <code className="font-mono text-[13px]">.svg</code> file and a live preview appears
-                    alongside the editor. No plugin, no setting.
-                  </>
-                ),
-              },
-            ].map((f) => (
-              <div key={f.title}>
-                <h3 className={`${display} text-xl tracking-[-0.02em]`}>{f.title}</h3>
-                <p className={`mt-2 text-[16px] leading-relaxed ${muted}`}>{f.body}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className={`mt-12 text-sm ${faint}`}>
-            Also in there:{" "}
-            <span className={muted}>
-              word wrap · dark mode · unlimited undo and redo · autosave on every keystroke, so
-              there&apos;s no save button to remember
-            </span>
-          </p>
-        </div>
-      </section>
-
-      {/* Privacy */}
-      <section id="privacy" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
-        <div className="mx-auto max-w-3xl">
-          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            Your text stays in your browser.
-          </h2>
-          <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            There&apos;s no upload and no copy on our servers. What you type is written to your
-            browser&apos;s local storage on this device, and it&apos;s still there when you come back
-            to the tab.
-          </p>
-          <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            We can&apos;t read your notes, because we never receive them. Nothing is scanned, nothing
-            is used for training, nothing is sold. The source is on GitHub if you&apos;d rather verify
-            than trust.
-          </p>
-        </div>
-      </section>
-
-      {/* How */}
-      <section id="how" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
-        <div className="mx-auto max-w-3xl">
-          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            Three steps, and the first one already happened.
-          </h2>
-          <div className={`mt-10 grid grid-cols-1 gap-px sm:grid-cols-3 border ${hairline} bg-[rgba(55,53,47,0.1)] dark:bg-white/10`}>
-            {[
-              {
-                n: "1",
-                title: "Open",
-                body: "You're on the page, so the editor is loaded. Scroll up and the cursor is yours.",
-              },
-              {
-                n: "2",
-                title: "Write",
-                body: "Type. Open tabs, pick a language, find & replace. Everything saves as you go.",
-              },
-              {
-                n: "3",
-                title: "Save or download",
-                body: "⌘S saves straight to disk on Chrome and Edge. ⌘⇧S downloads a copy anywhere.",
-              },
-            ].map((step) => (
-              <div key={step.n} className="bg-white dark:bg-[#161512] p-6">
-                <span className={`${display} text-3xl ${faint}`}>{step.n}</span>
-                <h3 className={`${display} mt-3 text-lg tracking-[-0.02em]`}>{step.title}</h3>
-                <p className={`mt-2 text-sm leading-relaxed ${muted}`}>{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What people open it for */}
-      <section className={`border-t ${hairline} px-6 py-24`}>
-        <div className="mx-auto max-w-3xl">
-          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            What people open it for
-          </h2>
-          <ul className="mt-8 flex flex-wrap gap-2.5">
-            {[
-              "A quick note before the thought escapes",
-              "A config file someone pasted in chat",
-              "Cleaning up a JSON blob",
-              "A giant log file other tabs choke on",
-              "A code snippet that needs highlighting",
-              "A Markdown file with a live preview",
-              "Editing a file on a computer that isn't yours",
-              "A scratch pad that survives closing the tab",
-            ].map((use) => (
-              <li
-                key={use}
-                className={`border ${hairline} bg-[#F7F7F5] dark:bg-white/5 px-4 py-2 text-sm ${muted}`}
-              >
-                {use}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Notepad++ gap */}
-      <section className={`border-t ${hairline} px-6 py-24`}>
-        <div className="mx-auto max-w-3xl">
-          <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            Looking for Notepad++ on a Mac?
-          </h2>
-          <p className={`mt-6 text-[17px] leading-relaxed ${muted}`}>
-            Notepad++ has been the fast, no-nonsense text editor for over twenty years, on Windows.
-            There&apos;s no official Mac or Linux build, which leaves an awkward gap, because TextEdit
-            can&apos;t highlight code and a full IDE is overkill for a config file.
-          </p>
-          <p className={`mt-4 text-[17px] leading-relaxed ${muted}`}>
-            EDTR+ covers what Notepad++ does day to day: tabs, syntax highlighting, find &amp; replace,
-            fast startup. It runs in a browser tab instead of an installed window, so it also works on
-            a Mac, a Chromebook, a phone, or a computer you don&apos;t have permission to install
-            software on.
-          </p>
-          <button onClick={scrollToEditor} className={`mt-8 text-[15px] font-medium underline underline-offset-4 ${ink} hover:opacity-70 transition-opacity`}>
-            Open the editor →
-          </button>
+            <Github className="h-4 w-4" /> View on GitHub →
+          </a>
         </div>
       </section>
 
@@ -559,7 +574,7 @@ export default function LandingPage() {
       <section id="faq" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
-            Questions worth answering
+            Frequently asked questions
           </h2>
 
           <div className="mt-8">
@@ -582,16 +597,20 @@ export default function LandingPage() {
       <section className={`border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl text-center">
           <h2 className={`${display} text-[clamp(2rem,5vw,3.25rem)] leading-[1.05]`}>
-            Nothing to install. Nothing to sign. Just type.
+            Open. Type. Done.
           </h2>
+          <p className={`mx-auto mt-6 max-w-[46ch] text-[17px] leading-relaxed ${muted}`}>
+            No installation, account, subscription, or ads. Just a fast, open-source text editor in
+            your browser.
+          </p>
           <button
             onClick={scrollToEditor}
             className="mt-9 bg-[#1C1B18] dark:bg-[#EDECE8] px-8 py-3.5 text-base font-semibold text-white dark:text-[#1C1B18] hover:bg-[#1C1B18]/80 dark:hover:bg-white transition-colors"
           >
-            Start typing →
+            Open EDTR+ →
           </button>
           <p className={`mt-6 text-sm ${faint}`}>
-            Free forever · Ready in about a second · Your text stays on your device
+            Free forever · Open source · No ads
           </p>
         </div>
       </section>
@@ -612,14 +631,14 @@ export default function LandingPage() {
             <div>
               <h3 className={`text-xs font-semibold uppercase tracking-wide ${muted}`}>EDTR+</h3>
               <div className={`mt-3 flex flex-col gap-2 text-sm ${muted}`}>
-                <button onClick={scrollToEditor} className="text-left transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Editor</button>
-                <Link href="/blog" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Blog</Link>
-                <a href="#features" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">Features</a>
-                <a href="#faq" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">FAQ</a>
-                <a href="https://github.com/0xymg/edtr.plus" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">
+                <button onClick={scrollToEditor} className={`text-left ${hoverInk} transition-colors`}>Editor</button>
+                <Link href="/blog" className={`${hoverInk} transition-colors`}>Blog</Link>
+                <a href="#features" className={`${hoverInk} transition-colors`}>Features</a>
+                <a href="#faq" className={`${hoverInk} transition-colors`}>FAQ</a>
+                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1.5 ${hoverInk} transition-colors`}>
                   <Github className="h-3.5 w-3.5" /> Source
                 </a>
-                <a href="/llms.txt" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">llms.txt</a>
+                <a href="/llms.txt" className={`${hoverInk} transition-colors`}>llms.txt</a>
               </div>
             </div>
             <div>
@@ -627,8 +646,8 @@ export default function LandingPage() {
                 More from <span className={`${display} text-sm`}>Project EDTR</span>
               </h3>
               <div className={`mt-3 flex flex-col gap-2 text-sm ${muted}`}>
-                <a href="https://edtr.md" target="_blank" rel="noopener" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">EDTR.md · Markdown editor</a>
-                <a href="https://wordpad.info" target="_blank" rel="noopener" className="transition-colors hover:text-[#1C1B18] dark:hover:text-[#EDECE8]">EDTRpad · Word alternative</a>
+                <a href="https://edtr.md" target="_blank" rel="noopener" className={`${hoverInk} transition-colors`}>EDTR.md · Markdown editor</a>
+                <a href="https://wordpad.info" target="_blank" rel="noopener" className={`${hoverInk} transition-colors`}>EDTRpad · Word alternative</a>
               </div>
             </div>
           </div>
