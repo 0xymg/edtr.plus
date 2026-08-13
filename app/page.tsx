@@ -266,6 +266,7 @@ export default function LandingPage() {
               ["Close tab", [mod, "X"]],
               ["Toggle sidebar", [mod, "B"]],
               ["Download file", ["⌘⇧", "S"]],
+              ["Find & replace", ["⌘", "F"]],
               ["Toggle comment", ["⌘", "/"]],
               ["Format (JSON)", [`${mod}⇧`, "F"]],
               ["Markdown preview", [mod, "P"]],

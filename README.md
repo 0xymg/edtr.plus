@@ -30,6 +30,7 @@ Shortcuts are chosen to never collide with system or browser shortcuts. The app 
 | Toggle sidebar | `Alt+B` | `⌃⌥B` |
 | Markdown/SVG preview | `Alt+P` | `⌃⌥P` |
 | Format (JSON) | `Alt+Shift+F` | `⌃⌥⇧F` |
+| Find & replace | `Ctrl+F` | `⌘F` |
 | Toggle comment | `Ctrl+/` | `⌘/` |
 | Insert indentation | `Tab` | `Tab` |
 

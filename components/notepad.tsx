@@ -4,8 +4,8 @@ import React from "react"
 import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
-import type hljsType from "@/lib/highlighter"
 import { hasAppModifier, appModLabel } from "@/lib/shortcuts"
+import type { EditorHandle } from "./notepad/codemirror-editor"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
 import {
   supportsFileSystemAccess,
@@ -314,21 +314,16 @@ export function Notepad() {
 
 
 
-  // Highlighter is loaded lazily so the first paint doesn't pay for it
-  const hljsRef = useRef<typeof hljsType | null>(null)
-  const [highlighterReady, setHighlighterReady] = useState(false)
-  useEffect(() => {
-    let cancelled = false
-    import("@/lib/highlighter").then((m) => {
-      if (!cancelled) {
-        hljsRef.current = m.default
-        setHighlighterReady(true)
-      }
-    })
-    return () => { cancelled = true }
-  }, [])
+  const editorRef = useRef<EditorHandle | null>(null)
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  // The exact current text for the active tab: CodeMirror holds the live
+  // document (React state receives debounced copies), so save/export paths
+  // must read through the editor handle.
+  const getLiveContent = useCallback((tab: Tab | undefined) => {
+    if (!tab) return ""
+    const live = editorRef.current?.getValue()
+    return live !== undefined ? live : tab.content
+  }, [])
   const languageMenuRef = useRef<HTMLDivElement>(null)
   const languageButtonRef = useRef<HTMLButtonElement>(null)
   const editingNameRef = useRef("")
@@ -364,7 +359,10 @@ export function Notepad() {
     setSaveStatus("saving")
     try {
       // Only persist memory tabs to localStorage (filesystem tabs can't be restored without handles)
-      const memoryTabs = tabs.filter(t => !t.source || t.source === "memory")
+      const liveContent = editorRef.current?.getValue()
+      const memoryTabs = tabs
+        .filter(t => !t.source || t.source === "memory")
+        .map(t => (t.id === activeTabId && liveContent !== undefined ? { ...t, content: liveContent } : t))
       const memoryFolders = folders.filter(f => !f.source || f.source === "memory")
       localStorage.setItem("notepad-tabs", JSON.stringify(memoryTabs))
       localStorage.setItem("notepad-folders", JSON.stringify(memoryFolders))
@@ -406,6 +404,15 @@ export function Notepad() {
       return { ...tab, content, isModified: true }
     }))
   }, [activeTabId])
+
+  // Tab-scoped variant for the editor: its debounced flush can land during a
+  // tab switch, and writing by explicit id keeps it from hitting the tab that
+  // just became active.
+  const updateTabContent = useCallback((tabId: string, content: string) => {
+    setTabs(prev => prev.map(tab =>
+      tab.id === tabId ? { ...tab, content, isModified: true } : tab
+    ))
+  }, [])
 
   const startRenaming = useCallback((tab: Tab) => {
     editingNameRef.current = tab.name
@@ -636,22 +643,6 @@ export function Notepad() {
     setLanguageMenuOpen(false)
   }, [activeTabId])
 
-  const escapeHtml = useCallback((s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"), [])
-
-  const getHighlightedCode = useCallback((content: string, language: string) => {
-    if (language === "plaintext" || !content) return escapeHtml(content)
-    const hl = hljsRef.current
-    if (!hl) return escapeHtml(content)
-    try {
-      return hl.highlight(content, { language }).value
-    } catch {
-      return escapeHtml(content)
-    }
-    // highlighterReady re-creates this callback once the module lands
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [escapeHtml, highlighterReady])
-
   const getWordCount = useCallback((content: string) => {
     // Counting loop instead of trim().split(/\s+/): the split allocated an
     // array with one entry per word, which at 10k+ lines meant a huge
@@ -683,17 +674,18 @@ export function Notepad() {
   const downloadFile = useCallback(() => {
     const activeTab = tabs.find(t => t.id === activeTabId)
     if (!activeTab) return
-    const blob = new Blob([activeTab.content], { type: "text/plain;charset=utf-8" })
+    const blob = new Blob([getLiveContent(activeTab)], { type: "text/plain;charset=utf-8" })
     triggerDownload(blob, getFilename(activeTab))
-  }, [tabs, activeTabId, triggerDownload])
+  }, [tabs, activeTabId, triggerDownload, getLiveContent])
 
   const downloadFileById = useCallback((tabId: string) => {
     const tab = tabs.find(t => t.id === tabId)
     if (!tab) return
-    const blob = new Blob([tab.content], { type: "text/plain;charset=utf-8" })
+    const text = tabId === activeTabId ? getLiveContent(tab) : tab.content
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" })
     triggerDownload(blob, getFilename(tab))
     closeContextMenu()
-  }, [tabs, triggerDownload, closeContextMenu])
+  }, [tabs, activeTabId, triggerDownload, closeContextMenu, getLiveContent])
 
   const downloadFolderAsZip = useCallback(async (folderId: string) => {
     const folder = folders.find(f => f.id === folderId)
@@ -711,6 +703,7 @@ export function Notepad() {
 
   const handlePrint = useCallback(() => {
     const activeTab = tabs.find(t => t.id === activeTabId)
+    const printContent = getLiveContent(activeTab)
     const printWindow = window.open('', '_blank')
     if (printWindow) {
       printWindow.document.write(`
@@ -719,35 +712,25 @@ export function Notepad() {
             <title>EDTR - ${activeTab?.name || 'Untitled'}</title>
             <style>body { font-family: monospace; white-space: pre-wrap; padding: 20px; }</style>
           </head>
-          <body>${activeTab?.content || ''}</body>
+          <body>${printContent}</body>
         </html>
       `)
       printWindow.document.close()
       printWindow.print()
     }
-  }, [tabs, activeTabId])
-
-  const getCommentSyntax = useCallback((language: string): { start: string; end?: string } => {
-    const commentMap: Record<string, { start: string; end?: string }> = {
-      javascript: { start: "// " }, jsx: { start: "// " }, typescript: { start: "// " }, tsx: { start: "// " },
-      python: { start: "# " }, bash: { start: "# " }, ruby: { start: "# " }, yaml: { start: "# " },
-      html: { start: "<!-- ", end: " -->" }, xml: { start: "<!-- ", end: " -->" },
-      css: { start: "/* ", end: " */" }, sql: { start: "-- " }, java: { start: "// " },
-      cpp: { start: "// " }, csharp: { start: "// " }, go: { start: "// " }, rust: { start: "// " },
-      php: { start: "// " }, swift: { start: "// " }, kotlin: { start: "// " },
-    }
-    return commentMap[language] || { start: "// " }
-  }, [])
+  }, [tabs, activeTabId, getLiveContent])
 
   const formatCode = useCallback(() => {
     const activeTab = tabs.find(t => t.id === activeTabId)
-    if (!activeTab?.content || activeTab.language === "plaintext") return
+    if (!activeTab || activeTab.language === "plaintext") return
+    const source = getLiveContent(activeTab)
+    if (!source) return
     setIsFormatting(true)
     setFormatError(null)
     try {
-      let formatted = activeTab.content
+      let formatted = source
       if (activeTab.language === "json") {
-        try { formatted = JSON.stringify(JSON.parse(activeTab.content), null, 2) }
+        try { formatted = JSON.stringify(JSON.parse(source), null, 2) }
         catch {
           setFormatError("Invalid JSON")
           setIsFormatting(false)
@@ -757,6 +740,8 @@ export function Notepad() {
       } else {
         formatted = formatted.split('\n').map(l => l.trimEnd()).join('\n').replace(/\n{3,}/g, '\n\n').trim()
       }
+      // Write through the editor so the change lands in its undo history
+      editorRef.current?.setValue(formatted)
       setTabs(prev => prev.map(tab =>
         tab.id === activeTabId ? { ...tab, content: formatted, isModified: true } : tab
       ))
@@ -764,7 +749,7 @@ export function Notepad() {
       setFormatError("Failed to format code")
       setTimeout(() => setFormatError(null), 3000)
     } finally { setIsFormatting(false) }
-  }, [tabs, activeTabId])
+  }, [tabs, activeTabId, getLiveContent])
 
   const performDelete = useCallback((tabId: string) => {
     setTabs(prev => prev.filter(tab => tab.id !== tabId))
@@ -969,7 +954,7 @@ export function Notepad() {
       if (handle) {
         setSaveStatus("saving")
         try {
-          await writeFileToHandle(handle, activeTab.content)
+          await writeFileToHandle(handle, getLiveContent(activeTab))
           setTabs(prev => prev.map(tab =>
             tab.id === activeTabId ? { ...tab, isModified: false } : tab
           ))
@@ -984,7 +969,7 @@ export function Notepad() {
     }
     // Fallback to localStorage
     saveToLocalStorage()
-  }, [tabs, activeTabId, saveToLocalStorage])
+  }, [tabs, activeTabId, saveToLocalStorage, getLiveContent])
 
   // Effects
   useEffect(() => {
@@ -1023,12 +1008,12 @@ export function Notepad() {
     if (savedStatusBarColor) setStatusBarColor(savedStatusBarColor)
     const savedStatusBarTextColor = localStorage.getItem("notepad-statusbar-text-color")
     if (savedStatusBarTextColor) setStatusBarTextColor(savedStatusBarTextColor)
-    setTimeout(() => textareaRef.current?.focus(), 0)
+    setTimeout(() => editorRef.current?.focus(), 0)
   }, [])
 
   useEffect(() => {
     if (activeTabId) {
-      textareaRef.current?.focus()
+      editorRef.current?.focus()
     }
   }, [activeTabId])
 
@@ -1141,54 +1126,6 @@ export function Notepad() {
     const timer = setTimeout(() => saveFile(), 5000)
     return () => clearTimeout(timer)
   }, [tabs, saveFile])
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const activeTab = tabs.find(t => t.id === activeTabId)
-    if (e.key === "Tab") {
-      e.preventDefault()
-      // Mutate the DOM value first (setRangeText keeps the caret in place),
-      // then sync state to the same string — React sees an equal value on
-      // re-render and leaves the caret alone. Updating state alone reset the
-      // caret to the end of the document on every Tab press.
-      const ta = e.currentTarget
-      ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end")
-      updateContent(ta.value)
-    }
-    if ((e.metaKey || e.ctrlKey) && e.key === "/") {
-      e.preventDefault()
-      const language = activeTab?.language || "plaintext"
-      if (language === "plaintext") return
-      const { start: commentStart, end: commentEnd } = getCommentSyntax(language)
-      const content = activeTab?.content || ""
-      const ta = e.currentTarget
-      const start = ta.selectionStart
-      const end = ta.selectionEnd
-      const lineStart = content.lastIndexOf("\n", start - 1) + 1
-      const lineEnd = content.indexOf("\n", end)
-      const actualLineEnd = lineEnd === -1 ? content.length : lineEnd
-      const selectedText = content.substring(lineStart, actualLineEnd)
-      const lines = selectedText.split("\n")
-      const allCommented = lines.every(line => line.trimStart().startsWith(commentStart.trim()))
-      const newLines = lines.map(line => {
-        if (allCommented) {
-          const lSpaces = line.match(/^\s*/)?.[0] || ""
-          let nLine = line.trimStart().substring(commentStart.trim().length)
-          if (commentEnd && nLine.trimEnd().endsWith(commentEnd.trim())) {
-            nLine = nLine.substring(0, nLine.lastIndexOf(commentEnd.trim()))
-          }
-          return lSpaces + nLine.trim()
-        }
-        return line.trim() === "" ? line : (line.match(/^\s*/)?.[0] || "") + commentStart + line.trimStart() + (commentEnd || "")
-      })
-      const newText = newLines.join("\n")
-      const delta = newText.length - selectedText.length
-      // Same DOM-first pattern as Tab above so the caret survives the update
-      ta.setRangeText(newText, lineStart, actualLineEnd, "preserve")
-      const caret = Math.max(lineStart, start + delta)
-      ta.selectionStart = ta.selectionEnd = caret
-      updateContent(ta.value)
-    }
-  }, [tabs, activeTabId, updateContent, getCommentSyntax])
 
   // Lazy-load filesystem file content when tab becomes active
   useEffect(() => {
@@ -1567,10 +1504,8 @@ export function Notepad() {
           <EditorArea
             activeTab={activeTab}
             tabs={tabs}
-            textareaRef={textareaRef}
-            updateContent={updateContent}
-            handleKeyDown={handleKeyDown}
-            getHighlightedCode={getHighlightedCode}
+            editorRef={editorRef}
+            updateTabContent={updateTabContent}
             createNewTab={createNewTab}
             fontSize={fontSize}
             fontFamily={fontFamily}

@@ -1,14 +1,14 @@
 "use client"
 
-import React, { RefObject } from "react"
+import React from "react"
 import dynamic from "next/dynamic"
 import { Plus, FileText, GripVertical } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Kbd } from "@/components/ui/kbd"
 import { appModLabel } from "@/lib/shortcuts"
 import { Tab } from "../notepad"
+import type { EditorHandle } from "./codemirror-editor"
 import { Group, Panel, Separator } from "react-resizable-panels"
-import "highlight.js/styles/github.css"
 
 // The markdown/SVG preview drags in react-markdown, KaTeX and the diagram
 // renderers — none of it belongs in the first paint, so it loads on demand.
@@ -17,13 +17,20 @@ const PreviewPane = dynamic(
     { ssr: false, loading: () => <div className="flex-1 h-full border-l border-border" /> }
 )
 
+// CodeMirror is the editor core: virtualized rendering keeps typing,
+// select-all and paste O(viewport) instead of O(document), which is what
+// makes 100k+ line files feel instant. Loaded lazily so the first paint
+// stays free of it.
+const CodeMirrorEditor = dynamic(
+    () => import("./codemirror-editor").then(m => m.CodeMirrorEditor),
+    { ssr: false, loading: () => <div className="h-full w-full" /> }
+)
+
 interface EditorAreaProps {
     activeTab: Tab | undefined
     tabs: Tab[]
-    textareaRef: RefObject<HTMLTextAreaElement | null>
-    updateContent: (content: string) => void
-    handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
-    getHighlightedCode: (content: string, language: string) => string
+    editorRef: React.MutableRefObject<EditorHandle | null>
+    updateTabContent: (tabId: string, content: string) => void
     createNewTab: () => void
     fontSize?: number
     fontFamily?: string
@@ -36,10 +43,8 @@ interface EditorAreaProps {
 export const EditorArea: React.FC<EditorAreaProps> = ({
     activeTab,
     tabs,
-    textareaRef,
-    updateContent,
-    handleKeyDown,
-    getHighlightedCode,
+    editorRef,
+    updateTabContent,
     createNewTab,
     fontSize = 14,
     fontFamily = "JetBrains Mono",
@@ -128,148 +133,23 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
 
     const content = activeTab?.content || ""
     const language = activeTab?.language || "plaintext"
-    // The mirror and the line-number gutter are bookkeeping, not the text the
-    // user is editing, so they follow a deferred copy of the content: the
-    // keystroke commit only touches the textarea, and the gutter catches up
-    // in a low-priority render right after.
-    const deferredContent = React.useDeferredValue(content)
-    const lineCount = React.useMemo(() => {
-        let n = 1
-        for (let i = 0; i < deferredContent.length; i++) {
-            if (deferredContent.charCodeAt(i) === 10) n++
-        }
-        return n
-    }, [deferredContent])
-    const LINE_PX = 24
-
-    // Above this size the syntax overlay is skipped: highlighting the whole
-    // document and re-parsing it as HTML on every keystroke is what makes
-    // large files stutter, and a plain textarea stays fast natively.
-    const HIGHLIGHT_LIMIT = 150_000
-    const highlightable = language !== "plaintext" && content.length > 0 && content.length <= HIGHLIGHT_LIMIT
-    const highlighted = React.useMemo(
-        () => (highlightable ? getHighlightedCode(content, language) : null),
-        [highlightable, content, language, getHighlightedCode]
-    )
-
-    // When wrapping is on, a single logical line can occupy several visual
-    // rows. Instead of mirroring every line in hidden DOM and measuring each
-    // one (an O(n) reflow that froze the tab on large documents), the total
-    // visual row count is read from the textarea's own scrollHeight: the
-    // browser has already wrapped the text, so one property read gives the
-    // exact height for both the gutter and the auto-grow container.
-    const gridRef = React.useRef<HTMLDivElement>(null)
-    const [wrapHeight, setWrapHeight] = React.useState<number | null>(null)
-    const [remeasure, setRemeasure] = React.useState(0)
-    const PAD_Y = 24 // p-3 top + bottom
-
-    React.useLayoutEffect(() => {
-        const ta = textareaRef.current
-        if (!wordWrap || !ta) {
-            setWrapHeight(null)
-            return
-        }
-        // Collapse so scrollHeight reports content height, then restore. The
-        // text line layout is cached (width unchanged), so this is cheap.
-        const prev = ta.style.height
-        ta.style.height = "0px"
-        const h = ta.scrollHeight
-        ta.style.height = prev || ""
-        setWrapHeight(cur => (cur === h ? cur : h))
-    }, [wordWrap, content, fontSize, fontFamily, activeTab?.id, remeasure, textareaRef])
-
-    // A width change re-wraps every line; re-read the height when it happens.
-    React.useEffect(() => {
-        if (!wordWrap) return
-        const el = gridRef.current
-        if (!el) return
-        let lastWidth = el.clientWidth
-        const ro = new ResizeObserver(entries => {
-            const w = entries[entries.length - 1].contentRect.width
-            if (Math.abs(w - lastWidth) > 0.5) {
-                lastWidth = w
-                setRemeasure(v => v + 1)
-            }
-        })
-        ro.observe(el)
-        return () => ro.disconnect()
-    }, [wordWrap])
-
-    const totalVisualRows = wordWrap && wrapHeight !== null
-        ? Math.max(1, Math.round((wrapHeight - PAD_Y) / LINE_PX))
-        : lineCount
-
-    // One text node instead of one div per row: at 10k+ lines the per-div
-    // gutter alone was thousands of DOM nodes reconciled on every keystroke.
-    const gutterText = React.useMemo(() => {
-        let s = ""
-        for (let i = 1; i <= totalVisualRows; i++) s += i + "\n"
-        return s
-    }, [totalVisualRows])
 
     const Editor = (
-        <div className="flex flex-1 overflow-auto overscroll-contain h-full bg-background">
-            {/* Line numbers — pinned horizontally, scroll vertically with the content */}
-            <div
-                className="w-12 shrink-0 select-none border-r border-border bg-card sticky left-0 z-10 py-3 text-right text-muted-foreground"
-                style={{ fontSize: `${Math.max(10, fontSize - 2)}px`, fontFamily }}
-            >
-                <div className="whitespace-pre px-2" style={{ lineHeight: `${LINE_PX}px` }}>
-                    {gutterText}
-                </div>
-            </div>
-
-            {/* Editor: grid layering so pre and textarea share the same cell and grow together */}
-            <div
-                ref={gridRef}
-                className={cn("min-h-full", wordWrap ? "flex-1 min-w-0" : "shrink-0 min-w-full")}
-                style={{
-                    display: "grid",
-                    // In wrap mode the textarea can't auto-grow on its own, so
-                    // the measured content height sizes the grid cell for it.
-                    height: wordWrap && wrapHeight !== null ? wrapHeight : undefined,
-                }}
-            >
-                {highlighted !== null ? (
-                    <pre
-                        className={cn(
-                            "col-start-1 row-start-1 m-0 w-full p-3 leading-6 pointer-events-none",
-                            wordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre"
-                        )}
-                        style={{ fontSize: `${fontSize}px`, fontFamily }}
-                        aria-hidden="true"
-                        dangerouslySetInnerHTML={{ __html: highlighted }}
-                    />
-                ) : !wordWrap ? (
-                    // Plain text without wrap: the pre defines the grid cell's
-                    // width and height (a text node, so no HTML parsing). With
-                    // wrap on, the measured wrapHeight sizes the grid instead,
-                    // and updating a second full-document text node per
-                    // keystroke would force a whole-block relayout for nothing.
-                    <pre
-                        className="col-start-1 row-start-1 m-0 w-full p-3 leading-6 whitespace-pre invisible pointer-events-none"
-                        style={{ fontSize: `${fontSize}px`, fontFamily }}
-                        aria-hidden="true"
-                    >
-                        {content || " "}
-                    </pre>
-                ) : null}
-                <textarea
-                    ref={textareaRef}
-                    value={content}
-                    onChange={(e) => updateContent(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    wrap={wordWrap ? "soft" : "off"}
-                    className={cn(
-                        "col-start-1 row-start-1 resize-none bg-transparent p-3 leading-6 outline-none overflow-hidden w-full placeholder:text-muted-foreground",
-                        wordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre",
-                        highlighted !== null ? "text-transparent caret-foreground" : "text-foreground"
-                    )}
-                    style={{ fontSize: `${fontSize}px`, fontFamily }}
-                    placeholder="Type something"
-                    spellCheck={false}
-                />
-            </div>
+        <div
+            className="flex-1 h-full overflow-hidden bg-background"
+            style={{
+                "--cm-font-size": `${fontSize}px`,
+                "--cm-font-family": fontFamily,
+            } as React.CSSProperties}
+        >
+            <CodeMirrorEditor
+                key={activeTab?.id}
+                editorRef={editorRef}
+                value={content}
+                language={language}
+                wordWrap={wordWrap}
+                onChange={(v) => activeTab && updateTabContent(activeTab.id, v)}
+            />
         </div>
     )
 

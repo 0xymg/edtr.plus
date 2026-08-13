@@ -37,6 +37,16 @@
   --sidebar-accent-foreground: oklch(0.25 0.02 50);
   --sidebar-border: oklch(0.91 0.005 80);
   --sidebar-ring: oklch(0.55 0.15 220);
+  /* CodeMirror syntax colors (GitHub-light-ish) */
+  --syn-keyword: #cf222e;
+  --syn-string: #0a3069;
+  --syn-number: #0550ae;
+  --syn-comment: #6e7781;
+  --syn-function: #8250df;
+  --syn-type: #953800;
+  --syn-property: #116329;
+  --syn-tag: #116329;
+  --syn-variable: #24292f;
 }
 
 .dark {
@@ -73,6 +83,16 @@
   --sidebar-accent-foreground: oklch(0.85 0.01 80);
   --sidebar-border: oklch(0.28 0.01 260);
   --sidebar-ring: oklch(0.7 0.15 250);
+  /* CodeMirror syntax colors (GitHub-dark-ish) */
+  --syn-keyword: #ff7b72;
+  --syn-string: #a5d6ff;
+  --syn-number: #79c0ff;
+  --syn-comment: #8b949e;
+  --syn-function: #d2a8ff;
+  --syn-type: #ffa657;
+  --syn-property: #7ee787;
+  --syn-tag: #7ee787;
+  --syn-variable: #e6edf3;
 }
 
 @theme inline {

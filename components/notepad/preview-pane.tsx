@@ -10,6 +10,7 @@ import rehypeHighlight from "rehype-highlight"
 import rehypeKatex from "rehype-katex"
 import "github-markdown-css/github-markdown.css"
 import "katex/dist/katex.min.css"
+import "highlight.js/styles/github.css"
 
 // Diagram renderers are huge (mermaid ~2MB, abcjs, vega) — load each only
 // when a document actually contains that block type.
