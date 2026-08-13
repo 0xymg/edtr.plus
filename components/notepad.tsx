@@ -1346,6 +1346,7 @@ export function Notepad() {
   useEffect(() => {
     if (!hydrated) return
     const raw = window.location.hash.slice(1)
+    console.log("[probe] hash effect", { raw, hydrated, tabIds: tabs.map(t => t.id), activeTabId })
     if (!raw.startsWith("note=")) return
     const params = new URLSearchParams(raw)
     const noteId = params.get("note")
@@ -1359,6 +1360,7 @@ export function Notepad() {
       return
     }
 
+    console.log("[probe] opening note", noteId)
     selectTab(noteId)
     window.scrollTo({ top: 0 })
 
