@@ -4,29 +4,8 @@ import React from "react"
 import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
-import hljs from "highlight.js/lib/core"
-import javascript from "highlight.js/lib/languages/javascript"
-import typescript from "highlight.js/lib/languages/typescript"
-import python from "highlight.js/lib/languages/python"
-import css from "highlight.js/lib/languages/css"
-import xml from "highlight.js/lib/languages/xml"
-import json from "highlight.js/lib/languages/json"
-import bash from "highlight.js/lib/languages/bash"
-import sql from "highlight.js/lib/languages/sql"
-import markdown from "highlight.js/lib/languages/markdown"
-import c from "highlight.js/lib/languages/c"
-import cpp from "highlight.js/lib/languages/cpp"
-import csharp from "highlight.js/lib/languages/csharp"
-import java from "highlight.js/lib/languages/java"
-import go from "highlight.js/lib/languages/go"
-import rust from "highlight.js/lib/languages/rust"
-import php from "highlight.js/lib/languages/php"
-import ruby from "highlight.js/lib/languages/ruby"
-import swift from "highlight.js/lib/languages/swift"
-import kotlin from "highlight.js/lib/languages/kotlin"
-import yaml from "highlight.js/lib/languages/yaml"
+import type hljsType from "@/lib/highlighter"
 import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
-import JSZip from "jszip"
 import {
   supportsFileSystemAccess,
   detectLanguageFromExtension,
@@ -78,30 +57,6 @@ export interface FolderItem {
   source?: "memory" | "filesystem"
   parentFolderId?: string | null
 }
-
-// Register languages
-hljs.registerLanguage("javascript", javascript)
-hljs.registerLanguage("typescript", typescript)
-hljs.registerLanguage("python", python)
-hljs.registerLanguage("css", css)
-hljs.registerLanguage("html", xml)
-hljs.registerLanguage("xml", xml)
-hljs.registerLanguage("json", json)
-hljs.registerLanguage("bash", bash)
-hljs.registerLanguage("sql", sql)
-hljs.registerLanguage("markdown", markdown)
-hljs.registerLanguage("c", c)
-hljs.registerLanguage("cpp", cpp)
-hljs.registerLanguage("csharp", csharp)
-hljs.registerLanguage("java", java)
-hljs.registerLanguage("go", go)
-hljs.registerLanguage("rust", rust)
-hljs.registerLanguage("php", php)
-hljs.registerLanguage("ruby", ruby)
-hljs.registerLanguage("swift", swift)
-hljs.registerLanguage("kotlin", kotlin)
-hljs.registerLanguage("yaml", yaml)
-hljs.registerLanguage("svg", xml)
 
 const LANGUAGES = [
   { id: "plaintext", name: "Plain Text" },
@@ -357,6 +312,20 @@ export function Notepad() {
   }
 
 
+
+  // Highlighter is loaded lazily so the first paint doesn't pay for it
+  const hljsRef = useRef<typeof hljsType | null>(null)
+  const [highlighterReady, setHighlighterReady] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    import("@/lib/highlighter").then((m) => {
+      if (!cancelled) {
+        hljsRef.current = m.default
+        setHighlighterReady(true)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const languageMenuRef = useRef<HTMLDivElement>(null)
@@ -666,14 +635,21 @@ export function Notepad() {
     setLanguageMenuOpen(false)
   }, [activeTabId])
 
+  const escapeHtml = useCallback((s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"), [])
+
   const getHighlightedCode = useCallback((content: string, language: string) => {
-    if (language === "plaintext" || !content) return content
+    if (language === "plaintext" || !content) return escapeHtml(content)
+    const hl = hljsRef.current
+    if (!hl) return escapeHtml(content)
     try {
-      return hljs.highlight(content, { language }).value
+      return hl.highlight(content, { language }).value
     } catch {
-      return content
+      return escapeHtml(content)
     }
-  }, [])
+    // highlighterReady re-creates this callback once the module lands
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [escapeHtml, highlighterReady])
 
   const getWordCount = useCallback((content: string) => {
     if (!content.trim()) return 0
@@ -708,6 +684,7 @@ export function Notepad() {
     const folder = folders.find(f => f.id === folderId)
     if (!folder) return
     const folderTabs = tabs.filter(t => t.folderId === folderId)
+    const { default: JSZip } = await import("jszip")
     const zip = new JSZip()
     folderTabs.forEach(tab => {
       zip.file(getFilename(tab), tab.content)
@@ -1100,31 +1077,38 @@ export function Notepad() {
     }
   }, [statusBarColor, theme])
 
+  const activeTab = tabs.find(t => t.id === activeTabId)
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isCmd = e.ctrlKey || e.metaKey
       const isAlt = e.altKey && !e.ctrlKey && !e.metaKey
-      // Save / Download — universal pattern, preventDefault is reliable
-      if (isCmd && e.shiftKey && (e.key === "s" || e.key === "S")) { e.preventDefault(); downloadFile(); return }
-      if (isCmd && !e.shiftKey && !e.altKey && (e.key === "s" || e.key === "S")) { e.preventDefault(); saveFile() }
+      // Match on e.code (physical key): on macOS, Option+letter produces
+      // special characters in e.key (Option+N = "˜"), which silently broke
+      // every Alt shortcut on Mac.
+      // Save / Download / Open — universal pattern, preventDefault is reliable
+      if (isCmd && e.shiftKey && !e.altKey && e.code === "KeyS") { e.preventDefault(); downloadFile(); return }
+      if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyS") { e.preventDefault(); saveFile(); return }
+      if (isCmd && !e.shiftKey && !e.altKey && e.code === "KeyO") { e.preventDefault(); openFileFromDisk(); return }
       // Tab management — Alt+N / Alt+X (avoid Alt+T/W which can trigger menu access on Windows)
-      if (isAlt && (e.key === "n" || e.key === "N")) { e.preventDefault(); createNewTab() }
-      if (isAlt && (e.key === "x" || e.key === "X")) { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e) }
+      if (isAlt && !e.shiftKey && e.code === "KeyN") { e.preventDefault(); createNewTab(); return }
+      if (isAlt && !e.shiftKey && e.code === "KeyX") { e.preventDefault(); if (activeTabId) closeTab(activeTabId, e); return }
       // Sidebar — Alt+B (avoid ⌘B which opens Firefox bookmarks sidebar)
-      if (isAlt && (e.key === "b" || e.key === "B")) { e.preventDefault(); toggleSidebar() }
-      // Markdown preview — Alt+P (avoid ⌘⇧P which can trigger browser profile menu)
-      if (isAlt && (e.key === "p" || e.key === "P")) {
-        if (activeTab?.language === "markdown") {
+      if (isAlt && !e.shiftKey && e.code === "KeyB") { e.preventDefault(); toggleSidebar(); return }
+      // Markdown/SVG preview — Alt+P (avoid ⌘⇧P which can trigger browser profile menu)
+      if (isAlt && !e.shiftKey && e.code === "KeyP") {
+        if (activeTab?.language === "markdown" || activeTab?.language === "svg") {
           e.preventDefault()
           togglePreview()
         }
+        return
       }
       // Format code — Alt+Shift+F (VS Code standard)
-      if (e.shiftKey && e.altKey && (e.key === "f" || e.key === "F")) { e.preventDefault(); formatCode() }
+      if (isAlt && e.shiftKey && e.code === "KeyF") { e.preventDefault(); formatCode() }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [saveFile, createNewTab, formatCode, activeTabId, closeTab, downloadFile])
+  }, [saveFile, createNewTab, formatCode, activeTabId, closeTab, downloadFile, openFileFromDisk, toggleSidebar, togglePreview, activeTab?.language])
 
   useEffect(() => {
     const handleClick = () => {
@@ -1145,10 +1129,13 @@ export function Notepad() {
     const activeTab = tabs.find(t => t.id === activeTabId)
     if (e.key === "Tab") {
       e.preventDefault()
-      const start = e.currentTarget.selectionStart
-      const content = activeTab?.content || ""
-      updateContent(content.substring(0, start) + "  " + content.substring(e.currentTarget.selectionEnd))
-      setTimeout(() => { e.currentTarget.selectionStart = e.currentTarget.selectionEnd = start + 2 }, 0)
+      // Mutate the DOM value first (setRangeText keeps the caret in place),
+      // then sync state to the same string — React sees an equal value on
+      // re-render and leaves the caret alone. Updating state alone reset the
+      // caret to the end of the document on every Tab press.
+      const ta = e.currentTarget
+      ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end")
+      updateContent(ta.value)
     }
     if ((e.metaKey || e.ctrlKey) && e.key === "/") {
       e.preventDefault()
@@ -1156,8 +1143,9 @@ export function Notepad() {
       if (language === "plaintext") return
       const { start: commentStart, end: commentEnd } = getCommentSyntax(language)
       const content = activeTab?.content || ""
-      const start = e.currentTarget.selectionStart
-      const end = e.currentTarget.selectionEnd
+      const ta = e.currentTarget
+      const start = ta.selectionStart
+      const end = ta.selectionEnd
       const lineStart = content.lastIndexOf("\n", start - 1) + 1
       const lineEnd = content.indexOf("\n", end)
       const actualLineEnd = lineEnd === -1 ? content.length : lineEnd
@@ -1175,11 +1163,15 @@ export function Notepad() {
         }
         return line.trim() === "" ? line : (line.match(/^\s*/)?.[0] || "") + commentStart + line.trimStart() + (commentEnd || "")
       })
-      updateContent(content.substring(0, lineStart) + newLines.join("\n") + content.substring(actualLineEnd))
+      const newText = newLines.join("\n")
+      const delta = newText.length - selectedText.length
+      // Same DOM-first pattern as Tab above so the caret survives the update
+      ta.setRangeText(newText, lineStart, actualLineEnd, "preserve")
+      const caret = Math.max(lineStart, start + delta)
+      ta.selectionStart = ta.selectionEnd = caret
+      updateContent(ta.value)
     }
   }, [tabs, activeTabId, updateContent, getCommentSyntax])
-
-  const activeTab = tabs.find(t => t.id === activeTabId)
 
   // Lazy-load filesystem file content when tab becomes active
   useEffect(() => {

@@ -1,23 +1,20 @@
 "use client"
 
 import React, { RefObject } from "react"
+import dynamic from "next/dynamic"
 import { Plus, FileText, GripVertical } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Kbd } from "@/components/ui/kbd"
 import { Tab } from "../notepad"
 import { Group, Panel, Separator } from "react-resizable-panels"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import remarkSupersub from "remark-supersub"
-import remarkMath from "remark-math"
-import rehypeHighlight from "rehype-highlight"
-import rehypeKatex from "rehype-katex"
-import "github-markdown-css/github-markdown.css"
 import "highlight.js/styles/github.css"
 
-import { Mermaid } from "../mermaid"
-import { AbcNotation } from "../abc-notation"
-import { VegaChart } from "../vega-chart"
+// The markdown/SVG preview drags in react-markdown, KaTeX and the diagram
+// renderers — none of it belongs in the first paint, so it loads on demand.
+const PreviewPane = dynamic(
+    () => import("./preview-pane").then(m => m.PreviewPane),
+    { ssr: false, loading: () => <div className="flex-1 h-full border-l border-border" /> }
+)
 
 interface EditorAreaProps {
     activeTab: Tab | undefined
@@ -233,44 +230,10 @@ export const EditorArea: React.FC<EditorAreaProps> = ({
     )
 
     const Preview = (
-        <div className="flex-1 overflow-auto h-full border-l border-border bg-card/10">
-            <div className="p-8 max-w-4xl mx-auto h-full flex flex-col">
-                {activeTab?.language === "markdown" ? (
-                    <article className="markdown-body !bg-transparent !text-foreground transition-all duration-200">
-                        <ReactMarkdown 
-                            remarkPlugins={[remarkGfm, remarkMath, remarkSupersub]}
-                            rehypePlugins={[rehypeHighlight, rehypeKatex]}
-                            components={{
-                                code({ node, inline, className, children, ...props }: any) {
-                                    const match = /language-(\w+)/.exec(className || '')
-                                    if (!inline && match && match[1] === 'mermaid') {
-                                        return <Mermaid chart={String(children).replace(/\n$/, '')} />
-                                    }
-                                    if (!inline && match && match[1] === 'abc') {
-                                        return <AbcNotation notation={String(children).replace(/\n$/, '')} />
-                                    }
-                                    if (!inline && match && (match[1] === 'vega' || match[1] === 'vega-lite')) {
-                                        return <VegaChart specString={String(children).replace(/\n$/, '')} />
-                                    }
-                                    return (
-                                        <code className={className} {...props}>
-                                            {children}
-                                        </code>
-                                    )
-                                }
-                            }}
-                        >
-                            {activeTab?.content || ""}
-                        </ReactMarkdown>
-                    </article>
-                ) : activeTab?.language === "svg" ? (
-                    <div 
-                        className="flex-1 flex items-center justify-center p-4 bg-white/5 rounded-lg border border-border/50 shadow-inner overflow-auto"
-                        dangerouslySetInnerHTML={{ __html: activeTab.content }}
-                    />
-                ) : null}
-            </div>
-        </div>
+        <PreviewPane
+            language={activeTab?.language || ""}
+            content={activeTab?.content || ""}
+        />
     )
 
     if (showPreview && (activeTab?.language === "markdown" || activeTab?.language === "svg")) {
