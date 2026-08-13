@@ -1199,7 +1199,6 @@ export function Notepad() {
     if (savedStatusBarColor) setStatusBarColor(savedStatusBarColor)
     const savedStatusBarTextColor = localStorage.getItem("notepad-statusbar-text-color")
     if (savedStatusBarTextColor) setStatusBarTextColor(savedStatusBarTextColor)
-    console.log("[probe] restore effect done -> hydrated")
     setHydrated(true)
     setTimeout(() => editorRef.current?.focus(), 0)
   }, [])
@@ -1345,10 +1344,8 @@ export function Notepad() {
   // The hash is never written back automatically: doing so on every tab
   // switch would bury the user's real history under editor navigation.
   useEffect(() => {
-    console.log("[probe] hash effect fired, hydrated =", hydrated)
     if (!hydrated) return
     const raw = window.location.hash.slice(1)
-    console.log("[probe] hash effect", { raw, hydrated, tabIds: tabs.map(t => t.id), activeTabId })
     if (!raw.startsWith("note=")) return
     const params = new URLSearchParams(raw)
     const noteId = params.get("note")
@@ -1362,7 +1359,6 @@ export function Notepad() {
       return
     }
 
-    console.log("[probe] opening note", noteId)
     selectTab(noteId)
     window.scrollTo({ top: 0 })
 
@@ -1393,13 +1389,20 @@ export function Notepad() {
     const pending = pendingRevealRef.current
     if (!pending || pending.tabId !== activeTabId) return
     if (activeTab?.source === "filesystem" && activeTab.contentLoaded === false) return
-    const id = setTimeout(() => {
+    // The editor is lazy-loaded, so on a cold start (a deep link, say) it may
+    // not exist yet: keep looking for a moment instead of missing the jump.
+    let timer: ReturnType<typeof setTimeout>
+    let tries = 0
+    const attempt = () => {
       if (editorRef.current) {
         editorRef.current.reveal(pending.from, pending.to)
         pendingRevealRef.current = null
+      } else if (tries++ < 40) {
+        timer = setTimeout(attempt, 50)
       }
-    }, 0)
-    return () => clearTimeout(id)
+    }
+    timer = setTimeout(attempt, 0)
+    return () => clearTimeout(timer)
   }, [activeTabId, activeTab?.contentLoaded, activeTab?.source, tabs])
 
   // Lazy-load filesystem file content when tab becomes active
