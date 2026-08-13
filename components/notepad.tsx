@@ -260,7 +260,9 @@ export function Notepad() {
         if (settings.sidebarWidth !== undefined) setSidebarWidth(settings.sidebarWidth)
         if (settings.showPreview !== undefined) setShowPreview(settings.showPreview)
         if (settings.wordWrap !== undefined) setWordWrap(settings.wordWrap)
-        if (settings.activeTabId !== undefined) setActiveTabId(settings.activeTabId)
+        // activeTabId is validated against the restored tabs below, in the
+        // tab-loading effect — restoring it here unchecked could point the
+        // editor at a tab that no longer exists.
       } else {
         // Fallback for older version
         const savedSize = localStorage.getItem("notepad-font-size")
@@ -1094,19 +1096,29 @@ export function Notepad() {
           }))
           setTabs(tabsWithLanguage)
 
+          // Restored ids are only trustworthy if the tab still exists: the id
+          // list and the tab list are persisted separately, so a stale entry
+          // would leave the app pointing at a tab that is gone — edits and
+          // language changes would then silently apply to nothing.
+          const existing = new Set(tabsWithLanguage.map((t: Tab) => t.id))
+          let openIds: string[] = []
           if (savedOpenTabs) {
             try {
-              const openIds = JSON.parse(savedOpenTabs)
-              setOpenTabIds(openIds)
-              if (openIds.length > 0) updateActiveTabId(openIds[0])
-            } catch (e) {
-              setOpenTabIds([tabsWithLanguage[0].id])
-              updateActiveTabId(tabsWithLanguage[0].id)
-            }
-          } else {
-            setOpenTabIds([tabsWithLanguage[0].id])
-            updateActiveTabId(tabsWithLanguage[0].id)
+              const parsedOpen = JSON.parse(savedOpenTabs)
+              if (Array.isArray(parsedOpen)) openIds = parsedOpen.filter((id: string) => existing.has(id))
+            } catch (e) { }
           }
+          if (openIds.length === 0) openIds = [tabsWithLanguage[0].id]
+          setOpenTabIds(openIds)
+
+          const savedActiveId = (() => {
+            try {
+              return JSON.parse(localStorage.getItem("notepad-user-settings") || "{}").activeTabId
+            } catch { return null }
+          })()
+          updateActiveTabId(
+            savedActiveId && openIds.includes(savedActiveId) ? savedActiveId : openIds[0]
+          )
         }
       } catch (e) { }
     }
