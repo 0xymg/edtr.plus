@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { ChevronDown, ChevronRight, Copy, Check, AlertTriangle } from "lucide-react"
+import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, Copy, Check, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { locateJsonError } from "@/lib/json-error"
 
@@ -21,6 +21,14 @@ const AUTO_EXPAND_DEPTH = 2
 const CHUNK = 100
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json }
+
+/**
+ * Broadcast from the header's collapse/expand-all buttons. Rows keep their own
+ * open state (so individual toggles stay cheap), and follow the signal when its
+ * counter changes — including rows that mount later, which is what makes
+ * "expand all" reach branches that were still collapsed.
+ */
+type ExpandSignal = { mode: "all" | "none"; n: number } | null
 
 function valueClass(v: Json): string {
     if (v === null) return "text-[var(--syn-comment)]"
@@ -46,10 +54,20 @@ const Row: React.FC<{
     value: Json
     depth: number
     isLast: boolean
-}> = ({ label, value, depth, isLast }) => {
+    signal: ExpandSignal
+}> = ({ label, value, depth, isLast, signal }) => {
     const isBranch = value !== null && typeof value === "object"
-    const [open, setOpen] = React.useState(depth < AUTO_EXPAND_DEPTH)
+    const [open, setOpen] = React.useState(
+        signal ? signal.mode === "all" : depth < AUTO_EXPAND_DEPTH
+    )
     const [limit, setLimit] = React.useState(CHUNK)
+
+    const lastSignal = React.useRef(signal?.n ?? 0)
+    React.useEffect(() => {
+        if (!signal || signal.n === lastSignal.current) return
+        lastSignal.current = signal.n
+        setOpen(signal.mode === "all")
+    }, [signal])
 
     const entries = React.useMemo(() => {
         if (!isBranch) return []
@@ -104,6 +122,7 @@ const Row: React.FC<{
                             value={v}
                             depth={depth + 1}
                             isLast={i === entries.length - 1}
+                            signal={signal}
                         />
                     ))}
                     {entries.length > limit && (
@@ -126,6 +145,9 @@ const Row: React.FC<{
 
 export const JsonViewer: React.FC<JsonViewerProps> = ({ content, onRevealOffset }) => {
     const [copied, setCopied] = React.useState(false)
+    const [signal, setSignal] = React.useState<ExpandSignal>(null)
+    const broadcast = (mode: "all" | "none") =>
+        setSignal(prev => ({ mode, n: (prev?.n ?? 0) + 1 }))
 
     const parsed = React.useMemo(() => {
         const trimmed = content.trim()
@@ -174,20 +196,38 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ content, onRevealOffset 
         <div className="flex h-full flex-col border-l border-border bg-card/10">
             <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5 text-xs text-muted-foreground">
                 <span>JSON viewer</span>
-                <button
-                    onClick={copy}
-                    className="flex items-center gap-1 rounded-sm px-1.5 py-0.5 transition-colors hover:bg-accent hover:text-foreground"
-                    aria-label="Copy JSON"
-                >
-                    {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    {copied ? "Copied" : "Copy"}
-                </button>
+                <div className="flex items-center gap-0.5">
+                    <button
+                        onClick={() => broadcast("all")}
+                        className="flex items-center gap-1 rounded-sm px-1.5 py-0.5 transition-colors hover:bg-accent hover:text-foreground"
+                        aria-label="Expand all"
+                        title="Expand all"
+                    >
+                        <ChevronsUpDown className="h-3 w-3" />
+                    </button>
+                    <button
+                        onClick={() => broadcast("none")}
+                        className="flex items-center gap-1 rounded-sm px-1.5 py-0.5 transition-colors hover:bg-accent hover:text-foreground"
+                        aria-label="Collapse all"
+                        title="Collapse all"
+                    >
+                        <ChevronsDownUp className="h-3 w-3" />
+                    </button>
+                    <button
+                        onClick={copy}
+                        className="flex items-center gap-1 rounded-sm px-1.5 py-0.5 transition-colors hover:bg-accent hover:text-foreground"
+                        aria-label="Copy JSON"
+                    >
+                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                        {copied ? "Copied" : "Copy"}
+                    </button>
+                </div>
             </div>
             <div className="flex-1 overflow-auto p-3">
                 {parsed.empty ? (
                     <p className="text-xs text-muted-foreground">Nothing to show yet.</p>
                 ) : (
-                    <Row value={parsed.value} depth={0} isLast />
+                    <Row value={parsed.value} depth={0} isLast signal={signal} />
                 )}
             </div>
         </div>

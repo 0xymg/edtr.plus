@@ -134,12 +134,19 @@ function Wordmark() {
  */
 function withWordmark(text: string) {
   const parts = text.split("EDTR+")
-  return parts.map((part, i) => (
-    <React.Fragment key={i}>
-      {i > 0 && <Wordmark />}
-      {part}
-    </React.Fragment>
-  ))
+  // One inline element, not a list of siblings: callers put this inside flex
+  // rows (the FAQ summary is `justify-between`), where loose parts would be
+  // spread across the row instead of reading as a sentence.
+  return (
+    <span>
+      {parts.map((part, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <Wordmark />}
+          {part}
+        </React.Fragment>
+      ))}
+    </span>
+  )
 }
 
 function scrollToEditor() {

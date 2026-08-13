@@ -51,6 +51,11 @@ interface StatusBarProps {
     languageMenuRef: RefObject<HTMLDivElement | null>
     wordWrap: boolean
     toggleWordWrap: () => void
+    /** Preview/viewer pane state; the checkbox only shows for previewable files. */
+    canPreview: boolean
+    previewLabel: string
+    showPreview: boolean
+    togglePreview: () => void
     save: () => void
     isFileSystemTab: boolean
     downloadFile: () => void
@@ -80,6 +85,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     languageMenuRef,
     wordWrap,
     toggleWordWrap,
+    canPreview,
+    previewLabel,
+    showPreview,
+    togglePreview,
     save,
     isFileSystemTab,
     downloadFile,
@@ -176,6 +185,23 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                         <span className="hidden md:inline">{isFormatting ? "Formatting..." : "Format"}</span>
                     </button>
                 </IconTip>
+                {canPreview && (
+                    <IconTip label={showPreview ? `Hide ${previewLabel.toLowerCase()}` : `Show ${previewLabel.toLowerCase()}`} shortcut={`${appModLabel()}+P`} side="top">
+                        <label className={cn(
+                            `flex cursor-pointer items-center gap-1.5 rounded p-1 sm:px-2 sm:py-0.5 transition-colors ${hoverClass}`,
+                            showPreview && "text-foreground"
+                        )}>
+                            <input
+                                type="checkbox"
+                                checked={showPreview}
+                                onChange={togglePreview}
+                                className="h-3 w-3 cursor-pointer accent-current"
+                                aria-label={`Toggle ${previewLabel.toLowerCase()}`}
+                            />
+                            <span className="hidden md:inline">{previewLabel}</span>
+                        </label>
+                    </IconTip>
+                )}
                 <IconTip label={wordWrap ? "Word wrap: on" : "Word wrap: off"} side="top">
                     <button
                         onClick={toggleWordWrap}

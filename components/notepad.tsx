@@ -1812,6 +1812,10 @@ export function Notepad() {
         languageMenuRef={languageMenuRef}
         wordWrap={wordWrap}
         toggleWordWrap={toggleWordWrap}
+        canPreview={!!activeTab && PREVIEWABLE.has(activeTab.language)}
+        previewLabel={activeTab?.language === "json" ? "JSON viewer" : "Preview"}
+        showPreview={showPreview}
+        togglePreview={togglePreview}
         save={saveFile}
         isFileSystemTab={activeTab?.source === "filesystem"}
         downloadFile={downloadFile}
