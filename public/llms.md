@@ -17,7 +17,7 @@ EDTR is a free, open source, browser-based text editor and notepad inspired by N
 ## Features
 
 - **Syntax highlighting** for 20+ programming languages
-- **Multi-tab editing** with keyboard shortcuts (⌘T, ⌘W)
+- **Multi-tab editing** with keyboard shortcuts (Alt+N / ⌃⌥N, Alt+X / ⌃⌥X)
 - **Automatic saving** to browser LocalStorage
 - **File System Access API** — open/save files from disk (Chrome, Edge)
 - **PWA** — install as a desktop app, works offline
@@ -34,15 +34,19 @@ EDTR is a free, open source, browser-based text editor and notepad inspired by N
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `⌘T` | New tab |
-| `⌘W` | Close tab |
-| `⌘S` | Save |
-| `⌘⇧S` | Download |
-| `⌘L` | Toggle sidebar |
-| `⌘/` | Toggle comment |
-| `⇧⌥F` | Format (JSON) |
+The app modifier is `Alt` on Windows/Linux and `⌃⌥` (Control+Option) on macOS, chosen so shortcuts never collide with system/browser shortcuts or the characters Option types.
+
+| Windows / Linux | macOS | Action |
+|----------|----------|--------|
+| `Ctrl+O` | `⌘O` | Open file from disk |
+| `Ctrl+S` | `⌘S` | Save |
+| `Ctrl+Shift+S` | `⌘⇧S` | Download |
+| `Alt+N` | `⌃⌥N` | New tab |
+| `Alt+X` | `⌃⌥X` | Close tab |
+| `Alt+B` | `⌃⌥B` | Toggle sidebar |
+| `Alt+P` | `⌃⌥P` | Markdown/SVG preview |
+| `Ctrl+/` | `⌘/` | Toggle comment |
+| `Alt+Shift+F` | `⌃⌥⇧F` | Format (JSON) |
 
 ## Tech Stack
 

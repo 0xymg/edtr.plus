@@ -1,18 +1,37 @@
 # EDTR+
 
-**The legendary efficiency of Notepad++, available in your browser.**
+**The notepad that's already open.**
 
-EDTR is a next-gen, browser-based text editor built for speed, privacy, and technical purity. Inspired by the functional excellence of Notepad++, it provides a zero-latency environment for developers and power users who need a reliable workspace without the bloat.
+EDTR+ is a free, browser-based Notepad++ alternative built for speed and privacy. Tabs, syntax highlighting, find & replace, real file access — no download, no license, no account. Open a tab and start typing.
 
 ![EDTR Hero](https://edtr.cc/og-image.png)
 
-## ⚡ Technical Core
+## ⚡ Features
 
-- **0.0ms Latency**: Built on a reactive local-first architecture for instantaneous feedback.
-- **Privacy First**: All data is stored in **LocalStorage**. Your notes never cross the wire.
-- **PWA Native**: Offline-first design. Install it on your machine and use it anywhere.
-- **Monochromatic Excellence**: A premium, high-contrast UI designed for long-term focus.
-- **Multi-Language Support**: Syntax highlighting for 20+ languages including Markdown, TS, Python, and JSON.
+- **Instant start**: The landing shell paints immediately; the editor bundle streams in right after. Heavy libraries (Markdown preview, diagrams, syntax highlighting) load on demand, never in the first paint.
+- **Privacy first**: All data is stored in **LocalStorage**. Your notes never cross the wire — nothing is scanned, uploaded, or used for training.
+- **Real file access**: Open and save files on disk via the File System Access API (Chrome, Edge, Opera). Download works everywhere else.
+- **Multi-tab workspace**: Unlimited tabs, folders, drag & drop, find & replace with regex.
+- **Syntax highlighting**: 20+ languages including Markdown, TypeScript, Python, Go, Rust, and JSON.
+- **Markdown & SVG preview**: Open a `.md` or `.svg` file and a live preview appears alongside the editor — with Mermaid, ABC notation, and Vega-Lite support.
+- **PWA native**: Offline-first design. Install it on your machine and use it anywhere.
+
+## ⌨️ Keyboard Shortcuts
+
+Shortcuts are chosen to never collide with system or browser shortcuts. The app modifier is **Alt** on Windows/Linux and **⌃⌥ (Control+Option)** on macOS — a combination the OS leaves alone, so nothing clashes with browser menus or the characters Option types.
+
+| Action | Windows / Linux | macOS |
+| --- | --- | --- |
+| Open file | `Ctrl+O` | `⌘O` |
+| Save file | `Ctrl+S` | `⌘S` |
+| Download file | `Ctrl+Shift+S` | `⌘⇧S` |
+| New tab | `Alt+N` | `⌃⌥N` |
+| Close tab | `Alt+X` | `⌃⌥X` |
+| Toggle sidebar | `Alt+B` | `⌃⌥B` |
+| Markdown/SVG preview | `Alt+P` | `⌃⌥P` |
+| Format (JSON) | `Alt+Shift+F` | `⌃⌥⇧F` |
+| Toggle comment | `Ctrl+/` | `⌘/` |
+| Insert indentation | `Tab` | `Tab` |
 
 ## 🛠️ Tech Stack
 
@@ -24,17 +43,17 @@ EDTR is a next-gen, browser-based text editor built for speed, privacy, and tech
 
 ## 🤝 Open Source & Contributions
 
-EDTR is **100% open source** and community-driven. We welcome all contributions that respect the project's core values: **Purity, Simplicity, and Raw Performance.**
+EDTR+ is **100% open source** and community-driven. We welcome all contributions that respect the project's core values: **Purity, Simplicity, and Raw Performance.**
 
 ### How to Contribute:
 1. **Fork** the repository.
 2. **Clone** it to your local machine.
-3. **Install** dependencies: `npm install`
-4. **Run** in development: `npm run dev`
+3. **Install** dependencies: `pnpm install`
+4. **Run** in development: `pnpm dev`
 5. **Submit** a PR with a clear description of your changes.
 
 > [!IMPORTANT]
-> To maintain the performance profile, please avoid adding large external dependencies unless absolutely necessary.
+> To maintain the performance profile, please avoid adding large external dependencies unless absolutely necessary. If a dependency is only needed after user interaction (preview, export, diagrams), load it lazily with a dynamic import.
 
 ## Built by
 Created and maintained by [0xymg](https://github.com/0xymg).
