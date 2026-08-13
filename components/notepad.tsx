@@ -4,11 +4,12 @@ import React from "react"
 import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import { hasAppModifier, appModLabel, cmdModLabel } from "@/lib/shortcuts"
 import { locateJsonError } from "@/lib/json-error"
 import { TooltipProvider, IconTip, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import type { EditorHandle } from "./notepad/codemirror-editor"
-import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X } from "lucide-react"
+import { Edit2, Trash2, Download, Menu, Save, Settings, Palette, Type, RotateCcw, Sun, Moon, FileText, Plus, X, Link as LinkIcon } from "lucide-react"
 import {
   supportsFileSystemAccess,
   detectLanguageFromExtension,
@@ -384,6 +385,23 @@ export function Notepad() {
     pendingRevealRef.current = { tabId: match.tabId, from: match.from, to: match.to }
     selectTab(match.tabId)
   }, [selectTab])
+
+  /**
+   * Notes live in this browser only, so a link identifies a note rather than
+   * carrying it: opening one elsewhere can't resolve, which the fallback
+   * below says plainly instead of failing silently.
+   */
+  const copyNoteLink = useCallback(async (tabId: string) => {
+    const url = `${window.location.origin}${window.location.pathname}#note=${tabId}`
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success("Link copied", {
+        description: "Opens this note in this browser.",
+      })
+    } catch {
+      toast.error("Couldn't copy the link")
+    }
+  }, [])
 
   // Palette: reveal a folder by expanding it and showing the sidebar
   const revealFolder = useCallback((folderId: string) => {
@@ -1321,6 +1339,44 @@ export function Notepad() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, structureKey])
 
+  // #note=<id> (optionally &line=<n>) opens a note directly. Read once, after
+  // the workspace is restored — before that the note list is still empty.
+  // The hash is never written back automatically: doing so on every tab
+  // switch would bury the user's real history under editor navigation.
+  useEffect(() => {
+    if (!hydrated) return
+    const raw = window.location.hash.slice(1)
+    if (!raw.startsWith("note=")) return
+    const params = new URLSearchParams(raw)
+    const noteId = params.get("note")
+    if (!noteId) return
+
+    const target = tabs.find(t => t.id === noteId)
+    if (!target) {
+      toast.error("That note isn't in this browser", {
+        description: "Notes stay on the device that created them.",
+      })
+      return
+    }
+
+    selectTab(noteId)
+    window.scrollTo({ top: 0 })
+
+    const line = Number(params.get("line"))
+    if (Number.isFinite(line) && line > 1) {
+      let offset = 0
+      for (let l = 1; l < line; l++) {
+        const next = target.content.indexOf("\n", offset)
+        if (next === -1) break
+        offset = next + 1
+      }
+      // The editor may not be mounted yet; this is applied once it is.
+      pendingRevealRef.current = { tabId: noteId, from: offset, to: offset }
+    }
+    // Deep links are honoured once per load, not on every tab change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated])
+
   useEffect(() => {
     if (!tabs.some(tab => tab.isModified)) return
     const timer = setTimeout(() => saveFile(), 5000)
@@ -1776,6 +1832,15 @@ export function Notepad() {
               </button>
               <button
                 onClick={() => {
+                  copyNoteLink(contextMenu.id)
+                  closeContextMenu()
+                }}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+              >
+                <LinkIcon className="h-4 w-4" /> Copy link
+              </button>
+              <button
+                onClick={() => {
                   downloadFileById(contextMenu.id)
                   closeContextMenu()
                 }}
@@ -1865,6 +1930,7 @@ export function Notepad() {
           onSave={saveFile}
           onDownload={downloadFile}
           onPrint={handlePrint}
+          onCopyLink={() => activeTabId && copyNoteLink(activeTabId)}
           onFormat={formatCode}
           onMinifyJson={minifyJson}
           isJson={activeTab?.language === "json"}

@@ -18,6 +18,7 @@ import {
     Minimize2,
     Code2,
     Check,
+    Link as LinkIcon,
 } from "lucide-react"
 import {
     CommandDialog,
@@ -66,6 +67,7 @@ interface CommandPaletteProps {
     onSave: () => void
     onDownload: () => void
     onPrint: () => void
+    onCopyLink: () => void
     onFormat: () => void
     onMinifyJson: () => void
     isJson: boolean
@@ -154,6 +156,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     onSave,
     onDownload,
     onPrint,
+    onCopyLink,
     onFormat,
     onMinifyJson,
     isJson,
@@ -320,6 +323,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                     { id: "save", label: "Save", icon: <Save />, shortcut: `${cmdLabel}+S`, fn: onSave },
                                     { id: "download", label: "Download file", icon: <Download />, shortcut: `${cmdLabel}⇧+S`, fn: onDownload },
                                     { id: "print", label: "Print", icon: <Printer />, fn: onPrint },
+                                    { id: "copy-link", label: "Copy link to this note", icon: <LinkIcon />, fn: onCopyLink },
                                     { id: "format", label: isJson ? "Format JSON" : "Format document", icon: <Wand2 />, shortcut: `${modLabel}⇧+F`, fn: onFormat },
                                     ...(isJson
                                         ? [{ id: "minify", label: "Minify JSON", icon: <Minimize2 />, fn: onMinifyJson }]

@@ -290,7 +290,7 @@ export default function LandingPage() {
       </section>
 
       {/* Why */}
-      <section className="scroll-mt-16 px-6 py-24">
+      <section id="why" className="scroll-mt-16 px-6 py-24">
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
             A proper text editor, without the installation.
@@ -440,7 +440,7 @@ export default function LandingPage() {
       </section>
 
       {/* Notepad++ gap */}
-      <section className={`border-t ${hairline} px-6 py-24`}>
+      <section id="notepad-plus-plus" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
             Notepad++ without Windows.
@@ -513,7 +513,7 @@ export default function LandingPage() {
       </section>
 
       {/* Use cases */}
-      <section className={`border-t ${hairline} px-6 py-24`}>
+      <section id="use-cases" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
             Open it when you need to…
@@ -593,7 +593,7 @@ export default function LandingPage() {
       </section>
 
       {/* Free means free */}
-      <section className={`border-t ${hairline} px-6 py-24`}>
+      <section id="pricing" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl">
           <h2 className={`${display} text-[clamp(2rem,4.5vw,3rem)] leading-[1.05]`}>
             Free means free.
@@ -641,7 +641,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className={`border-t ${hairline} px-6 py-24`}>
+      <section id="get-started" className={`scroll-mt-16 border-t ${hairline} px-6 py-24`}>
         <div className="mx-auto max-w-3xl text-center">
           <h2 className={`${display} text-[clamp(2rem,5vw,3.25rem)] leading-[1.05]`}>
             Open. Type. Done.
