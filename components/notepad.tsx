@@ -1353,8 +1353,10 @@ export function Notepad() {
 
     const target = tabs.find(t => t.id === noteId)
     if (!target) {
+      // Rare and important: a link that can't resolve needs long enough to read
       toast.error("That note isn't in this browser", {
-        description: "Notes stay on the device that created them.",
+        description: "Notes stay on the device that created them, so a link only opens on that device.",
+        duration: 8000,
       })
       return
     }

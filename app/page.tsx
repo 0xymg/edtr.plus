@@ -206,7 +206,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className={`bg-white dark:bg-[#161512] ${ink}`}>
+    <div className={`bg-white dark:bg-[#06070B] ${ink}`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
@@ -217,7 +217,7 @@ export default function LandingPage() {
       </section>
 
       {/* Nav */}
-      <nav className={`sticky top-0 z-50 border-b ${hairline} bg-white/85 dark:bg-[#161512]/85 backdrop-blur-xl`}>
+      <nav className={`sticky top-0 z-50 border-b ${hairline} bg-white/85 dark:bg-[#06070B]/85 backdrop-blur-xl`}>
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <Link href="/" className={`${display} text-lg`}>
             EDTR<span className={plus}>+</span>
@@ -321,7 +321,7 @@ export default function LandingPage() {
                 body: "Tabs, syntax highlighting, find & replace, large file support, previews, and direct file access are built in.",
               },
             ].map((item) => (
-              <div key={item.title} className="bg-white dark:bg-[#161512] p-6">
+              <div key={item.title} className="bg-white dark:bg-[#06070B] p-6">
                 <h3 className={`${display} text-lg tracking-[-0.02em]`}>{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed">{withWordmark(item.lead)}</p>
                 <p className={`mt-1.5 text-sm leading-relaxed ${muted}`}>{item.body}</p>
