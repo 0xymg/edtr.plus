@@ -76,6 +76,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  verification: {
+    other: { "msvalidate.01": "42A53046E5D2A6675BBAE6009BE747A7" },
+  },
   // og:image and twitter:image come from app/opengraph-image.tsx (generated
   // at build time); listing an image here would override it.
   openGraph: {
@@ -119,6 +122,13 @@ export default function RootLayout({
           src="https://umami.ymg.digital/script.js"
           data-website-id="760f938a-09c8-4d87-b21e-d51c36c7fe50"
         />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-RLFNLQGZXJ" strategy="afterInteractive" />
+        <Script id="ga4" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RLFNLQGZXJ');`}
+        </Script>
       </body>
     </html>
   )
