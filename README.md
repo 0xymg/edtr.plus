@@ -124,7 +124,7 @@ Part of **Project EDTR**: [EDTR.md](https://edtr.md) (Markdown editor) · [EDTRp
 
 ## License
 
-MIT — free to use and build upon.
+[MIT](LICENSE) — free to use and build upon.
 
 ---
 

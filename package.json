@@ -2,6 +2,7 @@
   "name": "edtrplus",
   "version": "1.0.4",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
