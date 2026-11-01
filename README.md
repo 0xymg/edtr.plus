@@ -120,7 +120,7 @@ EDTR+ is **100% open source** and community-driven. Contributions are welcome as
 
 Created and maintained by [0xymg](https://github.com/0xymg).
 
-Part of **Project EDTR**: [EDTR.md](https://edtr.md) (Markdown editor) · [EDTRpad](https://wordpad.info) (Word alternative)
+Part of **Project EDTR**, brought to you by [312](https://312.sh): [EDTR.md](https://edtr.md) (Markdown editor) · [EDTRpad](https://wordpad.info) (Word alternative)
 
 ## License
 
