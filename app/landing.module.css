@@ -1,0 +1,516 @@
+/* Landing page below the editor. Same warm-neutral token set as the other
+   Project EDTR sites (edtr.md, wordpad.info), so the three read as siblings,
+   plus a dark variant: the editor's theme toggle puts .dark on <html>. */
+.landing {
+  --pl-bg: #ffffff;
+  --pl-surface: #f7f7f5;
+  --pl-surface-2: #f1f1ed;
+  --pl-panel: #ffffff;
+  --pl-border: rgba(55, 53, 47, 0.1);
+  --pl-border-strong: rgba(55, 53, 47, 0.2);
+  --pl-ink: #1c1b18;
+  --pl-ink-70: rgba(28, 27, 24, 0.72);
+  --pl-ink-50: rgba(28, 27, 24, 0.6);
+  --pl-accent: #f5a524;
+  --pl-shadow: #20293626;
+
+  background: var(--pl-bg);
+  color: var(--pl-ink);
+}
+
+:global(.dark) .landing {
+  --pl-bg: #06070b;
+  --pl-surface: #0d0e13;
+  --pl-surface-2: #15161d;
+  --pl-panel: #0a0b10;
+  --pl-border: rgba(255, 255, 255, 0.1);
+  --pl-border-strong: rgba(255, 255, 255, 0.2);
+  --pl-ink: #edece8;
+  --pl-ink-70: rgba(237, 236, 232, 0.74);
+  --pl-ink-50: rgba(237, 236, 232, 0.6);
+  --pl-shadow: #00000080;
+}
+
+/* Section headings: Author, tight and heavy, the way edtr.md sets them. */
+.display {
+  font-family: var(--font-author), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.landing section[id] {
+  scroll-margin-top: 5rem;
+}
+
+.landing a:focus-visible,
+.landing button:focus-visible,
+.landing summary:focus-visible {
+  outline: 2px solid var(--pl-ink);
+  outline-offset: 4px;
+}
+
+.soft {
+  background: var(--pl-surface);
+}
+
+.hero {
+  background: linear-gradient(var(--pl-surface) 0%, var(--pl-surface) 65%, var(--pl-surface-2) 100%);
+}
+
+/* ── Buttons ── */
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 52px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  transition: opacity 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.primaryAction {
+  background: var(--pl-ink);
+  color: var(--pl-bg);
+  font-weight: 600;
+  box-shadow: 0 2px 3px #19191914;
+}
+
+.primaryAction:hover {
+  opacity: 0.88;
+}
+
+.secondaryAction {
+  border: 1px solid var(--pl-border-strong);
+  background: var(--pl-panel);
+  color: var(--pl-ink);
+  font-weight: 500;
+  box-shadow: 0 1px 2px #1919190a;
+}
+
+.secondaryAction:hover {
+  border-color: var(--pl-ink);
+}
+
+.textLink {
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--pl-border-strong);
+  transition: text-decoration-color 160ms ease;
+}
+
+.textLink:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Square tile that carries a section's icon. */
+.iconTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--pl-border);
+  background: var(--pl-surface);
+  color: var(--pl-ink);
+}
+
+.soft .iconTile {
+  background: var(--pl-panel);
+}
+
+.kbd {
+  display: inline-block;
+  margin-inline: 0.125rem;
+  border: 1px solid var(--pl-border-strong);
+  background: var(--pl-surface);
+  padding: 0.0625rem 0.375rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.82em;
+  line-height: 1.5;
+  color: var(--pl-ink);
+  white-space: nowrap;
+}
+
+/* A key inside a heading reads as a keycap, not as a second headline. */
+.display .kbd {
+  margin-inline: 0.06em;
+  padding: 0.04em 0.28em 0.02em;
+  border-bottom-width: 3px;
+  font-size: 0.6em;
+  font-weight: 500;
+  letter-spacing: 0;
+  vertical-align: 0.14em;
+}
+
+/* ── Trust bar ── */
+.trustItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  padding: 1.5rem;
+  color: var(--pl-ink-70);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.trustItems li {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.trustItems svg {
+  flex-shrink: 0;
+  color: var(--pl-ink);
+}
+
+@media (min-width: 768px) {
+  .trustItems {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding-block: 1.75rem;
+  }
+
+  .trustItems li {
+    justify-content: center;
+    padding-inline: 1rem;
+  }
+
+  .trustItems li + li {
+    border-inline-start: 1px solid var(--pl-border);
+  }
+}
+
+/* ── Split sections: copy on one side, a product panel on the other ── */
+.split {
+  display: grid;
+  align-items: center;
+  gap: 3rem;
+}
+
+.split > * {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .split {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: clamp(3rem, 6vw, 6rem);
+  }
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid var(--pl-border-strong);
+  background: var(--pl-panel);
+  box-shadow: 0 16px 40px -24px var(--pl-shadow);
+}
+
+.panelHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--pl-border);
+  background: var(--pl-surface);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.panelHeading > span:first-of-type {
+  flex: 1;
+}
+
+.panelFooter {
+  padding: 1.25rem;
+  border-top: 1px solid var(--pl-border);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Command palette mock */
+.paletteInput {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--pl-border);
+  font-size: 0.875rem;
+  color: var(--pl-ink-50);
+}
+
+.caret {
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  margin-left: 1px;
+  background: var(--pl-ink);
+  vertical-align: text-bottom;
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.commandList {
+  padding: 0.5rem;
+}
+
+.commandGroup {
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pl-ink-50);
+}
+
+.commandItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  text-align: start;
+  color: var(--pl-ink);
+  transition: background-color 160ms ease;
+}
+
+.commandItem > svg {
+  flex-shrink: 0;
+  color: var(--pl-ink-50);
+}
+
+.commandItem > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+}
+
+.commandItem:hover,
+.commandItem:focus-visible {
+  background: var(--pl-surface);
+}
+
+.commandHint {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--pl-ink-50);
+  white-space: nowrap;
+}
+
+/* JSON viewer mock */
+.tree {
+  padding: 1rem 1.25rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+.treeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
+}
+
+.treeRow > svg {
+  flex-shrink: 0;
+  color: var(--pl-ink-50);
+}
+
+.treeKey {
+  color: var(--pl-ink);
+}
+
+.treeMeta {
+  color: var(--pl-ink-50);
+}
+
+.treeString {
+  color: #0a7f45;
+}
+
+.treeNumber {
+  color: #b35c00;
+}
+
+.treeBool {
+  color: #2457c5;
+}
+
+:global(.dark) .treeString {
+  color: #7ee2a8;
+}
+
+:global(.dark) .treeNumber {
+  color: #ffb86b;
+}
+
+:global(.dark) .treeBool {
+  color: #79c0ff;
+}
+
+.parseError {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--pl-border);
+  font-size: 0.8125rem;
+  color: var(--pl-ink-70);
+}
+
+.parseError > svg {
+  flex-shrink: 0;
+  color: #c2410c;
+}
+
+:global(.dark) .parseError > svg {
+  color: #fb923c;
+}
+
+/* Shortcut list */
+.shortcutRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--pl-border);
+  font-size: 0.875rem;
+  color: var(--pl-ink-70);
+}
+
+.shortcutRow:last-child {
+  border-bottom: 0;
+}
+
+/* ── Feature grid: 1px gaps let the border colour draw the dividers ── */
+.featureGrid {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--pl-border);
+  background: var(--pl-border);
+}
+
+@media (min-width: 640px) {
+  .featureGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .featureGrid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.featureCard {
+  background: var(--pl-bg);
+  padding: 2rem;
+  transition: background-color 160ms ease;
+}
+
+.soft .featureCard {
+  background: var(--pl-panel);
+}
+
+.featureCard:hover {
+  background: var(--pl-surface);
+}
+
+.featureCard h3 {
+  letter-spacing: -0.025em;
+}
+
+.featureCard p {
+  max-width: 42ch;
+  line-height: 1.75;
+}
+
+/* ── Comparison ── */
+.comparison {
+  border: 1px solid var(--pl-border);
+  background: var(--pl-panel);
+  box-shadow: 0 2px 6px #19191904;
+}
+
+.comparison th,
+.comparison td {
+  padding: 1rem;
+  text-align: start;
+}
+
+.comparison thead {
+  background: var(--pl-surface);
+}
+
+.comparison th:nth-child(2),
+.comparison td:nth-child(2) {
+  background: var(--pl-surface-2);
+}
+
+/* ── How it works ── */
+.steps > div {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--pl-border-strong);
+}
+
+/* ── FAQ ── */
+.faq details {
+  padding-inline: 1.25rem;
+  transition: background-color 160ms ease;
+}
+
+.faq details[open],
+.faq details:hover {
+  background: var(--pl-surface);
+}
+
+.faq summary {
+  min-height: 68px;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .landing > main > section {
+    padding-inline: 1.25rem;
+    padding-block: 3.5rem;
+  }
+
+  .landing > main > .trust {
+    padding: 0;
+  }
+
+  .faq details {
+    padding-inline: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing a,
+  .landing button,
+  .faq details,
+  .featureCard,
+  .commandItem {
+    transition: none;
+  }
+
+  .caret {
+    animation: none;
+  }
+}

@@ -1311,6 +1311,14 @@ export function Notepad() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [saveFile, createNewTab, formatCode, activeTabId, closeTab, downloadFile, openFileFromDisk, toggleSidebar, togglePreview, activeTab?.language])
 
+  // The landing page below the editor has "try ⌘K" buttons; they scroll back
+  // up and ask for the palette through this event.
+  useEffect(() => {
+    const openPalette = () => setPaletteOpen(true)
+    window.addEventListener("edtr-plus:open-palette", openPalette)
+    return () => window.removeEventListener("edtr-plus:open-palette", openPalette)
+  }, [])
+
   useEffect(() => {
     const handleClick = () => {
       closeContextMenu()
